@@ -1,0 +1,9 @@
+{
+  "website_commit": "308868c88d5ca3edc2d6d0a3d7d79bcae33c46a1",
+  "branch": "experience/graphical-sims",
+  "local_changes": false,
+  "built": "2026-11-26 17:18 PST",
+  "source_note": "website branch experience/graphical-sims; base: Work product sprint be2967a + simulations caption fix 0d29ed0; graphical simulations and improvements",
+  "pages": 142,
+  "notes": "Unlisted development site. noindex on every page, robots.txt disallows all, no sitemap, no analytics."
+}

@@ -1,0 +1,238 @@
+/* Shared Candidate C presentation. The deployment templates retain the Candidate A stylesheet hook.
+   Shell and typography follow the owner-approved consolidated palette. Diagram and model status colors
+   stay separate from the brand palette. */
+
+[data-ess-brand][data-ess-skin="candidate-a"] {
+  --ess-ground: #f4f1eb; --ess-sheet: #fffdf8; --ess-soft: #efeae0; --ess-rule: #d5cfc3; --ess-edge: #b8af9c;
+  --ess-type: #252824; --ess-subtle: #555b52;
+  --ess-night: #242823; --ess-night-soft: #363b33; --ess-on-night: #f4eee4;
+  --ess-light-signal: #f0c36d; --ess-signal: #604a31; --ess-signal-hover: #423325;
+  --ess-measured: #2c6a3c; --ess-near: #8a5718; --ess-exceeded: #b3261e; --ess-focus-ring: #604a31;
+  --ess-text-face: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+  --ess-display-face: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+  --ess-data-face: ui-monospace, "SFMono-Regular", Consolas, monospace;
+  --ess-max: 1100px; --ess-radius: 10px;
+  --ig-slip: #efeae0; --ig-green: #2c6a3c; --ig-yellow: #b26b00; --ig-red: #b3261e;
+  --ig-display: var(--ess-display-face); --ig-body: var(--ess-text-face);
+  --a-accent: #604a31; --a-accent-dark: #423325; --a-line: #d5cfc3; --a-line-strong: #b8af9c; --a-soft: #efeae0;
+  --before: #986020; --after: #2f557f;
+  background: var(--ess-ground); color: var(--ess-type);
+}
+body[data-ess-skin="candidate-a"] { font: 1rem/1.55 var(--ess-text-face); }
+
+/* Editorial display with a plain sans-serif for controls and body copy. */
+[data-ess-skin="candidate-a"] :is(h1, h2, h3, .ig-hero h1, .ig-section > h2, .ig-path strong, .ig-feature h3) {
+  font-family: var(--ess-display-face) !important; text-transform: none !important; letter-spacing: -.02em;
+}
+[data-ess-skin="candidate-a"] :is(h1, .page-title h1, .page.article h1, .page > h1) {
+  font-weight: 520 !important; font-size: clamp(2.1rem, 4.6vw, 3.6rem) !important; line-height: 1.06 !important; letter-spacing: -.025em !important; color: #252824;
+}
+[data-ess-skin="candidate-a"] h2 { font-weight: 520; color: var(--a-accent); line-height: 1.1; }
+[data-ess-skin="candidate-a"] .ig-section > h2 { font-size: clamp(1.5rem, 3vw, 2.15rem) !important; }
+[data-ess-skin="candidate-a"] h3 { font-weight: 600; }
+[data-ess-skin="candidate-a"] :is(.kicker, .ig-eyebrow, .eyebrow, .page-title .eyebrow) { color: #555b52 !important; letter-spacing: .16em; font-weight: 500; }
+
+/* Global header and local Test navigation. */
+[data-ess-skin="candidate-a"] :is(.site-header, .masthead) {
+  background: rgba(255, 255, 255, .98) !important; border-bottom: 1px solid rgba(191, 208, 224, .7) !important; color: #252824;
+  position: sticky; top: 0; z-index: 40; box-shadow: none;
+}
+[data-ess-skin="candidate-a"] .a-logo { display: block; height: 72px; width: auto; max-width: calc(100vw - 150px); object-fit: contain; object-position: left center; }
+[data-ess-skin="candidate-a"] :is(.ess-wordmark, .masthead .wordmark)::before { content: none !important; display: none; }
+[data-ess-skin="candidate-a"] .masthead .wordmark { display: block; }
+[data-ess-skin="candidate-a"] .beta-pill { color: #555b52 !important; border: 1px solid var(--a-line-strong) !important; background: #fff; font-family: var(--ess-text-face); }
+[data-ess-skin="candidate-a"] :is(.topnav a, .masthead nav a, .masthead .library-link) {
+  color: var(--a-accent) !important; font-weight: 450 !important; background: transparent !important; box-shadow: none !important; border-radius: 0;
+}
+[data-ess-skin="candidate-a"] :is(.topnav a.on, .masthead nav a[aria-current="page"]) {
+  color: #252824 !important; box-shadow: inset 0 -2px var(--a-accent) !important;
+}
+[data-ess-skin="candidate-a"] .masthead nav a:hover, [data-ess-skin="candidate-a"] .topnav a:hover { background: var(--a-soft) !important; }
+[data-ess-skin="candidate-a"] .menu-lines span { background: var(--a-accent) !important; }
+[data-ess-skin="candidate-a"] .sidebar { background: #fff !important; color: #252824; }
+[data-ess-skin="candidate-a"] .sidebar nav a { color: var(--a-accent) !important; border-color: rgba(47, 85, 127, .12) !important; }
+[data-ess-skin="candidate-a"] .sidebar nav a small { color: #555b52 !important; }
+[data-ess-skin="candidate-a"] .site-header .topnav { gap: 4px 16px; flex-wrap: wrap; justify-content: flex-end; }
+@media (max-width: 860px) { [data-ess-skin="candidate-a"] .a-logo { height: 60px; } }
+@media (max-width: 400px) { [data-ess-skin="candidate-a"] .a-logo { height: 52px; } }
+
+/* The compact homepage puts visitor intentions before the example on phones. */
+[data-ess-skin="candidate-a"] .ig-hero { background: var(--ess-night) !important; color: var(--ess-on-night); border-bottom: 1px solid var(--a-line); }
+[data-ess-skin="candidate-a"] .ig-hero h1 em { color: #e1b783; }
+[data-ess-skin="candidate-a"] .ig-hero::before, [data-ess-skin="candidate-a"] .ig-hero::after { display: none !important; }
+
+/* High contrast filled actions and outlined secondary controls. */
+[data-ess-skin="candidate-a"] :is(.button.primary, .btn.go, .btn.primary, .catalog-dialog .catalog-primary, .ig-btn.go, .ig-btn.primary) {
+  background: var(--a-accent) !important; border-color: var(--a-accent) !important; color: #fff !important; border-radius: 999px;
+}
+[data-ess-skin="candidate-a"] :is(.button.secondary, .button.plain, .btn.secondary, .ig-btn:not(.go):not(.primary)) {
+  border-radius: 999px; border-color: var(--a-line-strong) !important; color: var(--a-accent);
+}
+[data-ess-skin="candidate-a"] :is(.button, .catalog-categories button, .ig-tire-list button)[aria-pressed="true"] {
+  background: var(--a-accent) !important; border-color: var(--a-accent) !important; color: #fff !important; box-shadow: none !important;
+}
+[data-ess-skin="candidate-a"] :is(input, select) { accent-color: var(--a-accent); }
+
+/* Warm neutral surfaces and rules. */
+[data-ess-skin="candidate-a"] :is(.panel, .card, .ig-path, .ig-feature, .route-card, .catalog-dialog, .ess-system-surface, .ess-system-recommendation) {
+  border-color: var(--a-line) !important; border-radius: 12px;
+}
+[data-ess-skin="candidate-a"] :is(.ig-path, .route-card) { border-top-color: var(--a-accent) !important; }
+
+/* Shared footer. */
+[data-ess-skin="candidate-a"] :is(.footer, .foot) { background: #fff !important; color: #555b52 !important; border-top: 1.5px solid var(--a-line); }
+[data-ess-skin="candidate-a"] :is(.footer, .foot) a { color: var(--a-accent) !important; }
+[data-ess-skin="candidate-a"] :is(.footer, .foot) .ig-sign { color: #252824 !important; font-family: var(--ess-text-face) !important; }
+
+/* Timeslips and figures: keep the data face for numbers only. */
+[data-ess-skin="candidate-a"] .ig-slip { background: var(--a-soft) !important; border: 1px solid var(--a-line); }
+
+/* Shared adapter tokens and light cards. */
+[data-ess-brand][data-ess-skin="candidate-a"] {
+  --ess-light-signal: #765129; --ig-amber: #765129; --ig-amber-ink: #604a31;
+  --ess-raised: #efeae0; --ess-accent: #604a31; --ess-line: #d5cfc3; --ess-panel: #fffdf8; --ess-bg: #f4f1eb;
+  --raised: #efeae0; --line: #d5cfc3; --accent: #604a31; --text: #252824; --muted: #555b52;
+}
+[data-ess-skin="candidate-a"] :is(.ig-live, .ig-hero .ig-live) {
+  background: var(--a-soft) !important; color: #252824 !important; border: 1px solid var(--a-line) !important; box-shadow: none !important;
+  --ig-amber: #b26b00; --ig-amber-ink: #8a5300;
+}
+[data-ess-skin="candidate-a"] .ig-live > :is(p, h2, h3, strong, .ig-live-cap) { color: #252824 !important; }
+[data-ess-skin="candidate-a"] :is(.ig-hero, .ig-next) .gc-bar { background: #e9e3d8 !important; }
+[data-ess-skin="candidate-a"] :is(.ig-hero, .ig-next) .gc-limit { border-color: #252824 !important; }
+[data-ess-skin="candidate-a"] :is(.ig-hero, .ig-next) .gc-limit em { color: #252824 !important; background: var(--a-soft) !important; }
+[data-ess-skin="candidate-a"] .ig-live .ig-live-cap { color: #555b52 !important; }
+[data-ess-skin="candidate-a"] .ig-live a:is(.ig-btn, .button, .btn) { background: var(--a-accent) !important; color: #fff !important; }
+[data-ess-skin="candidate-a"] .hero-actions .hero-button { background: var(--a-accent) !important; color: #fff !important; border: 0 !important; border-radius: 999px !important; padding: .75rem 1.3rem; }
+[data-ess-skin="candidate-a"] .vr-hero { background: var(--a-soft) !important; color: #252824 !important; border: 1px solid var(--a-line); }
+[data-ess-skin="candidate-a"] .vr-hero::after { display: none !important; }
+[data-ess-skin="candidate-a"] .vr-hero :is(h1, p, label, a, .vr-eyebrow, [data-reference-count]) { color: #252824 !important; }
+[data-ess-skin="candidate-a"] .vr-hero .vr-eyebrow { color: #555b52 !important; }
+[data-ess-skin="candidate-a"] .vr-hero a { color: var(--a-accent) !important; }
+[data-ess-skin="candidate-a"] .vr-hero .vr-button.primary { background: var(--a-accent) !important; color: #fff !important; }
+[data-ess-skin="candidate-a"] .result-caption { background: var(--a-soft) !important; }
+[data-ess-skin="candidate-a"] .result-caption > span { color: #555b52 !important; }
+[data-ess-skin="candidate-a"] .preset { background: #fff !important; }
+
+/* Vehicle Lab masthead on a phone: the view tabs scroll inside their own strip, never the page. */
+@media (max-width: 700px) {
+  [data-ess-skin="candidate-a"] .masthead-inner { min-width: 0; }
+  [data-ess-skin="candidate-a"] .masthead nav { min-width: 0; max-width: 100%; overflow-x: auto; justify-content: flex-start !important; flex-wrap: nowrap; scrollbar-width: none; }
+  [data-ess-skin="candidate-a"] .masthead nav a { flex: none; }
+}
+[data-ess-skin="candidate-a"] :is(.ig-hero, .ig-next) :is(.gc-val, .gc-g) { color: #252824 !important; background: transparent !important; }
+[data-ess-skin="candidate-a"] :is(.ig-hero, .ig-next) .gc-s { color: var(--level-ink) !important; }
+[data-ess-skin="candidate-a"] .gc-col.on { background: #ebe6d9 !important; box-shadow: inset 0 0 0 2px var(--a-accent) !important; }
+[data-ess-skin="candidate-a"] :is(.ig-hero, .ig-next) .gc-val::before { background: #fff !important; border: 1px solid var(--a-line); }
+[data-ess-skin="candidate-a"] .ig-journey { background: var(--a-soft) !important; color: #252824 !important; border: 1px solid var(--a-line); }
+[data-ess-skin="candidate-a"] .ig-journey :is(h2, h3, p, strong, .ig-eyebrow) { color: #252824 !important; }
+[data-ess-skin="candidate-a"] .ig-journey .gc-bar { background: #e9e3d8 !important; }
+[data-ess-skin="candidate-a"] .ig-journey :is(.gc-val, .gc-g) { color: #252824 !important; }
+[data-ess-skin="candidate-a"] .ig-journey .gc-val::before { background: #fff !important; }
+[data-ess-skin="candidate-a"] .ig-journey .gc-s { color: var(--level-ink) !important; }
+[data-ess-skin="candidate-a"] .ig-journey .gc-limit { border-color: #252824 !important; }
+[data-ess-skin="candidate-a"] .ig-journey a:not(.ig-btn):not(.button) { color: var(--a-accent) !important; }
+
+/* B2 (26 Nov evaluation): the example-car head inside the light journey band was dark navy while the band's
+   text rules force dark ink (1.46:1). Keep it light like the band; and give small primary buttons a real fill. */
+[data-ess-skin="candidate-a"] .ig-journey .ig-journey-car { background: #fff !important; color: #252824 !important; border: 1px solid var(--a-line-strong); }
+[data-ess-skin="candidate-a"] .ig-journey .ig-journey-car :is(span, small, b, strong, em) { color: #252824 !important; }
+[data-ess-skin="candidate-a"] .btn-small.primary { background: var(--a-accent) !important; color: #fff !important; border-color: var(--a-accent) !important; }
+[data-ess-skin="candidate-a"] .btn-small.primary:hover { background: var(--a-accent-dark) !important; }
+/* Amber used as TEXT needs a darker ink for 4.5:1 on white/soft backgrounds; fills and lines keep --before. */
+[data-ess-skin="candidate-a"] :is(.c-stock, .ig-live-head span) { color: #8a5300 !important; }
+/* Selected tire rows use light percentages on the filled state. */
+[data-ess-skin="candidate-a"] .ig-tire-list :is(button[aria-pressed="true"], button.on, .on > button) .ig-pct { color: #fff !important; }
+/* New finding N1 (26 Nov regression): the mobile drawer's close button (×) and beta note were light-on-light. */
+[data-ess-skin="candidate-a"] .sidebar .close-btn { color: #252824 !important; border-color: var(--a-line-strong) !important; background: #fff !important; }
+[data-ess-skin="candidate-a"] .sidebar .hint { color: #555b52 !important; }
+[data-ess-skin="candidate-a"] .sidebar .hint a { color: var(--a-accent) !important; }
+
+[data-ess-skin="candidate-a"] .site-header {
+  background: var(--ess-night) !important;
+  color: var(--ess-on-night);
+  border-color: #4d5449 !important;
+}
+[data-ess-skin="candidate-a"] .site-header .topnav a { color: var(--ess-on-night) !important; }
+[data-ess-skin="candidate-a"] .site-header .topnav a:hover { background: var(--ess-night-soft) !important; }
+[data-ess-skin="candidate-a"] .site-header .topnav a.on { box-shadow: inset 0 -2px #e1b783 !important; }
+[data-ess-skin="candidate-a"] .site-header .menu-lines span { background: var(--ess-on-night) !important; }
+[data-ess-skin="candidate-a"] .site-header :focus-visible { outline-color: #e1b783; }
+[data-ess-skin="candidate-a"] .site-header .a-logo { height: clamp(38px, 5vw, 54px); border-radius: 3px; }
+[data-ess-skin="candidate-a"] .site-header .beta-pill {
+  color: #e1b783 !important;
+  background: transparent;
+  border-color: #8b7b61 !important;
+}
+[data-ess-skin="candidate-a"] .masthead.lab-tabs {
+  position: static;
+  background: var(--ess-soft) !important;
+}
+[data-ess-skin="candidate-a"] .lab-tabs-inner { flex-wrap: wrap; }
+[data-ess-skin="candidate-a"] .lab-tabs-inner a { color: var(--ess-type); }
+
+[data-ess-skin="candidate-a"] .ig-hero { padding-block: clamp(1.2rem, 4vw, 3.9rem) !important; }
+[data-ess-skin="candidate-a"] .ig-hero h1 {
+  color: var(--ess-on-night) !important;
+  font-size: clamp(2.6rem, 5vw, 5rem) !important;
+  margin: .35rem 0 .65rem;
+}
+[data-ess-skin="candidate-a"] .ig-hero .ig-eyebrow { color: #e1b783 !important; }
+[data-ess-skin="candidate-a"] .ig-hero .ig-lede { color: #ece4d6 !important; font-size: 1rem; margin-block: 0 .65rem; }
+[data-ess-skin="candidate-a"] .ig-hero .hero-actions {
+  margin-block: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: .4rem .85rem;
+}
+[data-ess-skin="candidate-a"] .ig-hero .hero-actions .hero-button {
+  background: #e1b783 !important;
+  color: #242823 !important;
+  border-radius: 6px !important;
+  padding: .55rem .8rem !important;
+  min-height: 44px;
+}
+[data-ess-skin="candidate-a"] .ig-hero :is(.hero-actions, .home-direct, .ig-home-continue, noscript) a {
+  color: var(--ess-on-night) !important;
+}
+[data-ess-skin="candidate-a"] .ig-hero :focus-visible { outline-color: #e1b783; }
+.home-intentions { margin-top: 1rem; }
+[data-ess-skin="candidate-a"] .home-intentions h2 {
+  color: var(--ess-on-night);
+  font-size: 1.18rem;
+  margin: 0 0 .48rem;
+}
+[data-ess-skin="candidate-a"] .home-intentions .intent-choices {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: .4rem;
+}
+[data-ess-skin="candidate-a"] .home-intentions .intent-choice {
+  display: grid;
+  align-content: center;
+  gap: .2rem;
+  min-height: 55px;
+  padding: .48rem .65rem;
+  background: var(--ess-night-soft) !important;
+  border: 1px solid #6b6658 !important;
+  border-radius: 6px;
+  text-decoration: none;
+}
+[data-ess-skin="candidate-a"] .home-intentions .intent-choice:hover { background: #44493e !important; border-color: #e1b783 !important; }
+[data-ess-skin="candidate-a"] .home-intentions .intent-choice strong {
+  color: var(--ess-on-night) !important;
+  font-family: var(--ess-text-face) !important;
+  font-size: .96rem;
+  line-height: 1.2;
+}
+[data-ess-skin="candidate-a"] .home-intentions .intent-choice span { color: #e4dac9; font-size: .82rem; }
+.home-direct { display: flex; flex-wrap: wrap; gap: .1rem 1rem; margin-block: .35rem 0; }
+.home-direct a { display: inline-flex; align-items: center; min-height: 44px; }
+[data-ess-skin="candidate-a"] .ig-hero .ig-live .gc-why b { color: #765129; }
+@media (max-width: 700px) {
+  [data-ess-skin="candidate-a"] .ig-hero-inner { gap: .9rem; }
+  [data-ess-skin="candidate-a"] .ig-hero h1 { font-size: clamp(2.25rem, 10vw, 3.6rem) !important; }
+  .home-intentions .intent-choice span { display: none; }
+  [data-ess-skin="candidate-a"] .lab-tabs-inner { gap: 0 .35rem; }
+  [data-ess-skin="candidate-a"] .lab-tabs-inner a { padding-inline: .4rem; }
+}

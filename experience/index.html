@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#242823">
+  <meta name="description" content="Build a virtual project car, compare the changes and share an experiment with Endicott Speed Shop.">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="The Vehicle Lab · Endicott Speed Shop">
+  <meta property="og:description" content="Open a shared experiment or try a build of your own.">
+  <meta property="og:image" content="https://endicottspeedshop.com/logo-round.png">
+  <title>Vehicle Lab · Endicott Speed Shop</title>
+  <link rel="stylesheet" href="../assets/site.css">
+  <link rel="stylesheet" href="lab.css">
+  <link rel="stylesheet" href="catalog.css">
+  <link rel="stylesheet" href="performance.css">
+  <link rel="stylesheet" href="../assets/ess-identity.css">
+  <link rel="stylesheet" href="../assets/ess-presentation/ess-system.css">
+  <link rel="stylesheet" href="../assets/ess-presentation/ess-claude-adapter.css">
+  <link rel="stylesheet" href="../assets/candidate-a/ess-a-theme.css">
+  <link rel="icon" type="image/png" href="../logo-round.png">
+  <script type="module" src="app.mjs"></script>
+<meta name="robots" content="noindex,nofollow">
+</head>
+<body class="ig" data-ess-brand="speed" data-ess-skin="candidate-a"><div class="ess-staging-banner" role="note" style="position:relative;z-index:9999;background:#8a1c1c;color:#fff;font:600 13px/1.35 -apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Arial,sans-serif;padding:6px 12px;text-align:center">Development preview · version 308868c · built 2026-11-26 17:18 PST · Not the live site, results still being checked · <a href="https://endicottspeedshop.com/" style="color:#fff;text-decoration:underline">endicottspeedshop.com</a></div>
+  <a class="skip" href="#content">Skip to content</a>
+  <header class="site-header"><div class="header-inner">
+<div class="brand-wrap"><a href=".././" class="brand" aria-label="Endicott Speed Shop home"><img class="a-logo" src="../logo-horizontal-tight.png" alt="Endicott Speed Shop — Measure, Test, Improve" width="611" height="192"></a><a class="beta-pill" href="../about/#beta" title="This site is in beta: tools and articles are still being checked and expanded">Beta</a></div>
+<nav class="topnav" aria-label="Main navigation"><a href="../vehicles/">Vehicles</a><a href="../experience/" class=on aria-current=page>Test</a><a href="../plan/">Plan</a><a href="../learn/">Learn</a><a href="../experience/#garage" class=nav-garage>My Garage</a></nav>
+<button class="menu-toggle" id="menuToggle" aria-label="Open menu" aria-expanded="false"><div class="menu-lines"><span></span><span></span><span></span></div></button>
+</div></header>
+<aside class="sidebar" id="sidebar"><button class="close-btn" id="closeBtn" aria-label="Close menu">×</button>
+<nav><a href=".././">Home<small>Start here</small></a><a href="../vehicles/">Vehicles<small>Find a car: factory specifications and independent tests</small></a><a href="../experience/">Test<small>Try a change: acceleration, gearing, grip and suspension</small></a><a href="../plan/">Plan<small>Decide what to do first, step by step</small></a><a href="../learn/">Learn<small>Articles, calculators and how ESS measures</small></a><a href="../experience/#garage">My Garage<small>Your saved cars, kept in this browser</small></a><a href="../about/">About<small>Why this exists</small></a><a href="../contact/">Contact<small>Corrections, questions and measured data</small></a></nav>
+<p class="hint" style="margin-top:20px">This site is in beta: tools and articles are still being checked and expanded. <a href="../contact/">Spot a problem? Tell us.</a></p>
+</aside>
+<nav class="masthead lab-tabs" aria-label="Test"><div class="shell lab-tabs-inner">
+  <a href="#home" data-view="home">Start</a>
+  <a href="#build" data-view="build">Build</a>
+  <a href="#compare" data-view="compare">Compare</a>
+  <a href="#performance" data-view="performance">Gearing &amp; traction</a>
+  <a href="../replay/">Watch it happen</a>
+  <a href="../simulate/">Accelerate, brake, corner</a>
+  <a href="#tools" data-view="tools">Tools</a>
+  <a href="../suspension-v2/">Suspension</a>
+  <a href="#garage" data-view="garage">My Garage</a>
+</div></nav>
+  <main id="content" tabindex="-1">
+    <div id="link-notice" class="shell" aria-live="polite"></div>
+    <div id="app"></div>
+    <p id="status" class="status shell" role="status"></p>
+    <noscript><p class="shell">Enable JavaScript to run an experiment. <a href="../tools/">Browse ESS calculators</a>.</p></noscript>
+  </main>
+  <footer class="shell foot">
+    <span><a href="../vehicles/">Vehicle specifications</a> · <a href="../contact/?from=/experience/">Give feedback</a><br><span class="ig-sign">Measure. Test. Improve.</span><br>Endicott Speed Shop / Vehicle Lab · Beta</span>
+    <a href="../learn/">Learn</a><a href="../">ESS home</a><a href="../tools/">All calculators</a><a href="../articles/">Articles</a><a href="../plan/">Build planning</a><a href="../privacy/">Privacy</a>
+    <label class="ess-units"><span>Units</span><select data-units-pref aria-label="Measurement units"><option value="us">US customary</option><option value="metric">Metric</option><option value="dual">Both</option></select></label>
+  </footer>
+<script src="../assets/site.js"></script>
+</body>
+</html>

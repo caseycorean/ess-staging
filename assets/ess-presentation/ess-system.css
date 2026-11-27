@@ -1,0 +1,137 @@
+@font-face {
+  font-family: "ESS Track";
+  src: url("open-sans-condensed-bold.ttf") format("truetype");
+  font-weight: 700;
+  font-display: swap;
+}
+
+[data-ess-brand="speed"] {
+  --ess-ground: #f2f1e9;
+  --ess-sheet: #fffefa;
+  --ess-soft: #e6e9e0;
+  --ess-rule: #cbd2c8;
+  --ess-edge: #7d8b81;
+  --ess-type: #182a22;
+  --ess-subtle: #505e55;
+  --ess-night: #162720;
+  --ess-night-soft: #203a30;
+  --ess-on-night: #fbf8ec;
+  --ess-light-signal: #ff987e;
+  --ess-signal: #ad3927;
+  --ess-signal-hover: #882b1d;
+  --ess-measured: #275d52;
+  --ess-near: #795719;
+  --ess-exceeded: #a6352b;
+  --ess-focus-ring: #176688;
+  --ess-gutter: clamp(.875rem, 3vw, 3rem);
+  --ess-max: 92rem;
+  --ess-prose: 68ch;
+  --ess-radius: .375rem;
+  --ess-small: .86rem;
+  --ess-text-face: system-ui, -apple-system, "Segoe UI", sans-serif;
+  --ess-display-face: "ESS Track", "Arial Narrow", var(--ess-text-face);
+  --ess-data-face: ui-monospace, "SFMono-Regular", Consolas, monospace;
+  background: var(--ess-ground);
+  color: var(--ess-type);
+  font: 1rem/1.56 var(--ess-text-face);
+  accent-color: var(--ess-measured);
+}
+
+[data-ess-brand="speed"] :focus-visible {
+  outline: 3px solid var(--ess-focus-ring);
+  outline-offset: 3px;
+}
+
+.ess-system-shell {
+  width: min(calc(100% - 2 * var(--ess-gutter)), var(--ess-max));
+  margin-inline: auto;
+}
+
+.ess-system-kicker {
+  color: var(--ess-measured);
+  font: 750 .76rem/1.35 var(--ess-text-face);
+  letter-spacing: .11em;
+  text-transform: uppercase;
+}
+
+.ess-system-mark { width: 2.75rem; height: 2.75rem; display: block; }
+
+.ess-system-study {
+  display: grid;
+  align-items: start;
+  gap: clamp(.9rem, 1.6vw, 1.5rem);
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.ess-system-study > * { min-width: 0; }
+
+.ess-system-surface, .ess-system-recommendation, .ess-system-metric {
+  box-sizing: border-box;
+  min-width: 0;
+  background: var(--ess-sheet);
+  border: 1px solid var(--ess-rule);
+  border-radius: var(--ess-radius);
+  padding: clamp(.85rem, 1.5vw, 1.4rem);
+}
+
+.ess-system-recommendation {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: .35rem .9rem;
+  border-inline-start: 3px solid var(--ess-measured);
+}
+
+.ess-system-recommendation > :is(p, a, button) { grid-column: 1 / -1; }
+.ess-system-recommendation > * { margin: 0; }
+.ess-system-recommendation h3 { font: 750 1.125rem/1.25 var(--ess-text-face); }
+.ess-system-recommendation p, .ess-system-metric dd { color: var(--ess-subtle); }
+.ess-system-delta { font: 700 .9rem/1.4 var(--ess-data-face); white-space: nowrap; color: var(--ess-measured); }
+
+.ess-system-button {
+  min-height: 44px; min-width: 44px;
+  display: inline-flex; justify-content: center; align-items: center;
+  border: 1px solid var(--ess-signal); border-radius: var(--ess-radius);
+  padding: .55rem .9rem; box-sizing: border-box;
+  color: white; background: var(--ess-signal);
+  font: 700 .95rem/1.35 var(--ess-text-face);
+  text-align: center; text-decoration: none;
+  cursor: pointer;
+}
+
+.ess-system-button:hover { background: var(--ess-signal-hover); color: #fff; }
+
+.ess-system-metric { margin: 0; }
+.ess-system-metric dd { margin: 0; }
+.ess-system-metric-value { display: block; font: 700 1.55rem/1.28 var(--ess-data-face); color: var(--ess-type); }
+
+[data-ess-evidence] {
+  display: inline-flex; align-items: center; gap: .4rem;
+  border: 1px solid currentColor; border-radius: 99rem;
+  padding: .12rem .56rem;
+  font-size: .77rem; font-weight: 650;
+  color: var(--ess-subtle);
+}
+[data-ess-evidence="measured"] { color: var(--ess-measured); }
+[data-ess-evidence="missing"] { color: var(--ess-exceeded); }
+
+.ess-system-next {
+  background: var(--ess-soft);
+  border-inline-start: 3px solid var(--ess-measured);
+  padding: clamp(.9rem, 1.8vw, 1.45rem);
+  border-radius: var(--ess-radius);
+}
+.ess-system-next > :first-child { margin-top: 0; }
+.ess-system-next > :last-child { margin-bottom: 0; }
+
+@media (min-width: 61rem) {
+  .ess-system-study { grid-template-columns: minmax(0, 1.2fr) minmax(18rem, 1fr); }
+  .ess-system-study > [data-ess-part="next"] { grid-column: 2; }
+}
+@media (min-width: 100rem) {
+  .ess-system-study { grid-template-columns: minmax(0, 1.24fr) minmax(0, 1.05fr) minmax(16rem, .8fr); }
+  .ess-system-study > [data-ess-part="next"] { grid-column: 3; }
+}
+@media (forced-colors: active) {
+  .ess-system-recommendation, .ess-system-next { border-inline-start-color: CanvasText; }
+  .ess-system-button { border-color: ButtonText; }
+}

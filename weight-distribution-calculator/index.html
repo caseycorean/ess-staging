@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Car Weight Distribution Calculator | Endicott Speed Shop</title>
+  <link rel="canonical" href="https://endicottspeedshop.com/weight-distribution-calculator/">
+  <meta
+    name="description"
+    content="Free car weight distribution calculator for estimating how moving batteries, engine position, and component weight affects front-to-rear balance."
+  />
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Endicott Speed Shop">
+  <meta property="og:title" content="Car Weight Distribution Calculator | Endicott Speed Shop">
+  <meta property="og:description" content="Free car weight distribution calculator for estimating how moving batteries, engine position, and component weight affects front-to-rear balance.">
+  <meta property="og:url" content="https://endicottspeedshop.com/weight-distribution-calculator/">
+  <meta property="og:image" content="https://endicottspeedshop.com/logo-round.png">
+  <meta property="og:image:width" content="1536">
+  <meta property="og:image:height" content="1024">
+  <meta property="og:image:alt" content="Endicott Speed Shop logo: a second-generation Firebird in a round badge">
+  <meta name="twitter:card" content="summary_large_image">
+  <!-- Google tag (gtag.js) -->
+
+
+
+  <style>
+    :root {
+      --bg: #f3f5f8;
+      --card: #ffffff;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --accent: #355e8c;
+      --accent-soft: #e9eff6;
+      --result-bg: #eef5ee;
+      --result-border: #cfd9cf;
+      --border: #d8dde4;
+      --warn-bg: #fff4e5;
+      --warn-border: #f0c36d;
+      --warn-text: #7a4b00;
+      --shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.45;
+    }
+    .wrap {
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 14px 14px 34px;
+    }
+    .site-header, .section {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      box-shadow: var(--shadow);
+    }
+    .site-header {
+      padding: 8px 12px;
+      margin-bottom: 14px;
+    }
+    .site-header img {
+      display: block;
+      width: 100%;
+      max-width: 760px;
+      height: auto;
+    }
+    .section {
+      padding: 16px;
+      margin-bottom: 16px;
+    }
+    h2 {
+      margin: 0;
+      font-size: clamp(1.05rem, 2.2vw, 1.45rem);
+      color: var(--accent);
+      line-height: 1.15;
+    }
+    .section-head {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+    .calculator-title {
+      color: #2b2f38;
+      font-weight: 700;
+    }
+    .grid-3, .results {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+    }
+    .grid-3 > *, .mod-row > * {
+      min-width: 0;
+    }
+    label {
+      display: block;
+      font-size: 0.92rem;
+      margin-bottom: 4px;
+      font-weight: 600;
+      color: #374151;
+    }
+    input {
+      display: block;
+      width: 100%;
+      max-width: 100%;
+      min-width: 0;
+      padding: 8px 10px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      font-size: 1rem;
+      background: #fff;
+      color: var(--text);
+    }
+    input:focus {
+      outline: 2px solid rgba(53, 92, 140, 0.18);
+      border-color: var(--accent);
+    }
+    .info-wrap {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      flex-shrink: 0;
+    }
+    .info-btn {
+      appearance: none;
+      border: 1px solid var(--border);
+      background: #fff;
+      color: var(--muted);
+      border-radius: 999px;
+      width: 18px;
+      height: 18px;
+      font-size: 12px;
+      line-height: 1;
+      padding: 0;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .info-btn:hover, .info-btn:focus {
+      color: var(--accent);
+      border-color: var(--accent);
+      outline: none;
+    }
+    .tooltip {
+      position: absolute;
+      top: calc(100% + 6px);
+      left: 0;
+      width: 240px;
+      padding: 8px 10px;
+      border-radius: 8px;
+      background: #f8fafc;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      font-size: 0.85rem;
+      line-height: 1.35;
+      box-shadow: var(--shadow);
+      display: none;
+      z-index: 20;
+    }
+    .info-wrap:hover .tooltip,
+    .info-wrap:focus-within .tooltip {
+      display: block;
+    }
+    .mod-row-wrap {
+      border-top: 1px solid #eef2f7;
+      padding-top: 12px;
+      margin-top: 12px;
+    }
+    .mod-row-wrap:first-child {
+      border-top: none;
+      padding-top: 0;
+      margin-top: 0;
+    }
+    .mod-row {
+      display: grid;
+      grid-template-columns: 1.5fr 1fr 1fr 1fr 1fr auto;
+      gap: 10px;
+      align-items: center;
+    }
+    .remove-btn, .add-btn {
+      appearance: none;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 0.95rem;
+      white-space: nowrap;
+    }
+    .remove-btn {
+      border: 1px solid var(--border);
+      background: #fff;
+      color: var(--muted);
+      padding: 8px 10px;
+    }
+    .remove-btn:hover {
+      color: #b42318;
+      border-color: #f0b5ae;
+    }
+    .add-btn {
+      border: 1px solid var(--accent);
+      background: #fff;
+      color: var(--accent);
+      padding: 10px 14px;
+      font-weight: 600;
+      margin-top: 8px;
+    }
+    .add-btn:hover {
+      background: #f8fbff;
+    }
+    .result-card {
+      background: var(--result-bg);
+      border: 1px solid var(--result-border);
+      border-radius: 12px;
+      padding: 14px;
+    }
+    .result-label {
+      font-size: 0.88rem;
+      color: #425642;
+      margin-bottom: 5px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+    .result-value {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: #1f2937;
+    }
+    .takeaway {
+      margin-top: 14px;
+      padding: 12px;
+      border-radius: 12px;
+      background: var(--accent-soft);
+      border: 1px solid var(--border);
+      font-weight: 600;
+      font-size: 1rem;
+      color: #24364f;
+    }
+    .warning {
+      margin-top: 14px;
+      padding: 12px;
+      border-radius: 12px;
+      background: var(--warn-bg);
+      border: 1px solid var(--warn-border);
+      color: var(--warn-text);
+      font-weight: 600;
+      display: none;
+    }
+    .section p {
+      margin: 0 0 14px;
+      font-size: 1rem;
+    }
+    .section p:last-child {
+      margin-bottom: 0;
+    }
+    @media (max-width: 760px) {
+      .grid-3, .results {
+        grid-template-columns: 1fr;
+      }
+      .mod-row {
+        grid-template-columns: 1fr;
+        gap: 8px;
+      }
+      .site-header, .section {
+        border-radius: 16px;
+      }
+      .site-header {
+        padding: 8px 10px;
+      }
+      .site-header img {
+        max-width: 100%;
+      }
+      .section {
+        padding: 14px;
+      }
+      .result-value {
+        font-size: 1.1rem;
+      }
+      .tooltip {
+        width: min(240px, calc(100vw - 60px));
+      }
+    }
+  </style>
+<link rel="stylesheet" href="../assets/ess-search.css">
+<link rel="stylesheet" href="../assets/ess-editorial.css">
+<link rel="stylesheet" href="../assets/ess-identity.css">
+  <link rel="stylesheet" href="../assets/ess-presentation/ess-system.css">
+  <link rel="stylesheet" href="../assets/ess-presentation/ess-claude-adapter.css">
+  <link rel="icon" type="image/svg+xml" href="../assets/ess-presentation/ess-mark.svg">
+<meta name="theme-color" content="#242823">
+<script type="module" src="../experience/journey.mjs"></script>
+<script type="module" src="../experience/search-bridge.mjs"></script>
+  <link rel="stylesheet" href="../assets/candidate-a/ess-a-theme.css">
+<meta name="robots" content="noindex,nofollow">
+</head>
+<body class="ess-theme weight-tool" data-ess-brand="speed" data-ess-skin="candidate-a"><div class="ess-staging-banner" role="note" style="position:relative;z-index:9999;background:#8a1c1c;color:#fff;font:600 13px/1.35 -apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Arial,sans-serif;padding:6px 12px;text-align:center">Development preview · version 308868c · built 2026-11-26 17:18 PST · Not the live site, results still being checked · <a href="https://endicottspeedshop.com/" style="color:#fff;text-decoration:underline">endicottspeedshop.com</a></div>
+<div class="beta-bar" style="background:#fff4e5;border-bottom:1px solid #f0c36d;color:#4a3a14;font-size:14px;line-height:1.45;padding:8px 16px;text-align:center;font-family:system-ui,sans-serif" role="note"><strong>Beta.</strong> Endicott Speed Shop is a work in progress: tools and articles are still being checked and expanded, so some things may change or not work perfectly yet. Spot a problem? Use Contact on any other page — and check back soon.</div>
+  <div class="wrap">
+    <header class="weight-tool-header">
+      <a href="../" class="brand" aria-label="Endicott Speed Shop home"><span class="ess-wordmark"><strong>ENDICOTT</strong><span>SPEED SHOP</span></span></a>
+      <nav aria-label="Main navigation"><a href="../vehicles/">Vehicles</a><a href="../experience/">Test</a><a href="../plan/">Plan</a><a href="../learn/" aria-current="page">Learn</a><a href="../experience/#garage">My Garage</a></nav>
+    </header>
+
+    <div class="section">
+      <div class="section-head">
+        <h1 class="calculator-title">Car Weight Distribution Calculator</h1>
+      </div>
+      <div class="ess-config" data-ess-vehicle="weight-distribution-calculator" data-lab-root="../experience/"></div>
+      <div class="grid-3">
+        <div>
+          <label for="totalWeight">Total Weight (lbs)</label>
+          <input type="text" inputmode="decimal" id="totalWeight" value="3600" />
+        </div>
+        <div>
+          <label for="frontPct">Front Weight (%)</label>
+          <input type="text" inputmode="decimal" id="frontPct" value="57" />
+        </div>
+        <div>
+          <label for="wheelbase">Wheelbase (in)</label>
+          <input type="text" inputmode="decimal" id="wheelbase" value="108" />
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-head">
+        <h2>Modifications</h2>
+        <span class="info-wrap">
+          <button type="button" class="info-btn" aria-label="Modification help">i</button>
+          <span class="tooltip">Enter values in pounds and inches. Locations are measured from the rear axle. Negative values are behind the rear axle.</span>
+        </span>
+      </div>
+
+      <div id="modificationsContainer"></div>
+
+      <button type="button" class="add-btn" id="addComponentBtn">+ Add Component</button>
+    </div>
+
+    <div class="section">
+      <h2>Results</h2>
+      <div class="results">
+        <div class="result-card">
+          <div class="result-label">New Front Weight</div>
+          <div class="result-value" id="newFrontPct">--</div>
+        </div>
+        <div class="result-card">
+          <div class="result-label">Front Weight Change</div>
+          <div class="result-value" id="frontChange">--</div>
+        </div>
+        <div class="result-card">
+          <div class="result-label">New Total Weight</div>
+          <div class="result-value" id="newTotalWeight">--</div>
+        </div>
+      </div>
+      <div class="takeaway" id="takeaway">Enter valid baseline values to calculate results.</div>
+      <div class="warning" id="warningMessage"></div>
+    </div>
+
+    <div class="section">
+      <h2>What This Calculator Does</h2>
+      <p>
+        This car weight distribution calculator helps estimate how moving components like batteries,
+        fuel cells, engines, and lightweight body panels affects front-to-rear balance.
+      </p>
+      <p>
+        It is designed as a practical ballpark tool for builders who want to understand whether a
+        change is likely to make a small, meaningful, or major difference before getting the car on scales.
+      </p>
+    </div>
+    <section class="ig-journey" data-ess-journey="weight-distribution-calculator" data-lab-root="../experience/" aria-label="Try it on a car"><noscript><p><a href="../experience/">Open the Vehicle Lab</a></p></noscript></section>
+  </div>
+
+  <script>
+    let componentIndex = 0;
+
+    function normalizeNumericInputValue(value) {
+      let cleaned = (value || "").replace(/[^0-9.\-]/g, "");
+
+      if (cleaned.includes("-")) {
+        cleaned = (cleaned[0] === "-" ? "-" : "") + cleaned.replace(/-/g, "");
+      }
+
+      const firstDot = cleaned.indexOf(".");
+      if (firstDot !== -1) {
+        cleaned =
+          cleaned.slice(0, firstDot + 1) +
+          cleaned.slice(firstDot + 1).replace(/\./g, "");
+      }
+
+      return cleaned;
+    }
+
+    function attachNumericSanitizer(input) {
+      input.addEventListener("input", function() {
+        const start = input.selectionStart;
+        const before = input.value;
+        const after = normalizeNumericInputValue(before);
+
+        if (before !== after) {
+          input.value = after;
+          if (start !== null) {
+            const delta = before.length - after.length;
+            const pos = Math.max(0, start - delta);
+            input.setSelectionRange(pos, pos);
+          }
+        }
+      });
+    }
+
+    function getNum(id) {
+      const el = document.getElementById(id);
+      if (!el) return null;
+
+      const raw = normalizeNumericInputValue(el.value.trim());
+      if (raw === "" || raw === "-" || raw === "." || raw === "-.") return null;
+
+      const v = parseFloat(raw);
+      return Number.isFinite(v) ? v : null;
+    }
+
+    function rowDelta(origWeight, newWeight, fromLoc, toLoc) {
+      return (newWeight * toLoc) - (origWeight * fromLoc);
+    }
+
+    function setInvalid(message) {
+      document.getElementById("newFrontPct").textContent = "--";
+      document.getElementById("frontChange").textContent = "--";
+      document.getElementById("newTotalWeight").textContent = "--";
+      document.getElementById("takeaway").textContent = "Enter valid baseline values to calculate results.";
+
+      const warning = document.getElementById("warningMessage");
+      warning.textContent = message;
+      warning.style.display = "block";
+    }
+
+    function setValid() {
+      const warning = document.getElementById("warningMessage");
+      warning.textContent = "";
+      warning.style.display = "none";
+    }
+
+    function createComponentField(inputId, className, value, placeholder) {
+      const input = document.createElement("input");
+      input.id = inputId;
+      input.className = className;
+      input.type = "text";
+
+      if (className === "origWeight" || className === "newWeight") {
+        input.setAttribute("inputmode", "decimal");
+      }
+      if (className === "fromLoc" || className === "toLoc") {
+        input.setAttribute("inputmode", "text");
+      }
+
+      input.value = value || "";
+      input.placeholder = placeholder;
+      // R8: each row field needs an accessible name (placeholders are not labels).
+      input.setAttribute("aria-label", {componentName: "Component name", origWeight: "Original weight (lb)", newWeight: "New weight (lb)",
+        fromLoc: "From location (in, measured from the rear axle)", toLoc: "To location (in, measured from the rear axle)"}[className] || placeholder);
+
+      ["input", "change", "keyup", "blur"].forEach(function(evt) {
+        input.addEventListener(evt, calculate);
+      });
+
+      if (className !== "componentName") {
+        attachNumericSanitizer(input);
+      }
+
+      return input;
+    }
+
+    function addComponentRow(defaults) {
+      const cfg = defaults || {};
+      componentIndex += 1;
+
+      const rowWrap = document.createElement("div");
+      rowWrap.className = "mod-row-wrap";
+
+      const row = document.createElement("div");
+      row.className = "mod-row";
+
+      row.appendChild(createComponentField("comp_" + componentIndex, "componentName", cfg.component, "Component"));
+      row.appendChild(createComponentField("origWeight_" + componentIndex, "origWeight", cfg.origWeight, "Orig wt"));
+      row.appendChild(createComponentField("newWeight_" + componentIndex, "newWeight", cfg.newWeight, "New wt"));
+      row.appendChild(createComponentField("from_" + componentIndex, "fromLoc", cfg.fromLoc, "From loc"));
+      row.appendChild(createComponentField("to_" + componentIndex, "toLoc", cfg.toLoc, "To loc"));
+
+      const removeBtn = document.createElement("button");
+      removeBtn.type = "button";
+      removeBtn.className = "remove-btn";
+      removeBtn.textContent = "Remove";
+      removeBtn.addEventListener("click", function() {
+        rowWrap.remove();
+        calculate();
+      });
+
+      row.appendChild(removeBtn);
+      rowWrap.appendChild(row);
+      document.getElementById("modificationsContainer").appendChild(rowWrap);
+    }
+
+    function calculate() {
+      const totalWeight = getNum("totalWeight");
+      const frontPctInput = getNum("frontPct");
+      const wheelbase = getNum("wheelbase");
+
+      if (totalWeight === null || frontPctInput === null || wheelbase === null) {
+        setInvalid("Enter total weight, front weight %, and wheelbase to calculate results.");
+        return;
+      }
+
+      if (totalWeight <= 0) {
+        setInvalid("Baseline total weight must be greater than 0.");
+        return;
+      }
+
+      if (wheelbase <= 0) {
+        setInvalid("Wheelbase must be greater than 0.");
+        return;
+      }
+
+      if (frontPctInput <= 0 || frontPctInput >= 100) {
+        setInvalid("Front weight % should be between 0 and 100.");
+        return;
+      }
+
+      const frontPct = frontPctInput / 100;
+      const baselineMoment = totalWeight * frontPct * wheelbase;
+
+      let totalMomentDelta = 0;
+      let totalWeightDelta = 0;
+
+      const rows = document.querySelectorAll(".mod-row-wrap");
+
+      for (const row of rows) {
+        const origWeight = getNum(row.querySelector(".origWeight").id);
+        const newWeight = getNum(row.querySelector(".newWeight").id);
+        const fromLoc = getNum(row.querySelector(".fromLoc").id);
+        const toLoc = getNum(row.querySelector(".toLoc").id);
+
+        const allBlank =
+          origWeight === null &&
+          newWeight === null &&
+          fromLoc === null &&
+          toLoc === null;
+
+        if (allBlank) continue;
+
+        if (
+          origWeight === null ||
+          newWeight === null ||
+          fromLoc === null ||
+          toLoc === null
+        ) {
+          setInvalid("Each component row must be fully filled out, or left completely blank.");
+          return;
+        }
+
+        totalMomentDelta += rowDelta(origWeight, newWeight, fromLoc, toLoc);
+        totalWeightDelta += (newWeight - origWeight);
+      }
+
+      const newTotalWeight = totalWeight + totalWeightDelta;
+
+      if (newTotalWeight <= 0) {
+        setInvalid("Baseline weight is too low for the modification values entered.");
+        return;
+      }
+
+      const newFrontPctDecimal =
+        (baselineMoment + totalMomentDelta) / (newTotalWeight * wheelbase);
+
+      if (!Number.isFinite(newFrontPctDecimal)) {
+        setInvalid("Unable to calculate. Check baseline values and modification inputs.");
+        return;
+      }
+
+      const newFrontPct = newFrontPctDecimal * 100;
+      const deltaPct = newFrontPct - frontPctInput;
+
+      let takeaway = "Very small balance change.";
+      const absDelta = Math.abs(deltaPct);
+
+      if (absDelta >= 0.25 && absDelta < 0.75) {
+        takeaway = "Small but real balance change.";
+      } else if (absDelta >= 0.75 && absDelta < 1.5) {
+        takeaway = "Meaningful shift in balance.";
+      } else if (absDelta >= 1.5) {
+        takeaway = deltaPct < 0
+          ? "Major shift toward rear balance."
+          : "Major shift toward front bias.";
+      }
+
+      document.getElementById("newFrontPct").textContent = newFrontPct.toFixed(1) + "%";
+      document.getElementById("frontChange").textContent =
+        (deltaPct >= 0 ? "+" : "") + deltaPct.toFixed(1) + "%";
+      document.getElementById("newTotalWeight").textContent =
+        newTotalWeight.toFixed(0) + " lb";
+      document.getElementById("takeaway").textContent = takeaway;
+
+      setValid();
+    }
+
+    window.addEventListener("DOMContentLoaded", function() {
+      document.querySelectorAll("#totalWeight, #frontPct, #wheelbase").forEach(function(el) {
+        attachNumericSanitizer(el);
+        ["input", "change", "keyup", "blur"].forEach(function(evt) {
+          el.addEventListener(evt, calculate);
+        });
+      });
+
+      addComponentRow({
+        component: "Battery",
+        origWeight: 40,
+        newWeight: 40,
+        fromLoc: 140,
+        toLoc: -25
+      });
+
+      document.getElementById("addComponentBtn").addEventListener("click", function() {
+        addComponentRow();
+      });
+
+      calculate();
+    });
+  </script>
+  <script src="../assets/tool-events.js" data-tool="weight_distribution" data-result="newFrontPct" defer></script>
+  <p style="text-align:center;font-size:13px;opacity:.75;margin:24px 0"><a href="../privacy/" style="color:inherit">Privacy</a></p>
+</body>
+</html>
