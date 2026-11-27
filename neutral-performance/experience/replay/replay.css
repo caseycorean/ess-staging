@@ -104,3 +104,41 @@
   .rp-stage canvas{height:clamp(220px,58vw,300px)}
 }
 .rp-evidence{margin:-.2em 0 .5em;font-size:.84rem;color:var(--rp-muted)}
+
+/* Lead with the selected experiment. Change controls stay together under the stage. */
+.rp-head{display:flex;justify-content:space-between;align-items:end;gap:.55rem;margin:0 0 .55rem}
+.rp-head button{white-space:nowrap;min-height:44px}
+.rp-head .kicker{display:block;font-size:.74rem;letter-spacing:.02em;text-transform:none}
+.rp-feature{display:grid;gap:.7rem;align-items:start}
+.rp-stage{margin:0}
+.rp-stage canvas{height:clamp(165px,45vw,295px)}
+.rp-stage-labels{display:flex;flex-wrap:wrap;gap:.15rem .8rem;padding:.5rem .7rem .1rem;color:var(--replay-text);font-size:.82rem;line-height:1.25}
+.rp-stage-labels span{display:flex;align-items:baseline;gap:.35rem}
+.rp-stage-labels i{width:.53rem;height:.53rem;border-radius:50%;flex:none}
+.rp-transport{gap:.4rem}
+.rp-play{min-width:4.4rem;min-height:44px}
+.rp-transport input[type=range]{flex-basis:85px}
+.rp-clock{min-width:4.4em}
+.rp-result{margin:0;background:var(--rp-soft);border:1px solid var(--rp-line);border-radius:var(--np-radius,10px);padding:.7rem}
+.rp-what{font-size:.74rem;text-transform:uppercase;letter-spacing:.06em;font-weight:700}
+.rp-headline{margin:.22rem 0}
+.rp-timing{margin:0 0 .55rem;color:var(--rp-muted);font-size:.86rem}
+.rp-lanes-out{grid-template-columns:1fr;gap:.35rem}
+.rp-lanes-out li{border-left:4px solid var(--rp-lane,var(--rp-accent));padding:.47rem .57rem}
+.rp-lanes-out .rp-fig{display:block;font-variant-numeric:tabular-nums}
+.rp-settings{margin:.75rem 0;padding:.1rem .65rem;border-block:1px solid var(--rp-line)}
+.rp-settings summary{cursor:pointer;font-weight:700;padding:.45rem 0;min-height:44px}
+.rp-settings .rp-exps{margin-bottom:.35rem}
+.rp-adopt{display:flex;gap:.35rem;flex-wrap:wrap}
+.rp-adopt button{min-height:44px}
+.rp-lanes-out :is(b,small){overflow-wrap:anywhere}
+.rp-settings .rp-custom input{color:var(--rp-text)}
+@media(min-width:800px){
+  .rp-feature{grid-template-columns:minmax(0,1.55fr) minmax(0,1fr)}
+}
+@media(max-width:600px){
+  .rp-head h1{font-size:clamp(1.25rem,5vw,1.65rem)}
+  .rp-stage canvas{height:clamp(155px,43vw,200px)}
+  .rp-rate{flex-basis:100%}
+  .rp-rate button{min-height:36px}
+}

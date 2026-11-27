@@ -7,7 +7,7 @@ import { loadStore, saveStore, upsert, remove, newProject, newObjective, cleanPr
 import { baseline, crossEffects, resolveChange, replayHref, METRICS, METRIC_KEYS } from './effects.mjs';
 import { EXPERIMENTS } from '../replay/runs.mjs';
 import { componentExamplesFor } from '../../engine/component-reference.mjs';
-import { getActive, getGarage, useConfig, shareResult } from '../configuration.mjs';
+import { getActive, getGarage, useConfig, shareResult, readFragment } from '../configuration.mjs';
 import { newSetup, resolve } from '../models.mjs';
 import { vehicles } from '../vehicles.mjs';
 import { setupName } from '../matchup.mjs';
@@ -16,13 +16,18 @@ import { escape, fmt } from '../ui.mjs';
 import { format as units, unitsControl, bindUnitControls, toDisplay, fromDisplay, unitLabel } from '../units.mjs';
 import { LOOP_METRIC, METHODS, MODEL_TIMING, NOT_COMPARED, signature, predictionFrom, predictionCurrent, compareLoop, accomplishments, suggestion, progress } from './outcomes.mjs';
 
+import { term } from '../engineering-terms.mjs';
+
 const root = document.querySelector('[data-ess-plan]');
 const query = new URLSearchParams(location.search);
 const requested = query.get('project');
 const garageEntry = getGarage().find(g => g.key === query.get('garage'));
+const incomingId = query.get('car');
+const carried = incomingId ? readFragment(location.hash).state : null;
+const carriedSetup = carried?.a?.id === incomingId ? { setup: carried.a, mode: carried.aMode } : {};
 const incoming = garageEntry ? cleanVehicle({
   id: garageEntry.setup.id, setup: garageEntry.setup, mode: garageEntry.mode, garageKey: garageEntry.key,
-}) : cleanVehicle({ id: query.get('car') });
+}) : cleanVehicle({ id: incomingId, ...carriedSetup });
 const S = { store: loadStore(), open: null, step: null, shared: decodePlan(location.hash),
   status: '', fresh: !!incoming, transient: false,
   // Exploration: an objective's model result before anything is saved. Nothing here writes storage or the active car.
@@ -432,9 +437,13 @@ function boardCard(p, o, selected) {
     <span>${escape(line)}</span>${extra ? `<small>${escape(extra)}</small>` : ''}</button></li>`;
 }
 
-function objectiveButtons(present = [], current = null) {
-  return OBJECTIVE_KEYS.filter(key => !present.includes(key)).map(key =>
-    `<button type="button" class="plan-chip" data-plan-add="${key}"${key === current ? ' aria-pressed="true"' : ''}>${escape(OBJECTIVES[key].name)}</button>`).join('');
+const startObjectives = {
+  power: 'Quicker acceleration', braking: 'Shorter stopping distances', handling: 'Better cornering',
+  weight: 'Less weight', traction: 'Put power down',
+};
+function objectiveButtons(present = [], current = null, keys = OBJECTIVE_KEYS, labels = {}) {
+  return keys.filter(key => !present.includes(key)).map(key =>
+    `<button type="button" class="plan-chip" data-plan-add="${key}"${key === current ? ' aria-pressed="true"' : ''}>${escape(labels[key] ?? OBJECTIVES[key].name)}</button>`).join('');
 }
 
 function projectPicker() {
@@ -502,7 +511,11 @@ function render() {
       <h2>What do you want to improve?</h2>
       <p>${vehicle ? `Pick one and see what the ESS models predict for <strong>${escape(vname(vehicle))}</strong>.` :
         'Pick one and see what the ESS models predict, right away. Nothing is saved until you choose.'}</p>
-      <div class="plan-add">${objectiveButtons([], S.explore)}</div>
+      <div class="plan-add">${objectiveButtons([], S.explore, Object.keys(startObjectives), startObjectives)}</div>
+      <details class="plan-notes"><summary>More objectives</summary>
+        <div class="plan-add">${objectiveButtons([], S.explore, OBJECTIVE_KEYS.filter(key => !startObjectives[key]))}</div>
+        <div>Polar moment ${term('polar moment')}</div>
+      </details>
       ${guessToggle()}${status}
     </section>${S.explore ? explorePanel(S.explore) : ''}`;
     bindUnitControls(root);

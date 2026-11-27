@@ -60,21 +60,22 @@ const optionsFor = (ids, key) => [...new Set(ids.map(id => vehicles[id][key]).fi
 const option = (value, text = value) => `<option value="${escape(value)}">${escape(text)}</option>`;
 const strength = {
   manufacturer: 'Manufacturer', independent_test: 'Independent test', published: 'Published',
-  measured: 'Measured', estimated: 'Estimate', calculated: 'Calculated', missing: 'Missing',
+  measured: 'Measured', estimated: 'Estimate', estimate: 'Estimate', calculated: 'Calculated',
+  archive: 'Archive specification', assumed: 'Assumption', entered: 'User entered', missing: 'Missing',
 };
 function fact(car, key, unit) {
   const [n, source] = car.data[key] ?? [];
   return `<span>${Number.isFinite(n) ? fmt(n) + ' ' + unit : unit + ' missing'}
-    <small>${strength[source] ?? 'Missing'}</small></span>`;
+    <small>${Number.isFinite(n) ? strength[source] ?? 'Source unspecified' : 'Missing'}</small></span>`;
 }
 
-function cards(ids, otherYear = null, templates = true) {
+function cards(ids, otherYear = null, templates = true, readinessLabel) {
   return ids.map(id => {
     const car = vehicles[id];
     const setup = resolve(newSetup(id));
     const ready = !massIssue(setup) && !powerIssue(setup);
     return `<article class="catalog-result"><div>
-      <h3>${escape(car.name)}</h3><p>${escape(car.generation)} · ${escape(layoutNames[car.layout])} · ${ready ? 'Quarter-mile inputs available' : Number.isFinite(setup.weight) && Number.isFinite(setup.front) ? 'Weight data available' : 'Partial reference'}</p>
+      <h3>${escape(car.name)}</h3><p>${escape(car.generation)} · ${escape(layoutNames[car.layout])} · ${escape(readinessLabel?.(id) ?? (ready ? 'Quarter-mile inputs available' : Number.isFinite(setup.weight) && Number.isFinite(setup.front) ? 'Weight data available' : 'Partial reference'))}</p>
       ${otherYear ? `<p class="reference-difference"><strong>Different reference:</strong> ${identities[id].year} model year · ${escape(car.generation)}. Check generation, trim and drivetrain against your ${otherYear} car before using these specs.</p>` : ''}
       <div class="catalog-facts">${fact(car,'weight','lb')}${fact(car,'hp','hp')}</div>
       ${car.history?.length ? `<details><summary>Related Supercar X archive</summary>
@@ -86,10 +87,11 @@ function cards(ids, otherYear = null, templates = true) {
   }).join('');
 }
 
-export function installCatalog(root = document, { allowedIds, label = 'Choose your car', templates = true } = {}) {
+export function installCatalog(root = document, { allowedIds, label = 'Choose your car', templates = true, readinessLabel } = {}) {
   const choices = allowedIds ? [...allowedIds].filter(id => id !== 'custom' && Object.hasOwn(vehicles, id)) : browseIds;
   let origin;
   let dialog;
+  let refreshResults;
   let visible = 12;
   const makeDialog = () => {
     const el = document.createElement('dialog');
@@ -136,8 +138,8 @@ export function installCatalog(root = document, { allowedIds, label = 'Choose yo
       const summary = year ? `${exact.length} exact year ${exact.length === 1 ? 'reference' : 'references'}` : `${exact.length} references`;
       el.querySelector('[data-catalog-count]').textContent = summary;
       const nearbyHtml = nearby.length ? `<details class="catalog-nearby" ${!exact.length ? 'open' : ''}>
-        <summary>Nearby model years (${nearby.length})</summary>${cards(nearby.slice(0, visible), year, templates)}</details>` : '';
-      el.querySelector('[data-catalog-results]').innerHTML = (exact.length ? cards(exact.slice(0, visible), null, templates) :
+        <summary>Nearby model years (${nearby.length})</summary>${cards(nearby.slice(0, visible), year, templates, readinessLabel)}</details>` : '';
+      el.querySelector('[data-catalog-results]').innerHTML = (exact.length ? cards(exact.slice(0, visible), null, templates, readinessLabel) :
         nearbyHtml ? `<p>No ${year} reference in these results. Review differences before using another year.</p>` : noMatch) + nearbyHtml;
       el.querySelector('[data-catalog-more]').hidden = visible >= Math.max(exact.length, nearby.length);
     };
@@ -167,7 +169,7 @@ export function installCatalog(root = document, { allowedIds, label = 'Choose yo
       }
     });
     root.body.append(el);
-    refresh();
+    refreshResults = refresh;
     return el;
   };
   root.addEventListener('click', event => {
@@ -175,6 +177,7 @@ export function installCatalog(root = document, { allowedIds, label = 'Choose yo
     if (!button) return;
     origin = button;
     if (!dialog) dialog = makeDialog();
+    refreshResults();
     dialog.showModal();
   });
 }

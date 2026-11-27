@@ -27,7 +27,7 @@
 <script type="module" src="../../experience/spec-guided.mjs"></script>
 <meta name="robots" content="noindex,nofollow">
 </head>
-<body data-ess-tone="neutral"><div class="ess-staging-banner" role="note" style="position:relative;z-index:9999;background:#8a1c1c;color:#fff;font:600 13px/1.35 -apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Arial,sans-serif;padding:6px 12px;text-align:center">Development preview · version b5bb624 · built 2026-11-27 07:45 PST · Not the live site, results still being checked · <a href="https://endicottspeedshop.com/" style="color:#fff;text-decoration:underline">endicottspeedshop.com</a></div>
+<body data-ess-tone="neutral"><div class="ess-staging-banner" role="note" style="position:relative;z-index:9999;background:#8a1c1c;color:#fff;font:600 13px/1.35 -apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Arial,sans-serif;padding:6px 12px;text-align:center">Development preview · version d4eb824 · built 2026-11-27 09:53 PST · Not the live site, results still being checked · <a href="https://endicottspeedshop.com/" style="color:#fff;text-decoration:underline">endicottspeedshop.com</a></div>
 <a class="ess-skip" href="#main">Skip to content</a>
 <!-- ess-shell:start -->
 <header class="site-header ess-global" data-ess-current="Vehicles">
@@ -35,11 +35,11 @@
     <a class="brand" href="../../" aria-label="Endicott Speed Shop home">
       <img class="a-logo" src="../../logo-horizontal-tight.png" width="611" height="192" alt="Endicott Speed Shop">
     </a>
-    <nav class="ess-primary-nav" aria-label="Main navigation"><a class="" data-ess-section="Vehicles" href="../../vehicles/" aria-current="true">Vehicles</a><a class="" data-ess-section="Test" href="../../improve/">Test</a><a class="" data-ess-section="Plan" href="../../plan/">Plan</a><a class="" data-ess-section="Learn" href="../../learn/">Learn</a></nav>
+    <nav class="ess-primary-nav" aria-label="Main navigation"><a class="" data-ess-section="Vehicles" href="../../vehicles/" aria-current="true">Vehicles</a><a class="" data-ess-section="Compare" href="../../vehicles/compare/">Compare</a><a class="" data-ess-section="Test" href="../../improve/">Test</a><a class="" data-ess-section="Plan" href="../../plan/">Plan</a><a class="" data-ess-section="Learn" href="../../learn/">Learn</a></nav>
     <a class="ess-garage-link" data-ess-section="My Garage" href="../../experience/?view=garage#garage">My Garage</a>
     <button class="ess-directory-open" type="button" data-directory-open aria-haspopup="dialog"
-            aria-expanded="false" aria-controls="ess-site-directory" hidden>
-      <span class="ess-menu-icon" aria-hidden="true"></span> Menu
+            aria-label="Menu" aria-expanded="false" aria-controls="ess-site-directory" hidden>
+      <span class="ess-menu-icon" aria-hidden="true"></span>
     </button>
   </div>
 </header>
@@ -52,20 +52,37 @@
       </div>
       <nav class="ess-directory-body" aria-label="Site directory">
         <a class="ess-directory-home" href="../../">Home</a>
-        <ul class="ess-directory-groups"><li class="ess-directory-group"><a class="ess-directory-section" data-ess-section="Vehicles" href="../../vehicles/" aria-current="true">Vehicles</a></li><li class="ess-directory-group">
-          <a class="ess-directory-section" data-ess-section="Test" href="../../improve/">Test</a>
-          <button type="button" class="ess-directory-expand" aria-label="Test links"
-                  aria-expanded="false" aria-controls="directory-test" data-directory-expand>
-            <span class="ess-chevron" aria-hidden="true"></span>
+        <ul class="ess-directory-groups"><li class="ess-directory-group">
+          <button type="button" class="ess-directory-expand" data-ess-section="Vehicles"
+                  aria-expanded="false" aria-controls="directory-vehicles" data-directory-expand>
+            <span>Vehicles</span><span class="ess-chevron" aria-hidden="true"></span>
           </button>
-          <ul class="ess-directory-subnav" id="directory-test" hidden><li><a href="../../improve/#replays">Vehicle simulators</a></li><li><a href="../../improve/#handling">Suspension and handling</a></li><li><a href="../../improve/#drivetrain">Powertrain and gearing</a></li><li><a href="../../improve/#balance">Weight and balance</a></li><li><a href="../../tools/">Engineering calculators</a></li></ul>
-        </li><li class="ess-directory-group"><a class="ess-directory-section" data-ess-section="Plan" href="../../plan/">Plan</a></li><li class="ess-directory-group"><a class="ess-directory-section" data-ess-section="Learn" href="../../learn/">Learn</a></li><li class="ess-directory-group"><a class="ess-directory-section" data-ess-section="My Garage" href="../../experience/?view=garage#garage">My Garage</a></li></ul>
+          <ul class="ess-directory-subnav" id="directory-vehicles" hidden><li><a href="../../vehicles/">Explore vehicle specifications</a></li></ul>
+        </li><li class="ess-directory-group">
+          <button type="button" class="ess-directory-expand" data-ess-section="Compare"
+                  aria-expanded="false" aria-controls="directory-compare" data-directory-expand>
+            <span>Compare</span><span class="ess-chevron" aria-hidden="true"></span>
+          </button>
+          <ul class="ess-directory-subnav" id="directory-compare" hidden><li><a href="../../vehicles/compare/">Compare factory specifications</a></li><li><a href="../../experience/#compare">Compare modeled performance</a></li></ul>
+        </li><li class="ess-directory-group">
+          <button type="button" class="ess-directory-expand" data-ess-section="Test"
+                  aria-expanded="false" aria-controls="directory-test" data-directory-expand>
+            <span>Test</span><span class="ess-chevron" aria-hidden="true"></span>
+          </button>
+          <ul class="ess-directory-subnav" id="directory-test" hidden><li><a href="../../improve/">Explore all tests</a></li><li><a href="../../improve/#replays">Vehicle simulators</a></li><li><a href="../../improve/#handling">Suspension and handling</a></li><li><a href="../../improve/#drivetrain">Powertrain and gearing</a></li><li><a href="../../improve/#balance">Weight and balance</a></li><li><a href="../../tools/">Engineering calculators</a></li></ul>
+        </li><li class="ess-directory-group"><a class="ess-directory-section" data-ess-section="Plan" href="../../plan/">Plan</a></li><li class="ess-directory-group">
+          <button type="button" class="ess-directory-expand" data-ess-section="Learn"
+                  aria-expanded="false" aria-controls="directory-learn" data-directory-expand>
+            <span>Learn</span><span class="ess-chevron" aria-hidden="true"></span>
+          </button>
+          <ul class="ess-directory-subnav" id="directory-learn" hidden><li><a href="../../learn/">Explore all engineering topics</a></li><li><a href="../../articles/">Engineering articles</a></li><li><a href="../../tools/">Calculators</a></li></ul>
+        </li><li class="ess-directory-group"><a class="ess-directory-section" data-ess-section="My Garage" href="../../experience/?view=garage#garage">My Garage</a></li></ul>
         <ul class="ess-directory-secondary" aria-label="More from ESS"><li><a href="../../about/">About</a></li><li><a href="../../contact/">Contact</a></li><li><a href="../../about/#follow">Follow the work</a></li></ul>
       </nav>
     </dialog>
 <!-- ess-shell:end -->
 <main class="page sg-page" id="main">
-<nav class="sg-crumbs" aria-label="Breadcrumb"><a href="../../">Home</a> / <a href="../">Vehicle specifications</a></nav>
+<nav class="sg-crumbs" aria-label="Breadcrumb"><a href="../../">Home</a> / <a href="../">Vehicle specifications</a> / <span aria-current="page">2004 Ford Mustang SVT Cobra</span></nav>
 <section class="sg-hero" aria-labelledby="sg-title"><div class="sg-hero-copy">
 <div class="kicker">Vehicle specification · Coupe / performance car</div>
 <h1 id="sg-title">2004 Ford Mustang SVT Cobra</h1>
@@ -74,6 +91,7 @@
 <div class="action-row"><a class="btn primary" href="#explore">Explore this car</a><a class="btn secondary" href="#specifications">Specifications</a></div>
 </div>
 <dl class="sg-figs" aria-label="Key figures"><div class="sg-fig"><dt>Power</dt><dd><b>390</b> <span>hp</span><small>at 6,000 rpm</small></dd></div><div class="sg-fig"><dt>Torque</dt><dd><b>390</b> <span>lb-ft</span><small>at 3,500 rpm</small></dd></div><div class="sg-fig"><dt>Weight</dt><dd><b><span data-q="weight" data-v="3665" data-bare>3,665</span></b> <span>lb</span><small>curb</small></dd></div><div class="sg-fig"><dt>Weight per hp</dt><dd><b>9.4</b> <span>lb/hp</span><small>from the two figures above</small></dd></div><div class="sg-fig"><dt>Transmission</dt><dd><b>6-speed</b> <span>manual</span><small>overdrive 0.63</small></dd></div><div class="sg-fig"><dt>Axle ratio</dt><dd><b>3.55</b> <span>:1</span><small></small></dd></div></dl></section>
+
 
 <section class="section sg-explore" id="explore" aria-labelledby="explore-h">
 <div class="section-label">Explore this car</div><h2 id="explore-h">From the numbers to what they mean</h2>

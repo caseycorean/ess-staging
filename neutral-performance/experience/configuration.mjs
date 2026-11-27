@@ -58,6 +58,26 @@ export function useConfig(setup, mode) {
   } catch { return false; }
 }
 
+/** Adopt a deliberate selection while protecting a different modified or custom working setup. */
+export function adoptWorking(setup, mode, confirmReplace) {
+  const next = validateSelection(setup, mode);
+  if (!next) return false;
+  const current = getActive();
+  if (current && JSON.stringify(current) !== JSON.stringify(next) &&
+      ((current.mode === 'after' && modified(current.setup)) || current.setup.id === 'custom' ||
+        Object.keys(current.setup.base).length) && !confirmReplace?.())
+    return false;
+  return useConfig(next.setup, next.mode);
+}
+
+/** Replay resolves snapshots in modified mode. Strip inactive changes from a stock selection. */
+export function workingSnapshot(selection) {
+  if (!selection) return undefined;
+  if (selection.mode === 'after') return selection.setup;
+  const {id, base, name, estimates} = selection.setup;
+  return {id, base, name, estimates, tune: {}, parts: []};
+}
+
 export function getGarage() {
   try {
     const data = JSON.parse(localStorage.getItem(garageKey));

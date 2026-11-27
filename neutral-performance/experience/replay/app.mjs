@@ -1,14 +1,17 @@
 // ESS Test → Watch it happen: six graphical simulations on one replay framework. Claude, 26 Nov 2026.
 // Pick an experiment and two cars (or one car and a change); the shared engine runs each lane, the stage replays the
 // calculated traces, and the visitor can share a link that reopens the same comparison or save a picture of it.
-// Reads the visitor's active Garage car; never writes to the Garage.
-import { EXPERIMENTS, EXPERIMENT_KEYS, REPLAY_NOTE, NO_CHANGE, MATCHUPS, readyIds, nextExperiments, publishedCompare, USUAL_ERROR_PCT, estimatedInputs, LETTERS, quickChanges, runLane, road, summarize, replayDuration, laneLabel, laneTags, laneVehicle, vehicleName, changeLabel, isChanged } from './runs.mjs';
+// Reads the working setup, with updates limited to explicit adoption.
+import { EXPERIMENTS, EXPERIMENT_KEYS, REPLAY_NOTE, NO_CHANGE, MATCHUPS, readiness, nextExperiments, publishedCompare, USUAL_ERROR_PCT, estimatedInputs, quickChanges, runLane, road, summarize, replayDuration, laneLabel, laneTags, laneVehicle, vehicleName, changeLabel, isChanged } from './runs.mjs';
 import { encodeState, decodeState, cleanParams, cleanLane, LIMITS } from './share-state.mjs';
 import { createStage, laneColor } from './stage.mjs';
 import { drawShareCard } from './share-card.mjs';
 import { installCatalog } from '../catalog.mjs';
-import { getActive, modified } from '../configuration.mjs';
-import { vehicles, browseIds } from '../vehicles.mjs';
+import { adoptWorking, getActive, modified, shareFragment, workingSnapshot } from '../configuration.mjs';
+import { newSetup } from '../models.mjs';
+import { missingText } from '../readiness.mjs';
+import { term } from '../engineering-terms.mjs';
+import { vehicles } from '../vehicles.mjs';
 import { saveActivity } from '../garage-workspace.mjs';
 
 const root = document.querySelector('[data-replay]');
@@ -51,10 +54,10 @@ function initialState() {
   const shared = decodeState(location.hash);
   const hashKey = location.hash.slice(1);
   const qs = new URLSearchParams(location.search);
-  const asked = qs.get('car');
   const active = getActive();
+  const asked = qs.get('car') || (!active && qs.get('example'));
   if (shared) {
-    S.x = shared.x; S.params[shared.x] = shared.p; S.shared = true; S.picked = true;
+    S.x = shared.x; S.params[shared.x] = shared.p; S.shared = true; S.picked = true; S.context = 'Shared or saved experiment';
     const [a, b] = shared.lanes;
     S.a = { id: a.id, setup: a.setup, change: NO_CHANGE };
     if (shared.lanes.length === 3 || (a.diff && b && b.diff && a.id === b.id && !isChanged(b.change))) S.mode = 'diff';
@@ -66,8 +69,14 @@ function initialState() {
     return;
   }
   if (EXPERIMENTS[hashKey]) S.x = hashKey;
-  if (asked && vehicles[asked]) S.a = { id: asked, change: NO_CHANGE };
-  else if (active && vehicles[active.setup.id]) S.a = { id: active.setup.id, setup: active.mode === 'after' && modified(active.setup) ? active.setup : undefined, change: NO_CHANGE };
+  if (asked && Object.hasOwn(vehicles, asked)) {
+    S.a = { id: asked, change: NO_CHANGE };
+    S.context = 'Example matchup';
+  } else if (active) {
+    const setup = workingSnapshot(active);
+    S.a = { id: setup.id, setup: setup.id === 'custom' || setup.name || Object.keys(setup.base).length || modified(setup) ? setup : undefined, change: NO_CHANGE };
+    S.context = `Working vehicle · ${active.mode === 'after' ? 'Modified' : 'Stock settings'}`;
+  }
   else { applyMatchup(S.x, 0); return; }
   S.picked = true;
   S.bId = rival(S.a.id);
@@ -78,7 +87,7 @@ function initialState() {
 function applyMatchup(x, i) {
   const m = MATCHUPS[x]?.[i]; if (!m) return;
   const [a, b] = m.lanes;
-  S.x = x; S.mode = m.mode; S.matchup = i;
+  S.x = x; S.mode = m.mode; S.matchup = i; S.context = 'Example matchup';
   if (m.params) S.params[x] = { ...S.params[x], ...m.params };
   S.a = { id: a.id, change: NO_CHANGE }; S.aChange = a.change;
   if (m.mode === 'car') { S.bId = b.id; S.bSetup = undefined; S.bChange = b.change; }
@@ -99,12 +108,14 @@ const userChanged = () => { S.sharedLanes = null; S.shared = false; };
 
 // ---------------------------------------------------------------- page skeleton (built once; the stage canvas persists)
 root.innerHTML = `<div class="rp">
-  <header class="rp-head"><p class="kicker">Test · Simulations</p><h1>Watch it happen.</h1>
-    <p class="lede">Two cars, one test. Every move comes from the ESS model.</p></header>
-  <div class="rp-exps" role="tablist" aria-label="Simulation">${EXPERIMENT_KEYS.map(k => `<button type="button" role="tab" data-x="${k}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONS[k]}</svg><span>${esc(EXPERIMENTS[k].label)}</span></button>`).join('')}</div>
-  <section class="rp-compare" data-compare aria-label="What to compare"></section>
-  <div class="rp-presets" data-presets></div>
+  <nav class="ess-crumbs" aria-label="Breadcrumb"><a href="../">Home</a> / <a href="../improve/">Test</a> / <span aria-current="page" data-rp-crumb>Replay</span></nav>
+  <header class="rp-head">
+    <div><p class="kicker">ESS simulation <span data-rp-context></span></p><h1 data-rp-title>Simulation Replay</h1></div>
+    <button type="button" class="button secondary small" data-open-settings aria-controls="rp-settings">Change test</button>
+  </header>
+  <div class="rp-feature">
   <figure class="rp-stage">
+    <figcaption class="rp-stage-labels" data-stage-labels></figcaption>
     <canvas data-stage role="img" aria-label="Replay"></canvas>
     <div class="rp-transport">
       <button type="button" class="rp-play" data-play aria-label="Play">▶</button>
@@ -114,6 +125,14 @@ root.innerHTML = `<div class="rp">
     </div>
   </figure>
   <section class="rp-result" data-result aria-live="polite"></section>
+  </div>
+  <details class="rp-settings" id="rp-settings">
+    <summary>Vehicle, test and matchup settings</summary>
+  <div class="rp-exps" role="tablist" aria-label="Simulation">${EXPERIMENT_KEYS.map(k => `<button type="button" role="tab" data-x="${k}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONS[k]}</svg><span>${esc(EXPERIMENTS[k].label)}</span></button>`).join('')}</div>
+  <section class="rp-compare" data-compare aria-label="What to compare"></section>
+  <div class="rp-presets" data-presets></div>
+    <button type="button" class="button secondary small" data-back-playback>Back to playback</button>
+  </details>
   <section class="rp-next" data-next aria-label="Try next"></section>
   <section class="rp-share" aria-label="Save and share">
     <button type="button" class="button secondary small" data-save-activity>Save experiment</button>
@@ -133,12 +152,16 @@ const stage = createStage(canvas, {
   onTick(t, d, playing) {
     $('[data-clock]').textContent = `${t.toFixed(2)} s`;
     $('[data-scrub]').value = d ? Math.round(t / d * 1000) : 0;
-    const b = $('[data-play]'); b.textContent = playing ? '❚❚' : t >= d && d > 0 ? '↺' : '▶';
+    const b = $('[data-play]'); b.textContent = playing ? 'Pause' : t >= d && d > 0 ? 'Replay' : 'Play';
     b.setAttribute('aria-label', playing ? 'Pause' : t >= d && d > 0 ? 'Replay' : 'Play');
   },
 });
-const READY = readyIds(browseIds);   // records that can run at least one test (tool-specific readiness)
-installCatalog(document, { allowedIds: READY, label: 'Choose a car', templates: false });
+installCatalog(document, { label: 'Choose a car', templates: false,
+  readinessLabel: id => {
+    const missing = readiness(S.x, laneVehicle({id}));
+    return missing.length ? 'To run this test, add ' + missingText(missing) : 'Inputs available for this test';
+  },
+});
 
 // ---------------------------------------------------------------- render
 const presetValue = x => ({ accelerate: 'ft', brake: 'from', corner: 'radius', entry: 'mph', exit: 'radius', sequence: 'key' })[x];
@@ -164,7 +187,9 @@ function renderCompare(ls) {
   } else body = `<div class="rp-lanes">${carButton('a', A.id, A.setup ? ' · your build' : '')}</div><p class="rp-note">${S.mode === 'technique' ? 'Trail braking (easing off the brakes while turning in) against braking only in a straight line, on the same car.' : 'Open, limited-slip and locked differentials on the same car.'}</p>`;
   const mu = MATCHUPS[S.x] ?? [];
   const muHtml = mu.length ? `<div class="rp-matchups"><span>Try a matchup</span><div class="rp-chips" role="group" aria-label="Matchups">${mu.map((m, i) => `<button type="button" data-matchup="${i}" aria-pressed="${S.matchup === i}" title="${esc(m.note)}">${esc(m.label)}</button>`).join('')}</div>${S.matchup != null && mu[S.matchup] ? `<p class="rp-note">${esc(mu[S.matchup].note)}</p>` : ''}</div>` : '';
-  $('[data-compare]').innerHTML = muHtml + `<div class="rp-modes" role="group" aria-label="Compare with">${modes.map(m => `<button type="button" data-mode="${m}" aria-pressed="${m === S.mode}">${MODES[m]}</button>`).join('')}</div>${body}`;
+  $('[data-compare]').innerHTML = muHtml + `<div class="rp-modes" role="group" aria-label="Compare with">${modes.map(m => `<button type="button" data-mode="${m}" aria-pressed="${m === S.mode}">${MODES[m]}</button>`).join('')}</div>${body}
+    <div class="rp-adopt">${ls.flatMap((lane, i) => !isChanged(lane.change) && (i === 0 || S.mode === 'car') ?
+      [`<button type="button" class="button secondary small" data-adopt-lane="${i}">Use ${esc(vehicleName(lane.id).split(' · ')[0])} as working setup</button>`] : []).join('')}</div>`;
 }
 function customFields(c = NO_CHANGE) {
   const base = Number(laneVehicle({ id: S.a.id })?.weight) || 3000;
@@ -173,7 +198,15 @@ function customFields(c = NO_CHANGE) {
 }
 function renderResult(summary, runs) {
   const e = EXPERIMENTS[S.x];
-  const badge = e.evidence === 'checked' ? `<span class="rp-badge ok" title="${esc(e.check)}">✓ Model checked against published tests</span>` : `<span class="rp-badge est" title="${esc(e.check)}">◐ Model estimate</span>`;
+  const incomplete = runs.some(run => !run.ok);
+  const ranked = !incomplete && summary.order?.length === runs.length;
+  const indices = ranked ? summary.order : runs.map((_, i) => i);
+  const headline = incomplete ? 'Comparison needs vehicle inputs' : summary.headline;
+  const part = S.x === 'accelerate' && S.params.accelerate.ft === 1320;
+  const timing = part ? `Elapsed time from 1-ft rollout ${term('one-foot rollout')}` :
+    esc(summary.what);
+  const measuredMetrics = (l) => part ? `${esc(l.figures[0])} · ${esc(l.figures[1])} ${term('trap speed')}` :
+    esc(l.figures.join(' · '));
   const place = i => summary.order?.length ? ['1st', '2nd', '3rd'][summary.order.indexOf(i)] : '';
   const laneExtra = i => {
     const lane = lastLanes[i], run = runs[i], out = [];
@@ -186,18 +219,26 @@ function renderResult(summary, runs) {
     if (est) out.push(`<small class="rp-est">Estimated inputs: ${esc(est)}</small>`);
     return out.join('');
   };
-  $('[data-result]').innerHTML = `<p class="rp-what">${esc(summary.what)} ${badge}</p><h2 class="rp-headline">${esc(summary.headline)}</h2>
-    <p class="rp-evidence">${esc(e.check)} <a href="../learn/">How ESS checks its models</a></p>
+  $('[data-result]').innerHTML = `<p class="rp-what">Simulated result</p><h2 class="rp-headline">${esc(headline)}</h2>
+    <div class="rp-timing">${timing}</div>
     ${summary.caveat ? `<p class="rp-caveat">${esc(summary.caveat)}</p>` : ''}
-    <ul class="rp-lanes-out">${summary.lanes.map((l, i) => `<li><span class="rp-letter" style="background:${laneColor(i)}" aria-hidden="true">${LETTERS[i]}</span><div><b><span class="rp-sr">Car ${LETTERS[i]}: </span>${esc(l.name)}${place(i) ? ` <em class="rp-place">${place(i)}</em>` : ''}</b><span class="rp-fig">${l.ok ? esc(l.figures.join(' · ')) : 'no run'}</span><small>${esc(l.why)}</small>${laneExtra(i)}</div></li>`).join('')}</ul>`;
+    <ul class="rp-lanes-out">${indices.map(i => {
+      const l = summary.lanes[i], lane = lastLanes[i];
+      const editable = lane.setup ?? newSetup(lane.id);
+      const modify = '../experience/?via=replay' + shareFragment({a: editable, aMode: lane.setup && modified(editable) ? 'after' : 'before', b: newSetup(rival(lane.id)), bMode: 'before', focus: 'a'}, 'build');
+      return `<li style="--rp-lane:${laneColor(i)}"><div><b>${esc(l.name)}${ranked && place(i) ? ` <em class="rp-place">${place(i)}</em>` : ''}</b>
+        <div class="rp-fig">${l.ok && !incomplete ? measuredMetrics(l) : l.ok ? 'Inputs available' : 'No run'}</div><small>${esc(l.why)}</small>
+        ${!l.ok ? `<a href="${esc(modify)}">Review and add vehicle inputs</a>` : ''}</div></li>`;
+    }).join('')}</ul>`;
   renderNext(runs);
-  canvas.setAttribute('aria-label', `${summary.what}. ${summary.headline} ${summary.lanes.map(l => `${l.name}: ${l.figures.join(', ')}`).join('. ')}`);
-  const pub = S.x === 'accelerate' && S.params.accelerate.ft === 1320 ? runs.map((r, i) => r.ok && r.quarter?.et ? `${vehicleName(lastLanes[i].id)}: ${r.quarter.et.toFixed(2)} s @ ${r.quarter.trap.toFixed(1)} mph` : null).filter(Boolean) : [];
-  $('[data-about]').innerHTML = `<details><summary>What this shows and how sure it is</summary>
+  canvas.setAttribute('aria-label', `${summary.what}. ${headline}. ${summary.lanes.map(l => `${l.name}: ${!incomplete && l.ok ? l.figures.join(', ') : l.why}`).join('. ')}`);
+  const pub = !incomplete && S.x === 'accelerate' && S.params.accelerate.ft === 1320 ? runs.map((r, i) => r.ok && r.quarter?.et ? `${vehicleName(lastLanes[i].id)}: ${r.quarter.et.toFixed(2)} s @ ${r.quarter.trap.toFixed(1)} mph` : null).filter(Boolean) : [];
+  $('[data-about]').innerHTML = `<details><summary>Engineering details and model assumptions</summary>
     <p><b>${e.evidence === 'checked' ? 'Checked:' : 'Estimate:'}</b> ${esc(e.check)}</p>
     ${pub.length ? `<p>Replay times run from a dead stop. On the drag-strip clock (after the 1 ft rollout road tests use) the model gives ${esc(pub.join('; '))}.</p>` : ''}
     ${S.x === 'corner' ? '<p>Which axle reaches its limit first (understeer or oversteer) is not shown yet: the per-car roll-stiffness split is still awaiting engineering acceptance.</p>' : ''}
     ${['entry', 'exit', 'sequence'].includes(S.x) ? '<p>Quasi-steady path model: the driver uses exactly the available grip on a fixed line; quick changes of direction (yaw response), tire temperature and an optimised racing line are not modelled. Original ESS layouts, not real circuits.</p>' : ''}
+    ${summary.lanes.map((l, i) => laneExtra(i) ? `<p><b>${esc(l.name)}</b> ${laneExtra(i)}</p>` : '').join('')}
     <p>${esc(REPLAY_NOTE)}</p>
     <p><a href="../simulate/?car=${encodeURIComponent(S.a.id)}#${S.x}">Numbers and charts for this test →</a> · <a href="../learn/">How ESS models and tests</a></p></details>`;
 }
@@ -209,28 +250,38 @@ function renderNext(runs) {
   const unit = u => u === 's' ? 's quicker' : u === 'ft' ? 'ft shorter' : 'mph faster';
   const fmtGain = x => `${x.unit === 's' ? x.gain.toFixed(2) : x.unit === 'ft' ? Math.round(x.gain) : x.gain.toFixed(1)} ${unit(x.unit)}`;
   $('[data-next]').innerHTML = !runs[0]?.ok ? '' : nextList.length
-    ? `<h3>Try next on car A <small>(${esc(vehicleName(base.id).split(' · ')[0])})</small></h3><div class="rp-next-list">${nextList.map((x, i) => `<button type="button" data-next-i="${i}"><b>${esc(x.label)}</b><span>${esc(fmtGain(x))} in the model</span></button>`).join('')}</div>`
-    : (S.mode === 'diff' || S.mode === 'technique' ? '' : `<p class="rp-note">No single quick change moves car A’s result beyond the model’s noise in this test.</p>`);
+    ? `<h3>Try next on ${esc(vehicleName(base.id).split(' · ')[0])}</h3><div class="rp-next-list">${nextList.map((x, i) => `<button type="button" data-next-i="${i}"><b>${esc(x.label)}</b><span>${esc(fmtGain(x))} in the model</span></button>`).join('')}</div>`
+    : (S.mode === 'diff' || S.mode === 'technique' ? '' : `<p class="rp-note">No single quick change moves the first setup’s result beyond the model’s noise in this test.</p>`);
 }
 async function loadPublished() {
   try { S.published = await (await fetch(new URL('../../simulate/published.json', import.meta.url))).json(); } catch { S.published = null; }
 }
 
-function run({ autoplay = true } = {}) {
+function run({ remember = true } = {}) {
   renderPresets();
   const ls = lanes();
   renderCompare(ls);
   const p = S.params[S.x];
   const runs = ls.map(l => runLane(S.x, p, l));
-  const summary = summarize(S.x, p, ls, runs);
+  const raw = summarize(S.x, p, ls, runs);
+  const summary = runs.every(r => r.ok) ? raw : {
+    ...raw, headline: 'Comparison needs vehicle inputs', order: [],
+    lanes: raw.lanes.map(l => ({...l, figures: l.ok ? ['Inputs available'] : []})),
+  };
+  $('[data-rp-title]').textContent = EXPERIMENTS[S.x].label;
+  $('[data-rp-crumb]').textContent = EXPERIMENTS[S.x].label;
+  $('[data-rp-context]').textContent = S.shared ? ' · Shared or saved experiment' : S.context ? ' · ' + S.context : '';
+  $('[data-stage-labels]').innerHTML = summary.lanes.map((lane, i) =>
+    `<span><i aria-hidden="true" style="background:${laneColor(i)}"></i>${esc(lane.name)}</span>`).join('');
+  $('[data-play]').disabled = !runs.some(r => r.ok);
+  $('[data-scrub]').disabled = !runs.some(r => r.ok);
   lastRuns = runs; lastLanes = ls; lastSummary = summary;
   const labels = laneTags(ls);
   lastScene = { key: S.x, road: road(S.x, p), runs, labels, order: summary.order, duration: replayDuration(runs) };
   stage.set(lastScene);
   if (S.x === 'accelerate' && p.ft >= 2640) setRate(2); else if (S.x === 'corner' && lastScene.duration > 14) setRate(2); else setRate(1);
   renderResult(summary, runs);
-  syncUrl();
-  if (reduced) stage.end(); else if (autoplay) stage.play();
+  if (remember) syncUrl();
 }
 function setRate(r) { stage.speed(r); for (const b of root.querySelectorAll('[data-rate]')) b.setAttribute('aria-pressed', String(+b.dataset.rate === r)); }
 function shareUrl() {
@@ -243,6 +294,27 @@ function syncUrl() { try { history.replaceState(null, '', '#' + encodeState({ x:
 root.addEventListener('click', async e => {
   const t = e.target.closest('button'); if (!t || t.hasAttribute('data-open-catalog')) return;
   const d = t.dataset;
+  if ('backPlayback' in d) {
+    $('.rp-stage').scrollIntoView({block: 'nearest'});
+    $('[data-play]').focus({preventScroll: true});
+    return;
+  }
+  if ('openSettings' in d) {
+    const settings = $('#rp-settings');
+    settings.open = true;
+    settings.querySelector('summary').focus();
+    return;
+  }
+  if (d.adoptLane !== undefined) {
+    const lane = lastLanes[Number(d.adoptLane)];
+    if (!lane) return;
+    const setup = lane.setup ?? newSetup(lane.id);
+    const ok = adoptWorking(setup, lane.setup && modified(setup) ? 'after' : 'before',
+      () => window.confirm('Replace your current working setup? Cancel to keep it and save it in My Garage first.'));
+    $('[data-msg]').textContent = ok ? 'Working vehicle selected.' : 'Your working vehicle was kept.';
+    if (ok) { S.context = 'Working vehicle selected'; $('[data-rp-context]').textContent = ' · ' + S.context; }
+    return;
+  }
   if (d.x) { S.x = d.x; userChanged(); S.matchup = null;
     if (!S.picked) { applyMatchup(S.x, 0); return run(); }
     if (!modesFor(S.x).includes(S.mode) || ['technique', 'diff'].includes(S.mode)) S.mode = S.x === 'entry' ? 'technique' : S.x === 'exit' ? 'diff' : 'car'; return run(); }
@@ -300,7 +372,7 @@ root.addEventListener('ess:vehicle-selected', e => {
   const id = e.detail?.id; if (!vehicles[id]) return;
   if (lane === 'b') { S.bId = id; S.bSetup = undefined; S.bChange = undefined; }
   else { S.a = { id, change: NO_CHANGE }; S.aChange = undefined; if (S.bId === id) S.bId = rival(id); }
-  S.picked = true; S.matchup = null; userChanged(); run();
+  S.picked = true; S.matchup = null; S.context = 'Current comparison'; userChanged(); run();
 });
 root.addEventListener('pointerdown', e => { const b = e.target.closest('[data-lane]'); if (b) S.pickLane = b.dataset.lane; });
 
@@ -349,5 +421,5 @@ addEventListener('hashchange', () => {
 });
 
 initialState();
-run({ autoplay: true });
+run({ remember: false });
 loadPublished().then(() => { if (lastSummary) renderResult(lastSummary, lastRuns); });

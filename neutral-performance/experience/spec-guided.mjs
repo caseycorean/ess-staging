@@ -12,9 +12,10 @@
 // adding a record, not authoring a page. Color carries meaning only: Candidate A's before/after pair for stock (amber) vs your
 // change (blue), green/red for engineering limits, Candidate A's category colors for related articles, calculators and the Lab.
 import { vehicles } from './vehicles.mjs';
-import { newSetup, resolve, straightLine, validValue, ride } from './models.mjs';
-import { shareFragment, saveToGarage, shareResult } from './configuration.mjs';
+import { newSetup, resolve, straightLine, validValue, ride, powerIssue } from './models.mjs';
+import { shareFragment, saveToGarage, shareResult, adoptWorking } from './configuration.mjs';
 import * as units from './units.mjs';
+import { term } from './engineering-terms.mjs';
 import { torqueAt, resistanceAt, defaults as engineDefaults } from '../engine/acceleration.mjs';
 import { parseTire } from '../engine/tires.mjs';
 import { tireClasses, byGear } from '../engine/traction.mjs';
@@ -28,6 +29,8 @@ const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': 
 const fx = (n, d = 0) => Number.isFinite(n) ? n.toLocaleString('en-US', { minimumFractionDigits: d, maximumFractionDigits: d }) : '—';
 const sign = (n, d = 0) => !Number.isFinite(n) ? '—' : Math.abs(n) < .5 * 10 ** -d ? fx(0, d) : (n > 0 ? '+' : '−') + fx(Math.abs(n), d);
 const U = (q, v, o) => units.format(q, v, o);
+const positive = n => Number.isFinite(n) && n > 0;
+const weightPerPower = (w, hp) => positive(w) && positive(hp) ? w / hp : null;
 const MPH_FT = 5280 / 3600;
 const ordinal = n => n + ({ 1: 'st', 2: 'nd', 3: 'rd' }[n] ?? 'th');
 const say = t => { const el = document.querySelector('[data-sg-status]'); if (el) { el.textContent = ''; requestAnimationFrame(() => { el.textContent = t; }); } };
@@ -49,14 +52,6 @@ units.bindUnitControls(document); renderStaticUnits();
 
 // ---------- experiment state ----------
 const id = R?.model?.labId && vehicles[R.model.labId] ? R.model.labId : null;
-const actions = document.querySelector('.sg-hero .action-row');
-if (id && actions) {
-  const plan = document.createElement('a');
-  plan.className = 'btn secondary';
-  plan.href = href('../../plan/?car=' + encodeURIComponent(id));
-  plan.textContent = 'Plan a build with this car';
-  actions.append(plan);
-}
 const runnable = !!(id && R.links?.lab && !R.model.competition);
 const state = { tune: {}, parts: [], conditions: null, compare: null, q: null, gear: 0, rpm: null, last: null, altTire: '' };
 const STORE = 'ess.spec-guided.v1';
@@ -68,6 +63,33 @@ const setupWith = ({ tune = {}, parts = [], conditions } = {}) => {
 };
 const setup = () => setupWith();
 const isModified = () => !!(Object.keys(state.tune).length || state.parts.length || state.conditions);
+const actions = document.querySelector('.sg-hero .action-row');
+const plan = id && document.createElement('a');
+function planHref() {
+  const url = href('../../plan/?car=' + encodeURIComponent(id));
+  return isModified() ? url + shareFragment({a: setup(), aMode: 'after', b: newSetup(id), bMode: 'before', focus: 'a'}, 'build') : url;
+}
+if (id && actions) {
+  const use = document.createElement('button');
+  use.type = 'button';
+  use.className = 'btn secondary';
+  use.textContent = 'Use as working vehicle';
+  const activate = () => adoptWorking(setup(), isModified() ? 'after' : 'before',
+    () => window.confirm('Switch your working vehicle? Keep this one by cancelling and saving it in My Garage first.'));
+  use.addEventListener('click', () => {
+    if (activate()) {
+      use.textContent = 'Working vehicle selected';
+      say('Working vehicle selected. Open Test to use this setup.');
+    }
+  });
+  plan.className = 'btn secondary';
+  plan.href = planHref();
+  plan.textContent = 'Plan a build with this car';
+  plan.addEventListener('click', e => {
+    if (e.button === 0 && !e.ctrlKey && !e.metaKey && !e.shiftKey && !e.altKey) activate();
+  });
+  actions.append(use, plan);
+}
 const stockV = () => resolve(newSetup(id), false);
 const nowV = () => resolve(setup(), true);
 const runCache = new Map();
@@ -81,7 +103,7 @@ const gearRows = (v, cond) => byGear(v, fOpts(v, cond));
 const gearSpeed = (v, ratio) => v.redline / (ratio * v.finalDrive) * (Math.PI * v.diameter) / 12 / 5280 * 60;
 const rpmAt = (v, mph, gear) => mph * MPH_FT * 60 / (Math.PI * v.diameter / 12) * v.gears[gear] * v.finalDrive;
 const roadHp = (v, mph) => resistanceAt(v, mph * MPH_FT) * mph * MPH_FT / 550;
-function topSpeed(v) { for (let mph = 40; mph < 320; mph += .5) if (roadHp(v, mph) >= v.hp * engineDefaults.driveline) return mph; return null; }
+function topSpeed(v) { if (!positive(v.weight) || !positive(v.hp) || !positive(v.cda)) return null; for (let mph = 40; mph < 320; mph += .5) if (roadHp(v, mph) >= v.hp * engineDefaults.driveline) return mph; return null; }
 const STATUS = { green: 'Within grip', yellow: 'At the limit', red: 'Past the limit: wheelspin' };
 const ev = k => R.model.inputs[k]?.evidence;
 const est = k => ev(k) === 'estimate';
@@ -148,7 +170,7 @@ function roadTestHtml(c, compact = false) {
   return compact ? `<p class="sg-test-line">${line}. <a href="#sg-road-test">Compare</a></p>` : `<div class="sg-test"><p>${line}.</p>${why}</div>`;
 }
 function modelLine(c) {
-  if (!c.rm) return '<p class="sg-empty">The model cannot run this configuration.</p>';
+  if (!c.rm) return `<p class="sg-empty">${esc(powerIssue(c.v, 'quarter') || 'This setup does not have the inputs needed to run.')} <a href="${esc(labHref())}">Review vehicle inputs</a>.</p>`;
   if (!isModified()) return `<p class="sg-model">ESS model estimate, stock: 0–60 mph ${stockNum(c.rm.magazine.zeroTo60)} · quarter mile ${stockNum(c.rm.magazine.et)}</p>` + roadTestHtml(c);
   return `<p class="sg-model">ESS model: 0–60 mph ${stockNum(c.rs?.magazine.zeroTo60)} → ${modNum(c.rm.magazine.zeroTo60)} ${delta(c.rs?.magazine.zeroTo60, c.rm.magazine.zeroTo60)} · quarter mile ${stockNum(c.rs?.magazine.et)} → ${modNum(c.rm.magazine.et)} ${delta(c.rs?.magazine.et, c.rm.magazine.et)}</p>`;
 }
@@ -214,9 +236,13 @@ const E = {};
 E.power = {
   needs: c => c.v.hp && c.v.torque && c.v.torqueRpm && c.v.hpRpm && c.v.redline,
   score: () => 80,
-  title: c => `What do ${fx(c.s.hp)} hp and ${fx(c.s.torque)} lb-ft do in a ${fx(c.s.weight)} lb car?`,
-  fig: c => ({ big: fx(c.v.weight / c.v.hp, 1), unit: 'lb/hp', small: 'weight each horsepower moves' }),
-  teaser: c => `Peak torque at ${fx(c.v.torqueRpm)} rpm, peak power at ${fx(c.v.hpRpm)}; the weight it has to move sets how that feels.`,
+  title: c => positive(c.s.weight)
+    ? `What do ${fx(c.s.hp)} hp and ${fx(c.s.torque)} lb-ft do in a ${fx(c.s.weight)} lb car?`
+    : 'How do power and torque change with engine speed?', 
+  fig: c => positive(weightPerPower(c.v.weight, c.v.hp))
+    ? { big: fx(weightPerPower(c.v.weight, c.v.hp), 1), unit: 'lb/hp', small: 'model inputs' }
+    : { big: fx(c.s.hp), unit: 'hp', small: 'model peak power' },
+  teaser: c => `Peak torque at ${fx(c.v.torqueRpm)} rpm, peak power at ${fx(c.v.hpRpm)}; ${positive(c.v.weight) ? 'the weight it has to move sets how that feels.' : 'vehicle weight is unavailable.'}`,
   html() {
     const v = nowV(), rpm = state.rpm ?? v.torqueRpm, pct = state.tune.hp ? Math.round((state.tune.hp / stockV().hp - 1) * 100) : 0;
     // R4 (26 Nov): when the published rating is SAE gross (pre-1972), say why the model uses a lower net figure.
@@ -245,11 +271,12 @@ E.power = {
     b.querySelector('[data-o="rpm"]').textContent = fx(rpm) + ' rpm';
     b.querySelector('[data-formula]').innerHTML = `At <b>${fx(rpm)} rpm</b>: ${esc(U('torque', t))} × ${fx(rpm)} ÷ 5,252 = <b>${esc(U('power', t * rpm / 5252))}</b>`;
     const peers = (library ?? []).filter(x => x.slug !== R.slug && x.runs && x.key?.power && x.key?.weight && x.make === R.identity.make).sort((a, x) => a.year - x.year).slice(0, 4);
-    const rows = [{ t: shortName + (isModified() ? ' (yours)' : ''), v: v.weight / v.hp, me: true }, ...peers.map(x => ({ t: x.title.replace(/ · .*/, ''), v: x.key.weight.value / x.key.power.value, slug: x.slug }))];
-    const max = Math.max(...rows.map(x => x.v));
-    b.querySelector('[data-ppw]').innerHTML = peers.length ? `<h4 class="sg-h4">Pounds per horsepower, lower is quicker</h4><ul class="sg-hbars">${rows.map(x => `<li${x.me ? ' class="me"' : ''}><span>${x.slug ? `<a href="${esc(vehiclePage(x.slug))}">${esc(x.t)}</a>` : esc(x.t)}</span><b>${fx(x.v, 1)}</b><i style="--w:${(x.v / max * 100).toFixed(1)}%"></i></li>`).join('')}</ul><p class="sg-note">Published power and weight; weight definitions differ between sources.</p>` : '';
-    const g = c.rs && c.rm ? c.rs.magazine.et - c.rm.magazine.et : 0;
-    b.querySelector('[data-out]').innerHTML = (isModified() && v.hp !== c.s.hp ? `<p>${fx(Math.abs(v.hp / c.s.hp - 1) * 100)}% ${v.hp > c.s.hp ? 'more' : 'less'} power changes the modeled quarter mile by <b class="c-mod">${sign(-g, 2)} s</b>. ${c.rows[0]?.status === 'red' ? `1st gear now asks for ${fx(c.rows[0].utilization * 100)}% of the grip: ${qLink('launch', 'see where it turns into wheelspin')}.` : ''}</p>` : '') + modelLine(c);
+    const rows = [{ t: shortName + (isModified() ? ' (yours)' : ''), v: weightPerPower(v.weight, v.hp), me: true }, ...peers.map(x => ({ t: x.title.replace(/ · .*/, ''), v: x.key.weight.value / x.key.power.value, slug: x.slug }))];
+    const known = rows.filter(x => positive(x.v));
+    const max = Math.max(...known.map(x => x.v));
+    b.querySelector('[data-ppw]').innerHTML = known.length > 1 && positive(rows[0].v) ? `<h4 class="sg-h4">Pounds per horsepower</h4><ul class="sg-hbars">${known.map(x => `<li${x.me ? ' class="me"' : ''}><span>${x.slug ? `<a href="${esc(vehiclePage(x.slug))}">${esc(x.t)}</a>` : esc(x.t)}</span><b>${fx(x.v, 1)}</b><i style="--w:${(x.v / max * 100).toFixed(1)}%"></i></li>`).join('')}</ul><p class="sg-note">This car uses ESS model inputs. The other vehicles use published power and weight. Weight definitions may differ.</p>` : '';
+    const g = c.rs && c.rm && Number.isFinite(c.rs.magazine.et) && Number.isFinite(c.rm.magazine.et) ? c.rs.magazine.et - c.rm.magazine.et : null;
+    b.querySelector('[data-out]').innerHTML = (isModified() && v.hp !== c.s.hp && Number.isFinite(g) ? `<p>${fx(Math.abs(v.hp / c.s.hp - 1) * 100)}% ${v.hp > c.s.hp ? 'more' : 'less'} power changes the modeled quarter mile by <b class="c-mod">${sign(-g, 2)} s</b>. ${c.rows[0]?.status === 'red' ? `1st gear now asks for ${fx(c.rows[0].utilization * 100)}% of the grip: ${qLink('launch', 'see where it turns into wheelspin')}.` : ''}</p>` : '') + modelLine(c);
   },
 };
 E.launch = {
@@ -321,7 +348,7 @@ E.tires = {
 function matchedDefault() { const g = stockV().grip; let best = null, d = 9; for (const k of TIRE_ORDER) { const m = tireClasses[k].longitudinal?.typical; if (Number.isFinite(m) && Math.abs(m - g) < d) { d = Math.abs(m - g); best = k; } } return best; }
 const AXLES = [2.73, 3.08, 3.27, 3.55, 3.73, 4.10];
 E.gearing = {
-  needs: c => c.v.gears?.length > 1 && c.v.finalDrive,
+  needs: c => c.v.gears?.length > 1 && [c.v.finalDrive, c.v.diameter, c.v.redline, c.v.hpRpm].every(positive),
   score: c => 35 + (est('finalDrive') ? 15 : 0) + (rpmAt(c.s, 70, c.s.gears.length - 1) < c.s.torqueRpm * .7 ? 10 : 0),
   title: () => 'What would different axle gears do?',
   fig: c => ({ big: fx(Math.round(rpmAt(c.v, 70, c.v.gears.length - 1) / 10) * 10), unit: 'rpm', small: `at ${U('speed', 70)} in top gear` }),
@@ -331,7 +358,7 @@ E.gearing = {
     const s = stockV(), fd = state.tune.finalDrive ?? s.finalDrive, rl = state.tune.redline ?? s.redline;
     return `<p class="sg-lede">The axle ratio multiplies the force at the rear tires in every gear and divides the road speed each gear can reach. Shorter (numerically higher) gears pull harder but rev higher and may need an extra shift.</p>
       ${est('finalDrive') ? `<p class="note sg-note-box">The axle ratio for this exact car is not on record. The model assumes <b class="c-stock">${fx(s.finalDrive, 2)}</b> (${esc(R.model.inputs.finalDrive.basis ?? 'estimate')}).</p>` : ''}
-      <div class="sg-ctl"><span>Axle ratio</span><div class="sg-chips">${this.ratios().map(o => `<button type="button" data-fd="${o}" aria-pressed="${o === fd}" class="${o === s.finalDrive ? 'is-stock' : ''}">${fx(o, 2)}${o === s.finalDrive ? ' · stock' : ''}</button>`).join('')}</div></div>
+      <div class="sg-ctl"><div>Final drive ratio ${term('final drive ratio')}</div><div class="sg-chips">${this.ratios().map(o => `<button type="button" data-fd="${o}" aria-pressed="${o === fd}" class="${o === s.finalDrive ? 'is-stock' : ''}">${fx(o, 2)}${o === s.finalDrive ? ' · stock' : ''}</button>`).join('')}</div></div>
       <div data-ladder></div>
       <label class="sg-ctl"><span>Shift rpm <output data-o="rl" class="${state.tune.redline ? 'c-mod' : 'c-stock'}">${fx(rl)}</output>${estTag('redline')}</span><input type="range" min="${Math.max(3000, Math.round(s.hpRpm / 100) * 100)}" max="${Math.min(7500, Math.round(s.hpRpm * 1.6 / 100) * 100)}" step="100" value="${rl}" data-in="rl"></label>
       <div data-out></div>
@@ -348,7 +375,7 @@ E.gearing = {
     const c = ctx(), v = c.v, s = c.s, top = topSpeed(v), sp = v.gears.map(g => gearSpeed(v, g)), sps = s.gears.map(g => gearSpeed(s, g)), max = Math.max(...sp, ...sps, top ?? 0) * 1.05, changed = isModified() && (v.finalDrive !== s.finalDrive || v.redline !== s.redline || v.diameter !== s.diameter);
     b.querySelector('[data-ladder]').innerHTML = `<figure class="sg-ladder"><ol>${sp.map((x, i) => `<li><span>${ordinal(i + 1)} <small>${fx(v.gears[i], 2)}</small></span><span class="sg-l-track"><i class="${changed ? 'mod' : 'stock'}" style="--w:${(x / max * 100).toFixed(1)}%"></i>${changed ? `<em class="sg-l-was" style="--w:${(sps[i] / max * 100).toFixed(1)}%" title="stock"></em>` : ''}</span><b class="${changed ? 'c-mod' : ''}">${esc(U('speed', x))}</b></li>`).join('')}</ol>
       ${top ? `<span class="sg-l-limit" style="--x:${(top / max * 100).toFixed(1)}"><span>drag limit ≈ ${esc(U('speed', top))}</span></span>` : ''}
-      <figcaption>Road speed at ${fx(v.redline)} rpm in each gear${changed ? '; the amber tick is stock' : ''}. The dashed line is the power-limited top speed (ESS estimate).</figcaption></figure>`;
+      <figcaption>Road speed at ${fx(v.redline)} rpm in each gear${changed ? '; the amber tick is stock' : ''}. ${top ? 'The dashed line is the power-limited top speed (ESS estimate).' : ''}</figcaption></figure>`;
     const rows = this.ratios().map(r => { const m = run(resolve(setupWith({ tune: { finalDrive: r } }), true)); return { r, et: m?.magazine.et, shift: m?.time.shifting }; });
     const stockRow = rows.find(x => Math.abs(x.r - s.finalDrive) < .005), best = rows.filter(x => Number.isFinite(x.et)).reduce((a, x) => (!a || x.et < a.et ? x : a), null);
     const rpm70 = rpmAt(v, 70, v.gears.length - 1);
@@ -361,7 +388,7 @@ E.gearing = {
   },
 };
 E.balance = {
-  needs: c => c.v.front && c.v.wheelbase,
+  needs: c => positive(c.v.weight) && positive(c.v.front) && positive(c.v.wheelbase),
   score: c => 30 + (est('front') ? 15 : 0) + (Math.abs(c.s.front - .5) > .06 ? 10 : 0),
   title: c => R.identity.layout === 'MR' ? 'Why put the engine behind the driver?' : Math.abs(c.s.front - .5) > .06 ? 'Why so nose-heavy, and does it matter?' : 'Where does the weight sit?',
   fig: c => ({ big: fx(c.v.front * 100), unit: `%${est('front') ? '*' : ''}`, small: `on the front axle${est('front') ? ' (estimate)' : ''}` }),
@@ -554,7 +581,7 @@ function rebuild() {
 }
 const refreshAnswer = () => { const b = answer?.querySelector('.sg-a-body'); if (b) E[state.q]?.refresh(b); };
 function renderHero() { const el = document.querySelector('[data-sg-hero]'); if (!el) return; const cap = el.querySelector('figcaption'); el.innerHTML = schematic(nowV(), stockV()); if (cap) el.append(cap); }
-function update(message) { persist(); renderToc(); renderBar(); refreshAnswer(); renderHero(); if (message) say(message); }
+function update(message) { if (plan) plan.href = planHref(); persist(); renderToc(); renderBar(); refreshAnswer(); renderHero(); if (message) say(message); }
 function open(q) {
   if (!E[q]) return; state.q = q; persist(); rebuild(); renderToc();
   document.querySelector(`.sg-q[data-sg-q="${q}"]`)?.scrollIntoView({ behavior: reduced ? 'auto' : 'smooth', block: 'nearest', inline: 'center' });
