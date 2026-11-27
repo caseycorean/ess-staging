@@ -220,3 +220,10 @@ body[data-ess-skin=candidate-a] .plan-app .button.secondary {
 }
 .plan-app [tabindex="-1"], .plan-explore, .plan-objective { scroll-margin-top: 5.5rem; }
 .plan-app .button.primary { font: inherit; font-weight: 700; }
+.plan-confirms { border: 1px solid var(--p-line); border-radius: 6px; padding: .35rem .6rem .2rem; margin: .2rem 0 .6rem; min-width: 0; }
+.plan-confirms legend { font-weight: 600; font-size: .9rem; padding: 0 .25rem; }
+.plan-confirm { font-weight: 500; font-size: .92rem; align-items: flex-start; padding-top: .55rem; }
+.plan-confirm input { margin-top: .1rem; }
+.plan-block > .plan-unit-input, .plan-expect-form .plan-unit-input { display: flex; margin: 0; font-weight: 400; }
+.plan-unit-input > span { white-space: nowrap; flex: 0 0 auto; }
+.plan-unit-input input { min-width: 0; }

@@ -1,9 +1,9 @@
 {
-  "website_commit": "6e87d271f8c6c176fe31e5ccb40a010dfc395c3f",
-  "branch": "claude/plan-release",
+  "website_commit": "4cb7d970c0d34477cd851855dcc3ab3fb2e0da34",
+  "branch": "claude/plan-release-fix",
   "local_changes": false,
-  "built": "2026-11-26 23:08 PST",
-  "source_note": "Claude Plan release revision on Work a6b7494",
+  "built": "2026-11-26 23:41 PST",
+  "source_note": "Claude Plan comparison-basis correction on Plan release 6e87d27 (Work a6b7494)",
   "pages": 143,
   "notes": "Unlisted development site. noindex on every page, robots.txt disallows all, no sitemap, no analytics."
 }

@@ -12,11 +12,23 @@ import { vehicles } from '../vehicles.mjs';
 /** The one metric each objective's loop compares (the objective's own experiment test). */
 export const LOOP_METRIC = { handling: 'corner', braking: 'brake', power: 'accelerate', weight: 'accelerate', traction: 'accelerate', comfort: 'brake' };
 
-/** How a measurement must be taken to be comparable with the model's test. */
+/** Timing or test conventions per metric. Only the model's own convention (MODEL_TIMING) can be compared numerically. */
 export const METHODS = {
-  accelerate: { standard: 'Standing-start quarter mile (timeslip or timing gear)', other: 'Other (rolling start, phone app, partial distance)' },
-  brake: { standard: '60–0 mph stop, measured distance', other: 'Other (different speed, estimated distance)' },
-  corner: { standard: 'Steady circle about 200 ft across, measured lateral g', other: 'Other (autocross, different radius, logged peak)' },
+  accelerate: { standstill: 'Clock from rest, starting at first motion (GPS or timing gear)', timeslip: 'Drag-strip timeslip (clock starts after about 1 ft of rollout)', other: 'Other or not sure' },
+  brake: { standard: 'Stop from 60 mph, distance measured from the start of braking', other: 'Other or not sure' },
+  corner: { standard: 'Steady circle about 200 ft across, steady-state lateral g', other: 'Other or not sure' },
+};
+/** The convention the ESS Plan prediction uses: the standstill quarter mile, the 60–0 stop and the steady 200 ft circle. */
+export const MODEL_TIMING = { accelerate: 'standstill', brake: 'standard', corner: 'standard' };
+/** Plain words for why a measurement is shown but not compared. */
+export const NOT_COMPARED = {
+  timing: 'measured with a different timing convention from the model',
+  'timing-unknown': 'timing convention not confirmed',
+  before: 'no measured “before” in the same session, so the change can’t be separated from the car’s baseline',
+  conditions: 'same tires, pressures, surface, weather and driver not confirmed',
+  change: 'not confirmed that the only change tested is the predicted one',
+  config: 'car configuration not confirmed as the one the prediction was made for',
+  'config-differs': 'measured on a different configuration from the saved prediction',
 };
 const RANGE = { accelerate: [4, 40], brake: [40, 400], corner: [0.2, 2] };
 const DIGITS = { accelerate: 2, brake: 0, corner: 2 };
@@ -50,9 +62,12 @@ function cleanSnapshotVehicle(raw) {
 export function cleanExpectation(raw, key) {
   const metric = LOOP_METRIC[key];
   if (!raw || !metric || raw.metric !== metric) return null;
-  const value = num(raw.value, metric);
-  if (value === null) return null;
-  return { metric, value: round(value, metric), on: date(raw.on), afterReveal: raw.afterReveal !== false, note: line(raw.note, 160) };
+  const base = { metric, on: date(raw.on), afterReveal: raw.afterReveal !== false, note: line(raw.note, 160) };
+  const g = typeof raw.gain === 'number' ? raw.gain : Number.parseFloat(raw.gain);
+  const span = RANGE[metric][1] - RANGE[metric][0];
+  if (Number.isFinite(g) && Math.abs(g) <= span / 2) return { ...base, gain: round(g, metric) };
+  const value = num(raw.value, metric); // earlier records: an absolute value, shown but never compared
+  return value === null ? null : { ...base, value: round(value, metric) };
 }
 
 export function cleanPrediction(raw, key) {
@@ -74,9 +89,11 @@ export function cleanMeasurement(raw, key) {
   const after = num(raw.after, metric);
   if (after === null) return null;
   const before = num(raw.before, metric);
-  return { metric, after: round(after, metric), ...(before !== null ? { before: round(before, metric) } : {}),
-    method: raw.method === 'standard' ? 'standard' : 'other', conditions: line(raw.conditions, 200), on: date(raw.on),
-    sig: typeof raw.sig === 'string' ? raw.sig.slice(0, 4000) : '' };
+  // Earlier records used 'standard' for "timeslip or timing gear" on the quarter mile: that convention is unknown.
+  const method = Object.hasOwn(METHODS[metric], raw.method) && !(metric === 'accelerate' && raw.method === 'standard') ? raw.method : 'other';
+  return { metric, after: round(after, metric), ...(before !== null ? { before: round(before, metric) } : {}), method,
+    sameConditions: raw.sameConditions === true, sameChange: raw.sameChange === true, sameConfig: raw.sameConfig === true,
+    conditions: line(raw.conditions, 200), on: date(raw.on), sig: typeof raw.sig === 'string' ? raw.sig.slice(0, 4000) : '' };
 }
 
 /** Freeze one model comparison row as a prediction. `fx` is crossEffects(vehicle, change). */
@@ -94,22 +111,28 @@ export function predictionCurrent(prediction, fx) {
     Math.abs(row.before - prediction.before) < 0.5 * 10 ** -DIGITS[prediction.metric];
 }
 
+/** Improvement, positive when better (quicker, shorter, more grip), in the metric's canonical unit. */
+export const gainOf = (metric, before, after) => (after - before) * BETTER[metric];
+
 /**
- * How the three readings relate. Returns plain-language findings; a numeric difference only when comparable.
- * kind: 'compare' (same metric, method, configuration) | 'different-basis' | 'different-config' | null
+ * How the three readings relate. A numeric finding only when every condition for a like-with-like comparison holds:
+ * the model's timing convention, a measured before and after, the same configuration, and explicit owner confirmation
+ * that conditions and the tested change match. Otherwise `measured.kind === 'shown'` with the reasons.
  */
 export function compareLoop(o, currentSig) {
   const { expectation: e, prediction: p, measurement: m } = o;
   const out = { measured: null, expected: null, configChanged: !!p && !!currentSig && p.sig !== currentSig };
-  if (p && e) {
-    const better = (e.value - p.after) * BETTER[p.metric];
-    out.expected = { delta: e.value - p.after, verdict: Math.abs(e.value - p.after) < 0.5 * 10 ** -DIGITS[p.metric] ? 'same' : better > 0 ? 'more optimistic' : 'less optimistic' };
-  }
+  if (p && e && Number.isFinite(e.gain)) out.expected = { expected: e.gain, predicted: gainOf(p.metric, p.before, p.after) };
   if (p && m) {
-    if (m.method !== 'standard') out.measured = { kind: 'different-basis' };
-    else if (m.sig !== p.sig) out.measured = { kind: 'different-config' };
-    else if (Number.isFinite(m.before)) out.measured = { kind: 'compare', basis: 'change', measured: m.after - m.before, predicted: p.after - p.before };
-    else out.measured = { kind: 'compare', basis: 'value', measured: m.after, predicted: p.after };
+    const reasons = [];
+    if (m.method !== MODEL_TIMING[p.metric]) reasons.push(m.method === 'other' ? 'timing-unknown' : 'timing');
+    if (!Number.isFinite(m.before)) reasons.push('before');
+    if (!m.sameConditions) reasons.push('conditions');
+    if (!m.sameChange) reasons.push('change');
+    if (m.sig && m.sig !== p.sig) reasons.push('config-differs');
+    else if (!m.sameConfig) reasons.push('config');
+    out.measured = reasons.length ? { kind: 'shown', reasons }
+      : { kind: 'compare', measured: gainOf(p.metric, m.before, m.after), predicted: gainOf(p.metric, p.before, p.after) };
   }
   return out;
 }

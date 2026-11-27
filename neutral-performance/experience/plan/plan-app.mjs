@@ -14,7 +14,7 @@ import { setupName } from '../matchup.mjs';
 import { installCatalog } from '../catalog.mjs';
 import { escape, fmt } from '../ui.mjs';
 import { format as units, unitsControl, bindUnitControls, toDisplay, fromDisplay, unitLabel } from '../units.mjs';
-import { LOOP_METRIC, METHODS, signature, predictionFrom, predictionCurrent, compareLoop, accomplishments, suggestion, progress } from './outcomes.mjs';
+import { LOOP_METRIC, METHODS, MODEL_TIMING, NOT_COMPARED, signature, predictionFrom, predictionCurrent, compareLoop, accomplishments, suggestion, progress } from './outcomes.mjs';
 
 const root = document.querySelector('[data-ess-plan]');
 const query = new URLSearchParams(location.search);
@@ -190,6 +190,15 @@ const deltaWords = (metric, d) => {
 const toInput = (metric, v) => metric === 'brake' ? toDisplay('distance', v) : v;
 const fromInput = (metric, v) => metric === 'brake' ? fromDisplay('distance', v) : v;
 const inputUnit = metric => metric === 'brake' ? unitLabel('distance') : METRICS[metric].unit;
+const GAIN_WORD = { accelerate: 'quicker', brake: 'shorter', corner: 'more grip' };
+const LOSS_WORD = { accelerate: 'slower', brake: 'longer', corner: 'less grip' };
+/** An improvement (positive = better) in plain words, e.g. "0.18 s quicker". */
+const gainWords = (metric, g) => {
+  const a = Math.abs(g);
+  if (a < 0.5 * 10 ** -(metric === 'brake' ? 0 : METRICS[metric].digits)) return 'no change';
+  const size = metric === 'brake' ? units('distance', a, { digits: 0, metricDigits: 1 }) : fmt(a, METRICS[metric].digits) + ' ' + METRICS[metric].unit;
+  return `${size} ${g > 0 ? GAIN_WORD[metric] : LOSS_WORD[metric]}`;
+};
 
 /** The objective's experiment on a vehicle: change, effects and labels, or a reason it can't run. */
 function modelRun(vehicle, key) {
@@ -244,8 +253,8 @@ function firstStepHint(key) {
 // ------------------------------------------------------------------ expectation → prediction → measurement
 function expectationForm(key, metric, { guessing = false } = {}) {
   return `<form class="plan-inline plan-expect-form" data-plan-expect-form>
-    <label><span>${guessing ? 'Your guess' : 'What you expect'}: ${escape(metricLabel(METRICS[metric]))} after the change</span>
-      <span class="plan-unit-input"><input name="v" inputmode="decimal" required aria-label="Expected ${escape(metricLabel(METRICS[metric]))}"><span>${escape(inputUnit(metric))}</span></span></label>
+    <label><span>${guessing ? 'Your guess' : 'What you expect'}: how much ${escape(GAIN_WORD[metric])}? <small>(negative if worse)</small></span>
+      <span class="plan-unit-input"><input name="v" inputmode="decimal" required aria-label="Expected improvement in ${escape(metricLabel(METRICS[metric]))}"><span>${escape(inputUnit(metric))} ${escape(GAIN_WORD[metric])}</span></span></label>
     <button class="button secondary" type="submit">${guessing ? 'Save my guess and reveal' : 'Save expectation'}</button></form>`;
 }
 
@@ -257,9 +266,9 @@ function loopCard(p, o, run, { compact = false } = {}) {
   const e = o.expectation, pr = o.prediction, m = o.measurement;
   const label = escape(metricLabel(METRICS[metric]));
   const clear = what => ro ? '' : ` <button type="button" class="plan-x" data-plan-clear="${what}">Clear</button>`;
-  const expected = e ? `<p class="plan-loop-value">${fmtMetric(metric, e.value)}</p>
-      <p class="plan-note">${e.on ? escape(e.on) + ' · ' : ''}${e.afterReveal ? 'Entered after seeing the model prediction.' : 'Entered before seeing the model prediction.'}${clear('expectation')}</p>
-      ${cmp.expected ? `<p class="plan-note">${cmp.expected.verdict === 'same' ? 'Matches the model.' : `${escape(fmtMetric(metric, Math.abs(cmp.expected.delta)))} ${escape(cmp.expected.verdict)} than the model.`}</p>` : ''}`
+  const expected = e ? `<p class="plan-loop-value">${Number.isFinite(e.gain) ? escape(gainWords(metric, e.gain)) : fmtMetric(metric, e.value)}</p>
+      <p class="plan-note">${e.on ? escape(e.on) + ' · ' : ''}${e.afterReveal ? 'Entered after seeing the model prediction.' : 'Entered before seeing the model prediction.'}${Number.isFinite(e.gain) ? '' : ' An earlier absolute entry: not compared.'}${clear('expectation')}</p>
+      ${cmp.expected ? `<p class="plan-note">Model: ${escape(gainWords(metric, cmp.expected.predicted))}. ${Math.abs(cmp.expected.expected - cmp.expected.predicted) < 0.5 * 10 ** -(metric === 'brake' ? 0 : METRICS[metric].digits) ? 'Your expectation matches it.' : cmp.expected.expected > cmp.expected.predicted ? 'You expect more than the model predicts.' : 'You expect less than the model predicts.'}</p>` : ''}`
     : ro ? '<p class="quiet">Not recorded.</p>' : expectationForm(o.key, metric);
   const live = run?.fx;
   const predicted = pr ? `<p class="plan-loop-value">${fmtMetric(metric, pr.before)} → ${fmtMetric(metric, pr.after)}</p>
@@ -269,25 +278,35 @@ function loopCard(p, o, run, { compact = false } = {}) {
     : ro ? '<p class="quiet">Not saved.</p>' : live ? `<p class="quiet">The result above is live. Save it to keep it with this plan, unchanged, for later comparison.</p>
       <button type="button" class="button secondary" data-plan-save-prediction>Save this prediction</button>`
       : `<p class="quiet">${p.vehicle ? 'The model can’t run this change on this setup.' : 'Choose your car to run the model on it.'}</p>`;
-  const methodOpts = Object.entries(METHODS[metric]).map(([k, v]) => `<option value="${k}">${escape(v)}</option>`).join('');
+  const methodOpts = `<option value="" selected>Choose how it was timed or measured…</option>` +
+    Object.entries(METHODS[metric]).map(([k, v]) => `<option value="${k}">${escape(v)}</option>`).join('');
+  const yes = (n, t) => `<label class="plan-check plan-confirm"><input type="checkbox" name="${n}"> ${t}</label>`;
   const measured = m ? `<p class="plan-loop-value">${Number.isFinite(m.before) ? fmtMetric(metric, m.before) + ' → ' : ''}${fmtMetric(metric, m.after)}</p>
       <p class="plan-note">${escape(METHODS[metric][m.method])}${m.conditions ? ' · ' + escape(m.conditions) : ''}${m.on ? ' · ' + escape(m.on) : ''}${clear('measurement')}</p>`
     : ro ? '<p class="quiet">Not measured.</p>' : compact ? `<p class="quiet">After you make the change and test it.</p>
       <button type="button" class="button secondary" data-plan-stage="verify">Record a measurement</button>` : `<form class="plan-measure-form" data-plan-measure-form>
-      <div class="plan-measure"><label class="plan-block"><span>Before the change <small>(optional)</small></span><span class="plan-unit-input"><input name="before" inputmode="decimal"><span>${escape(inputUnit(metric))}</span></span></label>
+      <div class="plan-measure"><label class="plan-block"><span>Before the change, same session</span><span class="plan-unit-input"><input name="before" inputmode="decimal"><span>${escape(inputUnit(metric))}</span></span></label>
       <label class="plan-block"><span>After the change</span><span class="plan-unit-input"><input name="after" inputmode="decimal" required><span>${escape(inputUnit(metric))}</span></span></label></div>
-      <label class="plan-block"><span>How you measured</span><select name="method">${methodOpts}</select></label>
-      <label class="plan-block"><span>Conditions</span><input name="conditions" maxlength="200" placeholder="e.g. same tires and pressures, 55 °F, same driver"></label>
+      <label class="plan-block"><span>How it was timed or measured</span><select name="method">${methodOpts}</select></label>
+      <label class="plan-block"><span>Conditions</span><input name="conditions" maxlength="200" placeholder="e.g. same tires at 32 psi, dry, 55 °F, same driver"></label>
+      <fieldset class="plan-confirms"><legend>For a numeric comparison with the model, confirm all three</legend>
+        ${yes('sameConditions', 'Before and after used the same tires, pressures, surface, weather and driver')}
+        ${yes('sameChange', `The only change between them is the one predicted: ${escape(pr?.label ?? 'the planned change')}`)}
+        ${yes('sameConfig', `The car was otherwise in the configuration the prediction was made for${pr ? ' (' + escape(pr.vname || vname(pr.vehicle)) + ')' : ''}`)}
+      </fieldset>
       <div class="plan-measure"><label class="plan-block plan-date"><span>Date</span><input type="date" name="on" value="${today()}"></label>
       <button class="button secondary" type="submit">Save measurement</button></div></form>`;
   let finding = '';
   if (cmp.measured?.kind === 'compare') {
     const d = cmp.measured.measured - cmp.measured.predicted;
-    finding = cmp.measured.basis === 'change'
-      ? `Measured change ${fmtMetric(metric, cmp.measured.measured, true)} against a predicted ${fmtMetric(metric, cmp.measured.predicted, true)}: the change was ${escape(deltaWords(metric, d))} than the model predicted.`
-      : `Measured ${fmtMetric(metric, cmp.measured.measured)} against a predicted ${fmtMetric(metric, cmp.measured.predicted)}. Without a measured “before”, the difference also includes the car’s baseline, surface and timing differences.`;
-  } else if (cmp.measured?.kind === 'different-basis') finding = 'Measured a different way from the model’s test, so the numbers are shown side by side but not compared.';
-  else if (cmp.measured?.kind === 'different-config') finding = 'Measured on a different configuration from the saved prediction, so they are not compared.';
+    const close = Math.abs(d) < 0.5 * 10 ** -(metric === 'brake' ? 0 : METRICS[metric].digits);
+    finding = `Measured improvement ${escape(gainWords(metric, cmp.measured.measured))}; predicted ${escape(gainWords(metric, cmp.measured.predicted))}. ` +
+      (close ? 'They agree to the precision shown.' : `The measured change was ${escape(fmtMetric(metric, Math.abs(d)))} ${d > 0 ? 'larger' : 'smaller'} than predicted.`) +
+      ' Same timing method, conditions, change and configuration confirmed. Single runs vary, so repeat runs before drawing conclusions.';
+  } else if (cmp.measured?.kind === 'shown') {
+    finding = `Shown side by side, not compared: ${cmp.measured.reasons.map(r => escape(NOT_COMPARED[r])).join('; ')}.` +
+      (cmp.measured.reasons.includes('timing') ? ' Drag-strip timeslips start after about a foot of rollout, so they read quicker than the model’s standstill clock.' : '');
+  }
   return `<section class="plan-loop${compact ? '' : ' plan-loop-stack'}" aria-label="Expected, predicted and measured ${label}">
     <h3>${label}: expected, predicted, measured</h3>
     <div class="plan-loop-grid">
@@ -323,7 +342,7 @@ function resultView(p, o) {
   }
   const sig = signature(p.vehicle);
   const hide = S.guess && !readOnly() && !o.expectation && !o.prediction && !S.revealed.has(o.key);
-  if (hide) return `<div class="plan-guess"><p><strong>Guess first.</strong> What will ${escape(run.label.toLowerCase())} do to the ${escape(metricLabel(METRICS[LOOP_METRIC[o.key]]).toLowerCase())}? Now: ${fmtMetric(LOOP_METRIC[o.key], run.fx.rows.find(r => r.key === LOOP_METRIC[o.key]).before)}.</p>
+  if (hide) return `<div class="plan-guess"><p><strong>Guess first.</strong> How much will ${escape(run.label.toLowerCase())} change the ${escape(metricLabel(METRICS[LOOP_METRIC[o.key]]).toLowerCase())}?</p>
     ${expectationForm(o.key, LOOP_METRIC[o.key], { guessing: true })}
     <button type="button" class="button plain" data-plan-reveal>Skip and show the model</button></div>`;
   S.seen.add(o.key + '|' + sig);
@@ -450,13 +469,13 @@ function explorePanel(key) {
   if (run.reason) body = `<p>${escape(run.reason === 'needs-car' ? 'Choose a car to run this comparison.' : run.reason)}</p>`;
   else if (S.guess && !S.revealed.has(key)) {
     const metric = LOOP_METRIC[key];
-    body = `<div class="plan-guess"><p><strong>Guess first.</strong> What will ${escape(run.label.toLowerCase())} do to the ${escape(metricLabel(METRICS[metric]).toLowerCase())}? Now: ${fmtMetric(metric, run.fx.rows.find(r => r.key === metric).before)}.</p>
+    body = `<div class="plan-guess"><p><strong>Guess first.</strong> How much will ${escape(run.label.toLowerCase())} change the ${escape(metricLabel(METRICS[metric]).toLowerCase())}?</p>
       ${expectationForm(key, metric, { guessing: true })}<button type="button" class="button plain" data-plan-reveal>Skip and show the model</button></div>`;
   } else {
     S.seen.add(key + '|' + sig);
     const d = S.draft?.key === key && S.draft.sig === sig ? S.draft : null;
     body = headline(run, key) + resultTable(vehicle, key, run) +
-      (d ? `<p class="plan-note"><span class="plan-ev" data-ev="owner">You</span> Your guess: ${fmtMetric(LOOP_METRIC[key], d.value)}${d.afterReveal ? '' : ' (before seeing the model)'}. ${example ? 'It applies to the example car, so it is not saved with a plan.' : 'It is saved with the plan.'}</p>` : '');
+      (d ? `<p class="plan-note"><span class="plan-ev" data-ev="owner">You</span> Your guess: ${escape(gainWords(LOOP_METRIC[key], d.gain))}${d.afterReveal ? '' : ' (before seeing the model)'}. ${example ? 'It applies to the example car, so it is not saved with a plan.' : 'It is saved with the plan.'}</p>` : '');
   }
   return `<section class="plan-explore" aria-labelledby="plan-explore-h" data-explore="${key}">
     <p class="plan-label">Exploring · nothing saved yet</p>
@@ -587,7 +606,7 @@ function saveExplore() {
     if (prediction) objective = { ...objective, prediction, done: { ...objective.done, experiment: true } };
   }
   const d = S.draft?.key === key && owned && S.draft.sig === signature(owned) ? S.draft : null;
-  if (d) objective = { ...objective, expectation: { metric: LOOP_METRIC[key], value: d.value, on: today(), afterReveal: d.afterReveal } };
+  if (d) objective = { ...objective, expectation: { metric: LOOP_METRIC[key], gain: d.gain, on: today(), afterReveal: d.afterReveal } };
   const p = { ...newProject(owned), focus: key, objectives: [objective] };
   S.fresh = false;
   if (!commit(p, owned ? `Saved with ${vname(owned)} and its model prediction. Continue any time from My Garage.` :
@@ -773,19 +792,19 @@ root?.addEventListener('submit', e => {
     const card = expectForm.closest('[data-objective]'), exploreKey = expectForm.closest('[data-explore]')?.dataset.explore;
     const key = card?.dataset.objective ?? exploreKey, metric = LOOP_METRIC[key];
     const raw = parseNum(expectForm.elements.v.value);
-    const value = raw === null ? null : fromInput(metric, raw);
+    const gain = raw === null ? null : fromInput(metric, raw);
     const bad = `That doesn’t look like a ${metricLabel(METRICS[metric]).toLowerCase()} value.`;
-    if (value === null) { setStatus('Enter a number.'); return; }
+    if (gain === null) { setStatus('Enter a number.'); return; }
     if (exploreKey) {
       const { vehicle } = exploreCar(), sig = signature(vehicle);
-      const draft = { key, sig, value, afterReveal: S.seen.has(key + '|' + sig) };
+      const draft = { key, sig, gain, afterReveal: S.seen.has(key + '|' + sig) };
       if (!cleanExpectationFor(key, draft)) { setStatus(bad); return; }
       S.draft = draft; S.revealed.add(key); render();
       return;
     }
     if (readOnly()) return;
     const p = project(), sig = signature(p.vehicle), o = p.objectives.find(x => x.key === key);
-    const expectation = { metric, value, on: today(), afterReveal: S.seen.has(key + '|' + sig) || !!o.prediction };
+    const expectation = { metric, gain, on: today(), afterReveal: S.seen.has(key + '|' + sig) || !!o.prediction };
     if (!cleanExpectationFor(key, expectation)) { setStatus(bad); return; }
     commit(updateObjective(p, key, x => ({ ...x, expectation })), 'Expectation saved.');
     S.revealed.add(key); render();
@@ -799,7 +818,8 @@ root?.addEventListener('submit', e => {
     const after = parseNum(f.after.value), before = parseNum(f.before.value);
     const p = project();
     const measurement = { metric, after: after === null ? null : fromInput(metric, after), before: before === null ? null : fromInput(metric, before),
-      method: f.method.value, conditions: f.conditions.value, on: f.on.value, sig: signature(p.vehicle) };
+      method: f.method.value || 'other', sameConditions: f.sameConditions.checked, sameChange: f.sameChange.checked, sameConfig: f.sameConfig.checked,
+      conditions: f.conditions.value, on: f.on.value, sig: signature(p.vehicle) };
     const next = updateObjective(p, key, o => ({ ...o, measurement, done: { ...o.done, verify: true } }));
     if (!cleanObjective(next.objectives.find(o => o.key === key))?.measurement) { setStatus(`That doesn’t look like a ${metricLabel(METRICS[metric]).toLowerCase()} value.`); return; }
     commit(next, 'Measurement saved.');
