@@ -1,9 +1,9 @@
 {
-  "website_commit": "0477bc8eec24538fb08259bfe64774b3783b3b8e",
-  "branch": "work/ess-navigation-directory",
+  "website_commit": "a6b74944b9839aec0db0b4402a5df25efb487a3e",
+  "branch": "work/ess-plan-convergence",
   "local_changes": false,
-  "built": "2026-11-26 20:24 PST",
-  "source_note": "Work navigation directory, Neutral Performance from 8dee8abd",
+  "built": "2026-11-26 22:23 PST",
+  "source_note": "Interactive Plan and My Garage convergence",
   "pages": 143,
   "notes": "Unlisted development site. noindex on every page, robots.txt disallows all, no sitemap, no analytics."
 }

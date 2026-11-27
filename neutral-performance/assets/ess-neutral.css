@@ -235,3 +235,51 @@ body[data-ess-tone=neutral][data-ess-tone]{
   .ess-garage-title{grid-template-columns:minmax(0,1fr)}
   .ess-garage-custom{justify-self:start}
 }
+
+/* The directory lists destinations; only Test needs a family-level shortcut. */
+.ess-directory-group > a:only-child{grid-column:1/-1}
+.question-actions [hidden]{display:none}
+.question-actions .btn{min-width:0;height:auto;min-height:44px;padding:.5rem .85rem;cursor:pointer;font:inherit}
+.question-actions button{background:#fff;color:var(--np-blue)}
+
+.garage-page{--garage-tint:var(--np-soft);--garage-ink:var(--np-blue-dark)}
+.garage-page[data-garage-palette=sage]{--garage-tint:#e5ede3;--garage-ink:#284b3c}
+.garage-page[data-garage-palette=graphite]{--garage-tint:#e5ebf3;--garage-ink:#263f61}
+.garage-page .ess-garage-title{grid-template-columns:minmax(0,1fr) auto;align-items:center}
+.garage-photo{width:clamp(88px,15vw,175px);aspect-ratio:1.6;object-fit:cover;border-radius:8px}
+.garage-overview{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.7rem;align-items:start}
+.garage-overview > :only-child{grid-column:1/-1}
+.garage-page .ess-garage-custom,.garage-page .garage-current,.garage-page .garage-role{background:var(--garage-tint)}
+.garage-page .ess-garage-custom{max-width:42rem}
+.garage-page .ess-garage-custom:not([open]){width:max-content}
+.garage-page :is(.garage-role,.ess-garage-custom summary,.garage-project summary){color:var(--garage-ink)}
+.garage-role{display:inline-flex;padding:.1rem .4rem;border-radius:4px;font-size:.8rem;font-weight:600}
+.garage-card h3{margin:.25rem 0}
+.garage-card p{overflow-wrap:anywhere}
+.garage-fields{display:grid;grid-template-columns:1.4fr 1fr;gap:.55rem}
+.garage-page input[type=file]{font-size:.86rem;padding:.3rem;max-width:100%}
+.garage-page .garage-checkbox{display:flex;align-items:center;gap:.45rem;min-height:36px}
+.garage-page .garage-checkbox input{width:auto;margin:0}
+.garage-page textarea{width:100%;padding:.4rem;font:inherit;border:1px solid var(--np-edge);border-radius:6px;resize:vertical}
+.garage-project summary{cursor:pointer;font-weight:600;line-height:44px}
+.garage-project textarea{display:block}
+.garage-activities{padding:0;margin:.45rem 0;list-style:none}
+.garage-activities li{display:flex;align-items:center;justify-content:space-between;gap:.2rem .9rem;padding:.38rem 0;border-top:1px solid var(--np-rule)}
+.garage-activities li > div:first-child{min-width:0}
+.garage-activities strong{display:block;overflow-wrap:anywhere}
+.garage-activity-actions{display:flex;align-items:center;gap:.35rem;flex-wrap:wrap}
+.garage-activity-actions :is(a,button){min-height:44px;display:inline-flex;align-items:center;padding:.3rem .48rem}
+.garage-sr{position:absolute;width:1px;height:1px;clip-path:inset(50%);overflow:hidden;white-space:nowrap}
+.garage-page :is(.garage-starter,.garage-next) a{display:inline-flex;align-items:center;min-height:44px;margin-right:.6rem}
+@media(max-width:620px){
+  .garage-overview,.garage-fields{grid-template-columns:minmax(0,1fr);gap:.25rem}
+  .garage-activities li{display:block}
+  .garage-photo{width:84px}
+  .garage-page .page-title h1{overflow-wrap:anywhere}
+}
+[data-component-save-actions][hidden]{display:none}
+@media(max-width:350px){
+  .ess-global .header-inner{gap:.22rem;padding-inline:.62rem}
+  [data-ess-tone=neutral] .ess-global .a-logo{max-width:34vw}
+  .ess-global .ess-garage-link,.ess-global .ess-directory-open{font-size:.86rem;padding-inline:.38rem}
+}

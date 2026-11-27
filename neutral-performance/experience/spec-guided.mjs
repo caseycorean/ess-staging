@@ -49,6 +49,14 @@ units.bindUnitControls(document); renderStaticUnits();
 
 // ---------- experiment state ----------
 const id = R?.model?.labId && vehicles[R.model.labId] ? R.model.labId : null;
+const actions = document.querySelector('.sg-hero .action-row');
+if (id && actions) {
+  const plan = document.createElement('a');
+  plan.className = 'btn secondary';
+  plan.href = href('../../plan/?car=' + encodeURIComponent(id));
+  plan.textContent = 'Plan a build with this car';
+  actions.append(plan);
+}
 const runnable = !!(id && R.links?.lab && !R.model.competition);
 const state = { tune: {}, parts: [], conditions: null, compare: null, q: null, gear: 0, rpm: null, last: null, altTire: '' };
 const STORE = 'ess.spec-guided.v1';

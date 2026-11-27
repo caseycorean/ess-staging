@@ -8,7 +8,8 @@ import { home, build, toolsView, learn, inputGroups, toolResults } from './views
 import { fmt, delta, numberField } from './ui.mjs';
 import { compare, matchupEntries, comparisonResults, liveGrid, resultTime, setupName, quickImpact } from './matchup.mjs';
 import { paintReplay, replayFrame } from './replay.mjs';
-import { garageView, storeGarageName } from './garage-view.mjs';
+import { garageView, exampleGarage } from './garage-view.mjs';
+import { getWorkspace, saveActivity, removeActivity, workspaceHref, saveProject, forgetProject, localPhoto, updatePreferences } from './garage-workspace.mjs';
 import { mountSuspension, suspensionView, cleanRear } from './suspension-view.mjs';
 import { suspensionPageHtml, mountSuspensionPage, loadSusp, saveSusp, cleanSusp } from './suspension-lab.mjs';
 import { bindUnitControls, format as formatUnits } from './units.mjs';
@@ -22,7 +23,10 @@ import { labJourneyHtml, experiments as journeyExperiments } from './journey.mjs
 import { performanceView, performanceExplain, loadPerf, savePerf, perfDefaults, cleanPerf, shareSummary, summaryHtml, tractionHtml, tireTableHtml, feedbackHtml, perfModel, snapshot, launchPanelHtml, withConditions, effectivePerf } from './performance-view.mjs';
 
 const app = document.querySelector('#app');
-if (app) bindComponentReference(app);
+if (app) bindComponentReference(app, reference => {
+  if (state[state.focus].id === 'custom') return;
+  saveActivity('component', reference.title + ' · component evidence', experimentUrl('build'), true);
+});
 const raceCapability = event => event === 'oval' ? 'oval' : 'strip';
 const query = new URLSearchParams(location.search);
 try {
@@ -137,6 +141,14 @@ function applyLocation() {
   render(route.view);
   if (route.view === 'build') {
     const query = new URLSearchParams(location.search);
+    if (query.get('inspect') === 'components') {
+      const evidence = app.querySelector('[data-component-reference]');
+      if (evidence) {
+        evidence.open = true;
+        evidence.scrollIntoView({block:'start'});
+        evidence.querySelector('summary').focus({preventScroll:true});
+      }
+    }
     if (query.get('edit') === 'original') app.querySelector('[data-details="original"]').open = true;
     const study = query.get('study');
     if (Object.hasOwn(studies, study)) {
@@ -169,7 +181,7 @@ function render(next = view, restoreDetails = false) {
       break;
     }
     case 'tools': app.innerHTML = toolsView(state, toolSettings(), shareFragment(state, 'tools'), saved); break;
-    case 'garage': app.innerHTML = garageView(getGarage(), getActive()); break;
+    case 'garage': app.innerHTML = query.get('demo') === 'garage' ? exampleGarage() : garageView(getGarage(), getActive()); break;
     case 'suspension': {
       const setup = active();
       const v = resolve(setup, true), orig = resolve(setup, false);
@@ -552,7 +564,7 @@ function refreshComparison() {
   byId('share-feedback').replaceChildren();
   setReplay(entries);
   const playable = Boolean(replay.duration);
-  for (const action of ['play', 'share', 'restart']) app.querySelector(`[data-action="${action}"]`).disabled = !playable;
+  for (const action of ['play', 'share', 'restart', 'save-comparison']) app.querySelector(`[data-action="${action}"]`).disabled = !playable;
   app.querySelector('[data-action="play"]').textContent = 'Run comparison';
   app.querySelector('[data-action="reveal-replay"]').disabled = !playable;
   byId('scrubber').disabled = !playable;
@@ -819,17 +831,48 @@ app.addEventListener('submit', event => {
   perfCommit('Using your friction value μ ' + fmt(mu, 2) + '.');
 });
 
-app.addEventListener('submit', event => {
-  const form = event.target.closest('[data-garage-name]');
-  if (!form) return;
+app.addEventListener('submit', async event => {
+  const form = event.target;
+  if (!form.matches('[data-garage-name],[data-garage-project]')) return;
   event.preventDefault();
-  if (!storeGarageName(form.elements.name.value)) {
-    speak('Could not save your garage name in this browser.');
+  if (form.hasAttribute('data-garage-project')) {
+    const id = form.dataset.garageProject;
+    if (!getGarage().some(item => item.key === id)) return;
+    const result = saveProject(id,Object.fromEntries(new FormData(form)));
+    if (result.ok) {
+      render('garage', true);
+      app.querySelector(`[data-details="project-${id}"] summary`)?.focus({preventScroll:true});
+      app.querySelector(`[data-garage-project="${id}"] [data-garage-project-status]`).textContent = 'Project details saved.';
+    } else form.querySelector('[data-garage-project-status]').textContent = result.issue;
     return;
   }
-  render('garage', true);
-  app.querySelector('.ess-garage-custom summary')?.focus();
-  speak('Garage name saved.');
+
+  const button = form.querySelector('button[type="submit"]');
+  if (button.disabled) return;
+  const message = form.querySelector('[data-garage-settings-status]');
+  const values = form.elements;
+  const settings = {name:values.name.value, palette:values.palette.value, showRecent:values.recent.checked};
+  const file = values.photo.files[0];
+  button.disabled = true;
+  try {
+    if (values.removePhoto?.checked) settings.photo = '';
+    else if (file) {
+      message.textContent = 'Resizing the photo…';
+      settings.photo = await localPhoto(file);
+    }
+    if (!form.isConnected) return;
+    const result = updatePreferences(settings);
+    if (!result.ok) { message.textContent = result.issue; return; }
+    render('garage', true);
+    const panel = app.querySelector('.ess-garage-custom');
+    panel.open = true;
+    panel.querySelector('summary').focus({preventScroll:true});
+    panel.querySelector('[data-garage-settings-status]').textContent = 'Garage settings saved.';
+  } catch (error) {
+    message.textContent = error.message || 'The photo could not be saved.';
+  } finally {
+    button.disabled = false;
+  }
 });
 
 document.addEventListener('click', event => {
@@ -911,7 +954,7 @@ document.addEventListener('click', event => {
     if (!item) return;
     if (el.dataset.garageRemove) {
       if (window.confirm('Remove this saved variant from My Garage?')) {
-        if (removeFromGarage(garageKey)) render(view, true);
+        if (removeFromGarage(garageKey)) { forgetProject(garageKey); render(view, true); }
       }
       return;
     }
@@ -919,6 +962,27 @@ document.addEventListener('click', event => {
     state[state.focus + 'Mode'] = item.mode;
     if (el.dataset.garageUse) { carryLane(state.focus, item.mode); render(view, true); }
     else navigate('build');
+    return;
+  }
+  const activityId = el.dataset.removeActivity || el.dataset.shareActivity;
+  if (activityId) {
+    const item = getWorkspace().saved.find(record => record.id === activityId);
+    if (!item) return;
+    if (el.dataset.removeActivity) {
+      const result = removeActivity(activityId);
+      if (result.ok) {
+        render('garage', true);
+        const heading = app.querySelector('#garage-saved');
+        heading?.focus({preventScroll:true});
+      }
+      speak(result.ok ? 'Activity removed from My Garage.' : result.issue);
+    } else {
+      const url = workspaceHref(item.path);
+      shareResult(url, 'ESS saved experiment', 'Open this ESS experiment.').then(result => {
+        speak(result === 'copied' ? 'Experiment link copied.' : result === 'shared' ? 'Experiment shared.' :
+          result === 'cancelled' ? 'Share cancelled.' : 'Use the Resume link to open the experiment and copy its address.');
+      });
+    }
     return;
   }
   const action = el.dataset.action;
@@ -997,6 +1061,29 @@ document.addEventListener('click', event => {
     }
     case 'play': play(el); break;
     case 'share': share(); break;
+    case 'save-active-garage': {
+      const current = getActive();
+      const saved = current && saveToGarage(current.setup,current.mode);
+      if (saved) {
+        render('garage',true);
+        app.querySelector('.garage-card [data-garage-use]')?.focus({preventScroll:true});
+      }
+      speak(saved ? 'Active vehicle saved in My Garage.' : 'This browser could not save the active vehicle.');
+      break;
+    }
+    case 'save-comparison': {
+      const title = (state.event === 'oval' ? 'Test oval' : 'Quarter mile') + ' · ' +
+        lanes(state).map(key => setupName(state[key])).join(' vs ');
+      const result = saveActivity('comparison',title,experimentUrl('compare'));
+      app.querySelector('[data-comparison-saved]').textContent = result.ok ? 'Comparison saved in My Garage.' : result.issue;
+      break;
+    }
+    case 'save-investigation': {
+      const title = setupName(active()) + ' · component evidence';
+      const result = saveActivity('component',title,experimentUrl('build'));
+      app.querySelector('[data-investigation-saved]').textContent = result.ok ? 'Investigation saved in My Garage.' : result.issue;
+      break;
+    }
   }
 });
 

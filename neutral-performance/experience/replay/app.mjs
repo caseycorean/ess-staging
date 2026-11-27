@@ -9,8 +9,19 @@ import { drawShareCard } from './share-card.mjs';
 import { installCatalog } from '../catalog.mjs';
 import { getActive, modified } from '../configuration.mjs';
 import { vehicles, browseIds } from '../vehicles.mjs';
+import { saveActivity } from '../garage-workspace.mjs';
 
 const root = document.querySelector('[data-replay]');
+const returnProject = new URLSearchParams(location.search).get('plan');
+if (returnProject && /^[a-zA-Z0-9-]{1,80}$/.test(returnProject)) {
+  const nav = document.createElement('p');
+  nav.className = 'rp-plan-return';
+  const link = document.createElement('a');
+  link.href = '../plan/?project=' + encodeURIComponent(returnProject);
+  link.textContent = 'Return to your development plan';
+  nav.append(link);
+  root?.before(nav);
+}
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
 const reduced = globalThis.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
 
@@ -104,7 +115,8 @@ root.innerHTML = `<div class="rp">
   </figure>
   <section class="rp-result" data-result aria-live="polite"></section>
   <section class="rp-next" data-next aria-label="Try next"></section>
-  <section class="rp-share" aria-label="Share">
+  <section class="rp-share" aria-label="Save and share">
+    <button type="button" class="button secondary small" data-save-activity>Save experiment</button>
     <button type="button" class="button primary small" data-share>Share this comparison</button>
     <button type="button" class="button secondary small" data-copy>Copy link</button>
     <button type="button" class="button secondary small" data-save>Save image</button>
@@ -248,6 +260,15 @@ root.addEventListener('click', async e => {
   }
   if ('play' in d) return stage.toggle();
   if (d.rate) return setRate(+d.rate);
+  if ('saveActivity' in d && lastSummary && lastLanes) {
+    const url = shareUrl();
+    const tags = laneTags(lastLanes).join(' vs ');
+    const base = lastLanes.every(lane => lane.id === lastLanes[0].id) ?
+      vehicleName(lastLanes[0].id).split(' · ')[0] + ' · ' : '';
+    const saved = saveActivity('replay', EXPERIMENTS[S.x].label + ' · ' + base + tags, url);
+    $('[data-msg]').textContent = saved.ok ? 'Experiment saved in My Garage.' : saved.issue;
+    return;
+  }
   if ('copy' in d) return copyLink();
   if ('save' in d) return saveImage();
   if ('share' in d) return share();

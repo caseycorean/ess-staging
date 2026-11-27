@@ -25,7 +25,7 @@ export function renderComponentReference(reference) {
     details + (examples ? '<h3>Related component examples</h3>' + examples : '') + profile;
 }
 
-export function bindComponentReference(root) {
+export function bindComponentReference(root, onReference) {
   root.addEventListener('toggle', async event => {
     const panel = event.target;
     if (!panel.matches?.('details[data-component-reference]') || !panel.open || panel.dataset.loaded) return;
@@ -35,7 +35,11 @@ export function bindComponentReference(root) {
     output.textContent = 'Loading component reference…';
     panel.dataset.loaded = 'pending';
     try {
-      output.innerHTML = renderComponentReference(id ? await loadComponentReference(id) : null);
+      const reference = id ? await loadComponentReference(id) : null;
+      output.innerHTML = renderComponentReference(reference);
+      const actions = panel.querySelector('[data-component-save-actions]');
+      if (actions && reference) actions.hidden = false;
+      if (reference && panel.isConnected) onReference?.(reference);
       panel.dataset.loaded = 'yes';
     } catch {
       delete panel.dataset.loaded;

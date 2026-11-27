@@ -196,6 +196,7 @@ export function build(state, saved, { previous = null, suggestion = '' } = {}) {
           <details class="explain" data-component-reference="${escape(vehicles[setup.id]?.ref ?? (setup.id === 'custom' ? '' : setup.id))}">
             <summary>Component evidence for this vehicle</summary>
             <div data-component-reference-output role="status"></div>
+            <div class="actions" data-component-save-actions hidden><button type="button" class="button secondary small" data-action="save-investigation">Save investigation</button><span data-investigation-saved role="status"></span></div>
           </details>
           ${partForm()}
           ${suggestion}
