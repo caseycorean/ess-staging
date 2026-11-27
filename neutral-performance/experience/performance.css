@@ -1,0 +1,76 @@
+/* Vehicle Lab · Gearing and traction page. Uses the lab tokens (olive-charcoal / ivory / gold / rust). */
+.perf-workspace .page-title { padding: .9rem 0 .5rem; }
+.perf-workspace .page-title h1 { font-size: clamp(2rem, 6vw, 3.4rem); margin: .2rem 0 .35rem; }
+.perf-workspace .lede { margin: 0; }
+.perf-refs { display: flex; flex-wrap: wrap; gap: .35rem; margin: .55rem 0 .7rem; }
+.perf-refs .button { min-height: 44px; }
+.perf-refs .button[aria-pressed="true"], .perf-gears .button[aria-pressed="true"] { border-color: var(--accent); color: var(--accent); background: #f0e2d5; }
+.perf-grid { display: grid; gap: .7rem; grid-template-columns: minmax(0, 1fr); }
+@media (min-width: 900px) {
+  .perf-grid { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: start; }
+  .perf-grid > .perf-controls { grid-area: 1 / 2; }
+  .perf-grid > .perf-summary { grid-area: 1 / 1; }
+}
+.perf-reference-picks summary { min-height: 40px; align-content: center; cursor: pointer; font-size: .9rem; }
+.perf-summary { border: 1px solid var(--line); border-radius: 8px; background: var(--panel); padding: .6rem .7rem; }
+.perf-sticky { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: .5rem; }
+.perf-sticky > span:first-child { color: var(--muted); font-size: .85rem; font-weight: 700; }
+.perf-sticky strong { font: 800 1.5rem var(--mono); color: var(--accent); }
+@media (max-width: 899px) {
+  .perf-sticky { position: sticky; top: 0; z-index: 3; background: var(--panel); margin: -.6rem -.7rem .3rem; padding: .5rem .7rem; border-bottom: 1px solid var(--line); border-radius: 8px 8px 0 0; }
+}
+.perf-chip { justify-self: end; font-size: .78rem; font-weight: 700; padding: .2rem .45rem; border-radius: 999px; border: 1px solid var(--level, var(--line)); color: var(--level, var(--muted)); white-space: nowrap; }
+.perf-figures { display: grid; grid-template-columns: 1fr 1fr; gap: .5rem; margin-top: .2rem; }
+.perf-figures div { background: var(--raised); border-radius: 6px; padding: .45rem .55rem; display: grid; }
+.perf-figures small { color: var(--muted); font-weight: 700; }
+.perf-figures b { font: 800 1.35rem var(--mono); }
+.perf-figures span { color: var(--muted); font-size: .8rem; }
+.perf-range, .perf-delta, .perf-limit { font-size: .88rem; margin: .45rem 0 0; }
+.perf-delta b { color: var(--accent); }
+.perf-limit { color: var(--muted); }
+.perf-traction { border-left: 4px solid var(--level, var(--line)); }
+.perf-traction h2, .perf-controls h2, #perf-gearing h2, #perf-tires h2, .perf-learn h2 { font-size: 1.15rem; margin: 0 0 .3rem; }
+.perf-controls h3 { font-size: .95rem; margin: .7rem 0 .1rem; color: var(--muted); }
+.perf-status { margin: .3rem 0 0; }
+.perf-status strong { color: var(--level); }
+[data-level="missing"] { --level: #8a8678; }
+.perf-meter { position: relative; height: .7rem; margin: .9rem .3rem .4rem; border-radius: 4px; background: var(--raised); }
+.perf-band { position: absolute; top: 0; bottom: 0; background: #b9cfc2; border-radius: 4px; }
+.perf-typical { position: absolute; top: -.15rem; bottom: -.15rem; border-left: 2px solid var(--mint); }
+.perf-demand { position: absolute; top: -.4rem; height: 1.5rem; border-left: 4px solid var(--level, #242823); }
+.perf-meter-key { display: flex; flex-wrap: wrap; gap: .3rem .9rem; font-size: .8rem; color: var(--muted); }
+.perf-meter-key i { display: inline-block; width: .8rem; height: .6rem; margin-right: .3rem; vertical-align: middle; border-radius: 2px; }
+.key-demand { background: var(--level, #242823); width: .25rem !important; }
+.key-band { background: #b9cfc2; }
+.perf-gears { margin: .3rem 0 .1rem; }
+.perf-gears .button { min-width: 44px; min-height: 44px; }
+.perf-dot { display: inline-block; width: .65rem; height: .65rem; border-radius: 50%; background: var(--level, var(--line)); margin-right: .35rem; vertical-align: baseline; flex: none; }
+.perf-table { width: 100%; }
+.perf-table th span, .perf-table td span { color: var(--muted); font-size: .8rem; font-weight: 400; }
+.perf-tire-list { list-style: none; padding: 0; margin: .3rem 0 0; display: grid; gap: .3rem; }
+.perf-tire-list button { width: 100%; min-height: 44px; display: grid; grid-template-columns: auto 1fr auto; grid-template-rows: auto auto; align-items: center; gap: 0 .4rem;
+  text-align: left; font: inherit; color: var(--text); background: var(--panel); border: 1px solid var(--line); border-radius: 6px; padding: .35rem .55rem; cursor: pointer; }
+.perf-tire-list button[aria-pressed="true"] { border-color: var(--accent); background: #f0e2d5; }
+.perf-tire-list .perf-dot { grid-row: span 2; }
+.perf-tire-list b { font-family: var(--mono); }
+.perf-tire-list small { grid-column: 3; color: var(--muted); text-align: right; }
+.perf-tire-list span:nth-child(2) { grid-row: span 2; font-size: .9rem; }
+.perf-controls select, .perf-controls input[type="number"] { min-height: 44px; width: 100%; }
+.perf-controls .axle-ratio-picks .button small { font-size: .7rem; color: var(--muted); }
+.perf-controls[tabindex]:focus { outline: none; }
+.perf-learn .route-card { margin: .3rem 0 .5rem; }
+.perf-explain .panel { padding: .8rem .9rem; }
+.perf-explain h2 { font-size: 1.05rem; margin: .8rem 0 .2rem; }
+.perf-formula { font-family: var(--mono); font-size: .9rem; background: var(--raised); padding: .5rem .6rem; border-radius: 6px; overflow-wrap: anywhere; }
+.perf-explain .actions { margin-top: .8rem; }
+.perf-controls input[type="range"] { min-height: 44px; width: 100%; }
+/* R2: finishing place as a badge; card order stays A, B, C */
+.performance-name .result-place { margin-left: auto; font-size: .8rem; font-weight: 700; padding: 1px 8px; border-radius: 999px; border: 1px solid currentColor; }
+
+
+@media (max-width: 899px) {
+  .ig .perf-workspace .page-title { padding-block: .65rem .3rem; }
+  .ig .perf-workspace .page-title h1 { font-size: clamp(1.75rem, 6.5vw, 2.6rem) !important; }
+  .ig .perf-workspace .ig-car { gap: .2rem; margin-block: .25rem; }
+  .ig .perf-workspace .perf-run-note { margin-block: .3rem 0; }
+}
