@@ -1,0 +1,93 @@
+/* ESS Plan — interactive vehicle development plan. Uses the shared Neutral Performance tokens only. */
+.plan-app{--p-line:var(--ess-rule,#d7d3cc);--p-sheet:var(--ess-sheet,#fff);--p-soft:var(--ess-soft,#ebe9e5);--p-ink:var(--ess-type,#20242a);
+  --p-sub:var(--ess-subtle,#4e545a);--p-sig:var(--ess-signal,#084da8);--p-r:var(--np-radius,10px);margin:1.25rem 0 2.5rem;color:var(--p-ink)}
+.plan-app *{box-sizing:border-box}
+.plan-app h2{margin:1.6rem 0 .6rem}
+.plan-app h3{margin:0;font-size:1.12rem}
+.plan-app h4{margin:0 0 .35rem;font-size:.95rem}
+.plan-app .quiet,.plan-note{color:var(--p-sub);font-size:.9rem}
+.plan-label{display:block;font-size:.78rem;letter-spacing:.04em;text-transform:uppercase;color:var(--p-sub);margin:0 0 .25rem;font-weight:600}
+.plan-project,.plan-known,.plan-objective,.plan-start,.plan-shared,.plan-footer{background:var(--p-sheet);border:1px solid var(--p-line);border-radius:var(--p-r);padding:1rem;margin:0 0 .9rem}
+.plan-shared{border-color:var(--p-sig)}
+.plan-project-grid{display:grid;gap:1rem}
+@media (min-width:52rem){.plan-project-grid{grid-template-columns:1fr 1.3fr}}
+.plan-car{margin:.1rem 0 .6rem;font-size:1.05rem}
+.plan-tag{display:inline-block;font-size:.72rem;padding:.1rem .45rem;border-radius:99px;background:var(--p-soft);color:var(--p-sub);vertical-align:middle;font-weight:600}
+.plan-actions{display:flex;flex-wrap:wrap;gap:.5rem;align-items:center}
+.plan-identity label,.plan-block{display:block;margin:0 0 .7rem}
+.plan-identity input,.plan-identity textarea,.plan-block input,.plan-block textarea,.plan-inline input,.plan-switch select,.plan-garage-pick select{
+  width:100%;font:inherit;font-size:1rem;padding:.55rem .65rem;border:1px solid var(--ess-edge,#85837e);border-radius:8px;background:var(--p-sheet);color:var(--p-ink);min-height:2.75rem}
+.plan-block>span{display:block;font-size:.88rem;font-weight:600;margin-bottom:.25rem}
+.plan-garage-pick{display:flex;flex-direction:column;min-width:12rem;flex:1 1 12rem}
+.plan-garage-pick span{font-size:.78rem;color:var(--p-sub)}
+.plan-switch{display:block;margin-bottom:.8rem;max-width:26rem}
+.plan-summary{margin:.6rem 0 0;font-weight:600;font-size:.92rem}
+.plan-facts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.5rem;margin:.6rem 0}
+@media (min-width:40rem){.plan-facts{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media (min-width:64rem){.plan-facts{grid-template-columns:repeat(6,minmax(0,1fr))}}
+.plan-fact{background:var(--p-soft);border-radius:8px;padding:.5rem .6rem;min-width:0}
+.plan-fact span{display:block;font-size:.76rem;color:var(--p-sub)}
+.plan-fact strong{font-size:1.15rem;font-variant-numeric:tabular-nums}
+.plan-fact small{font-size:.8rem;font-weight:500}
+.plan-fact em{display:block;font-style:normal;font-size:.76rem;color:var(--p-sub)}
+.plan-add{display:flex;flex-wrap:wrap;gap:.45rem;align-items:center;margin:.8rem 0}
+.plan-add .plan-label{width:100%}
+.plan-chip{font:inherit;font-size:.92rem;padding:.5rem .8rem;min-height:2.75rem;border-radius:99px;border:1px solid var(--p-sig);background:var(--p-sheet);color:var(--p-sig);cursor:pointer}
+.plan-chip:hover,.plan-chip:focus-visible{background:var(--p-sig);color:#fff}
+.plan-obj-head{display:flex;justify-content:space-between;gap:.75rem;align-items:flex-start}
+.plan-stage{margin:.15rem 0 0;font-size:.86rem;color:var(--p-sub)}
+.plan-blocked{color:#8a4b00;font-weight:600}
+.plan-marks{list-style:none;display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:3px;padding:0;margin:.75rem 0 .4rem}
+.plan-marks li{position:relative;border-top:5px solid var(--p-line);padding-top:.25rem;font-size:.66rem;color:var(--p-sub);text-align:center;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.plan-marks li.done{border-top-color:var(--p-sig);color:var(--p-ink)}
+.plan-marks li.next{border-top-color:var(--ess-light-signal,#92c5ff);font-weight:700;color:var(--p-ink)}
+@media (max-width:26rem){.plan-marks li span{font-size:.58rem}}
+.vr-sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.plan-next{margin:.25rem 0 0}
+.plan-done{margin:.25rem 0 0;font-size:.84rem}
+.plan-detail{margin-top:.9rem;border-top:1px solid var(--p-line);padding-top:.9rem;display:grid;gap:1rem}
+@media (min-width:64rem){.plan-detail{grid-template-columns:minmax(0,2fr) minmax(16rem,1fr)}.plan-connect{grid-column:1/-1}}
+.plan-connect{background:var(--p-soft);border-radius:8px;padding:.7rem .85rem}
+.plan-connect ul{margin:0;padding:0;list-style:none}
+.plan-connect li{margin:.25rem 0;font-size:.92rem}
+.plan-sign{display:inline-grid;place-items:center;width:1.4rem;height:1.4rem;border-radius:50%;font-weight:700;background:var(--p-sheet);border:1px solid var(--p-line)}
+.plan-sign[data-sign="+"]{color:#17622f;border-color:#17622f}
+.plan-sign[data-sign="−"]{color:#9b2c1a;border-color:#9b2c1a}
+.plan-steps{list-style:none;margin:0;padding:0}
+.plan-step{border:1px solid var(--p-line);border-radius:8px;margin:0 0 .45rem;background:var(--p-sheet)}
+.plan-step.next{border-color:var(--p-sig);box-shadow:inset 3px 0 0 var(--p-sig)}
+.plan-step summary{cursor:pointer;padding:.65rem .8rem;min-height:2.75rem;font-weight:600;list-style-position:inside}
+.plan-step-n{display:block;font-size:.74rem;text-transform:uppercase;letter-spacing:.04em;color:var(--p-sub)}
+.plan-tick{color:var(--p-sig)}
+.plan-step-body{padding:0 .85rem .85rem}
+.plan-step-body p{margin:.4rem 0}
+.plan-question{font-size:1.02rem}
+.plan-learn{margin:.3rem 0 .6rem;padding-left:1.1rem}
+.plan-learn li{margin:.3rem 0}
+.plan-check{display:flex;gap:.5rem;align-items:center;margin-top:.6rem;font-weight:600;min-height:2.75rem;cursor:pointer}
+.plan-check input{width:1.25rem;height:1.25rem;accent-color:var(--p-sig)}
+.plan-fx{width:100%;border-collapse:collapse;font-size:.92rem;font-variant-numeric:tabular-nums}
+.plan-fx th,.plan-fx td{padding:.4rem .45rem;border-bottom:1px solid var(--p-line);text-align:left}
+.plan-v-better{color:#17622f;font-weight:600}.plan-v-worse{color:#9b2c1a;font-weight:600}.plan-v-same{color:var(--p-sub)}
+.plan-links{font-size:.92rem}
+.plan-approaches{display:grid;gap:.5rem}
+@media (min-width:40rem){.plan-approaches{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.plan-approach{display:flex;flex-direction:column;gap:.3rem;border:1px solid var(--p-line);border-radius:8px;padding:.7rem;cursor:pointer;font-size:.9rem;position:relative}
+.plan-approach input{position:absolute;top:.75rem;right:.7rem;width:1.15rem;height:1.15rem;accent-color:var(--p-sig)}
+.plan-approach.chosen{border-color:var(--p-sig);box-shadow:inset 0 0 0 1px var(--p-sig)}
+.plan-approach-name{font-weight:700;padding-right:1.8rem}
+.plan-bands{display:flex;flex-wrap:wrap;gap:.3rem}
+.plan-bands span{font-size:.75rem;background:var(--p-soft);border-radius:99px;padding:.1rem .5rem}
+.plan-components{list-style:none;padding:0;margin:.4rem 0;display:grid;gap:.45rem}
+.plan-components li{border:1px solid var(--p-line);border-radius:8px;padding:.55rem .7rem;display:flex;flex-direction:column;gap:.15rem;font-size:.88rem}
+.plan-components small{color:var(--p-sub)}
+.plan-measure{display:grid;gap:.5rem}
+@media (min-width:40rem){.plan-measure{grid-template-columns:1fr 11rem}}
+.plan-blockers ul{margin:.2rem 0 .5rem;padding-left:1.1rem}
+.plan-blockers li{margin:.25rem 0}
+.plan-x{font:inherit;font-size:.78rem;border:0;background:none;color:var(--p-sig);text-decoration:underline;cursor:pointer;min-height:2rem}
+.plan-inline{display:flex;gap:.4rem}
+.plan-inline input{flex:1}
+.plan-remove{margin-top:.6rem}
+.plan-status{min-height:1.3em;margin:0 0 .6rem;font-weight:600}
+.plan-guide-intro{margin-top:2.5rem;border-top:1px solid var(--p-line,#d7d3cc);padding-top:1rem}

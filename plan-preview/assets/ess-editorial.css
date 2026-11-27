@@ -1,0 +1,93 @@
+.ess-theme { --max: 1250px; --pad: clamp(1rem, 3vw, 2.4rem); }
+.ess-theme .site-header { background: var(--ess-header); color: var(--ess-header-text); }
+.ess-theme .header-inner { min-height: 62px; }
+.ess-theme .topnav { gap: clamp(.7rem, 1.5vw, 1.4rem); }
+.ess-theme .topnav a { display: inline-grid; min-height: 44px; align-items: center; color: var(--ess-header-text); font-size: .9rem; }
+.ess-theme .topnav a.on { border-color: var(--ess-header-accent); }
+.ess-theme .beta-pill { color: var(--ess-header-accent); border-color: #8c7e6a; }
+.ess-theme .menu-lines span { background: var(--ess-header-text); }
+.ess-wordmark { color: var(--ess-header-text); font-family: var(--ess-body); }
+.ess-wordmark span { color: var(--ess-header-accent); }
+.ess-theme h1, .ess-theme h2 { font-family: var(--ess-display); font-weight: 500; letter-spacing: -.035em; }
+.ess-theme .section h2 { color: var(--ess-text); }
+.ess-theme .card, .ess-theme .panel { border-radius: 4px; }
+.ess-theme .article a, .section-link { text-underline-offset: .23em; }
+.ess-theme .btn.primary, .ess-theme .btn-small.primary { color: #fffdf8; }
+.ess-theme .sidebar { box-shadow: -12px 0 40px #23282222; }
+.ess-theme .sidebar:not(.open) { visibility: hidden; }
+.ess-theme .gl-body { fill: #e2ded3; stroke: #626a60; }
+.ess-theme .gl-glass { fill: #c1c8be; }
+.ess-theme .gl-tire { fill: #676d64; }
+.ess-theme .gl-park { stroke: #4f6258; }
+.ess-theme .gl-load { fill: #32645465; }
+.ess-theme .gl-load.light { fill: #b65c3288; }
+.ess-theme .gl-blurb strong { color: var(--ess-text); }
+.ess-theme .page.home-page { padding-top: 1.75rem; }
+.vehicle-hero { display: grid; grid-template-columns: .86fr 1.14fr; min-height: 385px; background: var(--ess-header); color: var(--ess-header-text); }
+.vehicle-hero-copy { align-content: center; padding: clamp(1.5rem, 4vw, 4rem); }
+.vehicle-hero-copy .kicker { color: #d2b48d; font-size: .72rem; font-weight: 650; letter-spacing: .16em; }
+.vehicle-hero h1 { margin: .65rem 0 1.03rem; font-size: clamp(3rem, 6.2vw, 5.9rem); line-height: .95; letter-spacing: -.055em; }
+.vehicle-hero h1 em { color: #e7c99e; font-weight: 400; }
+.vehicle-hero-copy > p:not(.kicker) { max-width: 30ch; font-size: 1rem; line-height: 1.45; color: #e5ded1; }
+.vehicle-hero-photo { margin: 0; position: relative; min-width: 0; isolation: isolate; }
+.vehicle-hero-photo img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 51% 60%; }
+.hero-actions { display: flex; flex-wrap: wrap; align-items: center; gap: .4rem .9rem; margin-top: 1.15rem; }
+.hero-actions .hero-button { min-height: 44px; max-width: 100%; padding: .55rem .95rem; border: 1px solid #ead6b2; border-radius: 2px; background: #f3e8d6; color: #352a20; font: 650 .9rem/1.2 var(--ess-body); cursor: pointer; text-align: left; }
+.hero-actions .hero-button:hover { background: #ebce9c; }
+.ess-theme .hero-actions > a, .ess-theme .vehicle-hero noscript a { display: inline-grid; min-height: 44px; align-items: center; color: var(--ess-header-text); text-underline-offset: .26em; }
+.ess-theme .hero-actions :focus-visible, .ess-theme .site-header :focus-visible { outline-color: #f5d4a4; }
+.home-intentions { margin-top: clamp(1.5rem, 4vw, 3rem); }
+.home-intentions h2, .home-fieldnotes h2 { margin: 0 0 .65rem; font-size: clamp(1.9rem, 3.6vw, 3rem); line-height: 1.05; }
+.intent-choices { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); border-top: 1px solid var(--ess-line); border-bottom: 1px solid var(--ess-line); }
+.ess-theme .intent-choice { display: grid; align-content: start; min-width: 0; min-height: 105px; gap: .28rem; padding: 1rem 1.1rem; text-decoration: none; color: var(--ess-text); border-right: 1px solid var(--ess-line); }
+.intent-choice:last-child { border-right: 0; }
+.intent-choice:hover, .home-reading a:hover { background: var(--ess-panel); }
+.intent-choice strong { font: 600 clamp(1.13rem, 1.65vw, 1.4rem)/1.15 var(--ess-display); }
+.intent-choice span, .home-reading span { color: var(--ess-muted); font-size: .91rem; line-height: 1.35; }
+.home-fieldnotes { display: grid; grid-template-columns: 1fr .75fr; gap: 1.3rem 3rem; margin-top: 2.3rem; padding: 1.5rem 0; }
+.home-fieldnotes p { max-width: 42ch; }
+.home-fieldnotes .kicker { margin: 0 0 .4rem; }
+.section-link, .review-entrance a { display: inline-grid; align-items: center; min-height: 44px; }
+.home-reading { display: grid; align-content: start; }
+.ess-theme .home-reading a { display: grid; gap: .2rem; padding: .63rem .45rem; border-bottom: 1px solid var(--ess-line); text-decoration: none; color: var(--ess-text); }
+.review-entrance { border-top: 1px solid var(--ess-line); margin: 0; font-size: .9rem; }
+.alternate-entry .glab { margin-top: 1rem; }
+.lab-callout { border-top: 1px solid var(--ess-line); margin-top: 2rem; padding-top: 1rem; }
+@media (max-width: 930px) {
+  .ess-theme .topnav { display: none; }
+  .ess-theme .menu-toggle { display: block; }
+  .intent-choices { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .intent-choice:nth-child(2) { border-right: 0; }
+  .intent-choice:nth-child(-n+2) { border-bottom: 1px solid var(--ess-line); }
+}
+@media (max-width: 620px) {
+  .ess-theme .page.home-page { padding: 0 1rem 1.5rem; }
+  .ess-theme .header-inner { min-height: 57px; }
+  .vehicle-hero { grid-template-columns: 1fr; min-height: 0; margin-inline: -1rem; }
+  .vehicle-hero-copy { padding: 1.35rem 1.12rem 1rem; }
+  .vehicle-hero h1 { font-size: clamp(2.8rem, 13vw, 4.5rem); margin: .42rem 0 .65rem; }
+  .vehicle-hero-copy .kicker { margin-bottom: .35rem; }
+  .vehicle-hero-copy > p { margin: .45rem 0; }
+  .hero-actions { margin-top: .62rem; }
+  .vehicle-hero-photo { aspect-ratio: 2.2; }
+  .vehicle-hero-photo img { object-position: 50% 66%; }
+  .ess-theme .intent-choice { padding: .8rem .64rem; min-height: 88px; }
+  .home-fieldnotes { grid-template-columns: 1fr; margin-top: 1rem; }
+  .alternate-entry { padding-top: 1.5rem; }
+}
+
+body.ess-theme.weight-tool { --card: var(--ess-panel); --border: var(--ess-line); --accent-soft: var(--ess-raised); }
+.weight-tool-header { background: var(--ess-header); padding: .7rem .9rem; margin-bottom: .9rem; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .1rem .6rem; }
+.weight-tool-header nav { display: flex; flex-wrap: wrap; column-gap: .8rem; }
+.weight-tool-header a, .weight-tool-header nav a { color: var(--ess-header-text); display: inline-flex; align-items: center; min-height: 44px; }
+/* Plan step 5 approach table (Claude, 26 Nov) */
+.plan-approaches { width:100%; border-collapse:collapse; font-size:.92rem; margin:.4rem 0 .8rem; }
+.plan-approaches caption { text-align:left; font-size:.85rem; color:var(--muted, #555b52); padding-bottom:.35rem; }
+.plan-approaches th, .plan-approaches td { text-align:left; vertical-align:top; padding:.45rem .55rem; border-bottom:1px solid var(--line, #d5cfc3); }
+.plan-approaches thead th { font-size:.82rem; text-transform:uppercase; letter-spacing:.04em; color:var(--muted, #555b52); }
+@media (max-width: 640px) {
+  .plan-approaches thead { position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); }
+  .plan-approaches tr { display:block; padding:.55rem 0; border-bottom:1px solid var(--line, #d5cfc3); }
+  .plan-approaches th, .plan-approaches td { display:block; border:0; padding:.12rem 0; }
+  .plan-approaches td::before { content:attr(data-label) ": "; font-weight:600; }
+}
