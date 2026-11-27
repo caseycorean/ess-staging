@@ -1,0 +1,59 @@
+.vehicle-select { display: grid; min-width: 0; gap: .28rem; }
+.vehicle-select > span { font-size: .88rem; font-weight: 700; color: var(--lane, var(--ess-accent)); }
+.vehicle-choose {
+  min-height: 44px; min-width: 0; width: 100%; padding: .5rem .7rem; text-align: left;
+  overflow-wrap: anywhere; border: 1px solid #9a9287; border-radius: 5px;
+  background: var(--ess-panel); color: var(--ess-text); font: inherit; cursor: pointer;
+}
+.vehicle-choose::after { content: '▾'; color: var(--ess-accent); margin-left: .45rem; }
+.catalog-dialog {
+  box-sizing: border-box; width: min(94vw, 760px); max-height: min(90dvh, 760px); padding: clamp(.75rem, 3vw, 1.35rem);
+  color-scheme: light; color: var(--ess-text); background: var(--ess-panel); border: 1px solid #9a9287;
+  border-radius: 11px; font: 1rem/1.45 system-ui, sans-serif; overflow: auto;
+}
+.catalog-dialog::backdrop { background: #0b1015c9; }
+.catalog-dialog * { box-sizing: border-box; }
+.catalog-top { display: flex; justify-content: space-between; align-items: center; gap: .5rem; }
+.catalog-top h2 { font: 500 clamp(1.8rem, 4vw, 2.6rem)/1.05 Georgia, serif; margin: 0; }
+.catalog-dialog > p { color: var(--ess-muted); margin: .35rem 0 .75rem; }
+.catalog-dialog button, .catalog-dialog select, .catalog-dialog input {
+  min-height: 44px; padding: .48rem .64rem; border: 1px solid #9a9287; border-radius: 5px;
+  background: var(--ess-raised); color: var(--ess-text); font: inherit;
+}
+.catalog-dialog input, .catalog-dialog select { width: 100%; min-width: 0; }
+.catalog-dialog button { cursor: pointer; }
+.catalog-dialog button:hover { border-color: var(--ess-accent); }
+.catalog-dialog button.catalog-primary { background: var(--ess-accent); border-color: var(--ess-accent); color: #fffdf8; font-weight: 700; }
+.catalog-top button { min-width: 44px; font-size: 1.2rem; }
+.catalog-filters { margin-block: .55rem; }
+.catalog-filters summary { min-height: 44px; padding-top: .65rem; color: var(--ess-accent); cursor: pointer; }
+.catalog-filters > div { display: grid; gap: .4rem; grid-template-columns: repeat(2,minmax(0,1fr)); }
+.catalog-toolbar { display: flex; flex-wrap: wrap; gap: .45rem; align-items: center; justify-content: space-between; margin-block: .6rem .4rem; }
+.catalog-toolbar > span { color: var(--ess-muted); font-size: .85rem; }
+.catalog-results { display: grid; gap: .4rem; }
+.catalog-result { display: grid; grid-template-columns: minmax(0,1fr) auto; gap: .45rem; border: 1px solid var(--ess-line); border-radius: 5px; padding: .65rem .7rem; }
+.catalog-result h3, .catalog-result p { margin: 0 0 .2rem; }
+.catalog-result h3 { font-size: .98rem; }
+.catalog-result p, .catalog-result small { color: var(--ess-muted); font-size: .8rem; }
+.catalog-result details { margin-top: .35rem; font-size: .8rem; }
+.catalog-result a { color: var(--ess-accent); }
+.catalog-facts { display: flex; flex-wrap: wrap; gap: .6rem; font: .86rem monospace; }
+.catalog-facts small { display: block; font: .75rem system-ui,sans-serif; }
+.catalog-card-actions { display: grid; gap: .25rem; align-content: start; }
+.catalog-card-actions button { font-size: .83rem; }
+[data-catalog-more] { margin-top: .55rem; }
+@media (max-width: 490px) {
+  .catalog-result { grid-template-columns: 1fr; }
+  .catalog-card-actions { grid-template-columns: minmax(0,.7fr) minmax(0,1.3fr); }
+}
+
+.catalog-dialog label { display: grid; gap: .22rem; color: var(--ess-muted); font-size: .88rem; }
+.catalog-identity { display: grid; grid-template-columns: 1fr 1fr minmax(65px, .55fr); gap: .4rem; }
+.catalog-categories { display: flex; flex-wrap: wrap; gap: .28rem; margin: .6rem 0; }
+.catalog-categories button { font-size: .84rem; min-height: 44px; }
+.catalog-categories button[aria-pressed="true"] { border-color: var(--ess-accent); background: #ede0ce; color: var(--ess-accent); font-weight: 700; }
+.catalog-custom { display: flex; gap: .35rem .65rem; flex-wrap: wrap; align-items: center; margin: .5rem 0; padding: .45rem 0; border-block: 1px solid var(--ess-line); }
+.catalog-custom span, .catalog-nearby { font-size: .9rem; color: var(--ess-muted); }
+.catalog-nearby > summary { cursor: pointer; min-height: 44px; align-content: center; }
+.catalog-nearby article { margin-bottom: .32rem; }
+.catalog-result .reference-difference { color: var(--ess-warning); margin-block: .4rem; }

@@ -1,0 +1,279 @@
+/* Optional compatibility layer for the ab41084 and 5d6a663 site and Lab markup.
+   Permanent integrations can migrate each selector to an ess-system component. */
+[data-ess-brand="speed"] {
+  --ig-asphalt: var(--ess-night); --ig-asphalt-2: var(--ess-night-soft);
+  --ig-paper: var(--ess-ground); --ig-card: var(--ess-sheet); --ig-slip: #f6f4ea;
+  --ig-ink: var(--ess-type); --ig-muted: var(--ess-subtle); --ig-line: var(--ess-rule);
+  --ig-amber: var(--ess-light-signal); --ig-amber-ink: var(--ess-signal);
+  --ig-green: #438675; --ig-green-ink: var(--ess-measured);
+  --ig-yellow: #bc8b31; --ig-yellow-ink: var(--ess-near);
+  --ig-red: #b94e41; --ig-red-ink: var(--ess-exceeded);
+  --ig-display: var(--ess-display-face); --ig-body: var(--ess-text-face);
+  --ig-mono: var(--ess-data-face); --ig-radius: var(--ess-radius);
+  --ess-raised: var(--ess-soft); --ess-focus: var(--ess-focus-ring);
+  --ess-header-text: var(--ess-on-night);
+}
+body[data-ess-brand].ess-theme, body[data-ess-brand].ig {
+  font: 1rem/1.55 var(--ess-text-face);
+}
+
+[data-ess-brand] :is(.shell, .header-inner, .footer .line) {
+  width: min(calc(100% - 2 * var(--ess-gutter)), var(--ess-max));
+  max-width: none;
+}
+[data-ess-brand] .header-inner { padding-inline: 0; }
+[data-ess-brand] :is(.site-header, .masthead) { border-bottom: 1px solid #557367; }
+[data-ess-brand] .site-header .brand, [data-ess-brand] .masthead .wordmark { min-height: 44px; align-content: center; }
+[data-ess-brand] :is(.ess-wordmark, .masthead .wordmark)::before {
+  background: url("ess-mark.svg") center / contain no-repeat;
+  width: 2.5rem; height: 2.5rem;
+  border-radius: .2rem;
+}
+[data-ess-brand] :is(.ess-wordmark, .masthead .wordmark) {
+  font: 700 1.3rem/1 var(--ess-display-face) !important;
+  letter-spacing: .095em;
+}
+[data-ess-brand] .ess-wordmark strong { font-weight: 700; }
+[data-ess-brand] :is(.ess-wordmark, .masthead .wordmark) span:last-child {
+  color: var(--ess-on-night) !important; letter-spacing: .19em;
+}
+[data-ess-brand] .beta-pill { color: #dbe6de; }
+[data-ess-brand] :is(.masthead nav a, .masthead .library-link, .site-header a, .menu-toggle):focus-visible {
+  outline-color: var(--ess-light-signal);
+}
+[data-ess-brand] :is(.topnav a.on, .masthead nav a[aria-current="page"]) {
+  color: var(--ess-on-night); background: var(--ess-night-soft);
+  box-shadow: inset 0 -2px var(--ess-light-signal);
+}
+[data-ess-brand] .masthead nav a:hover { background: var(--ess-night-soft); }
+[data-ess-brand] .topnav a { min-height: 44px; display: inline-grid; place-items: center; }
+
+body[data-ess-brand] :is(.page-title h1, .page.article h1, .page > h1) {
+  font: 700 clamp(2.45rem, 5vw, 5.25rem)/.96 var(--ess-display-face);
+  letter-spacing: -.015em;
+  text-wrap: balance;
+}
+body[data-ess-brand] :is(.page-title .eyebrow, .kicker, .ig-eyebrow) { color: var(--ess-measured); }
+body[data-ess-brand] .page-title { margin-block-end: .55rem; }
+body[data-ess-brand] .lede { color: var(--ess-subtle); }
+
+[data-ess-brand] :is(.button.primary, .btn.go, .btn.primary, .catalog-dialog .catalog-primary, .ig-btn.go) {
+  background: var(--ess-signal); border-color: var(--ess-signal); color: white !important;
+}
+[data-ess-brand] :is(.button.primary, .btn.go, .btn.primary, .catalog-dialog .catalog-primary, .ig-btn.go):hover {
+  background: var(--ess-signal-hover); border-color: var(--ess-signal-hover);
+}
+[data-ess-brand] :is(.button.secondary, .button.plain, .btn-small, .selector-trigger, .catalog-dialog button) {
+  min-height: 44px; border-color: var(--ess-edge); max-width: 100%;
+}
+[data-ess-brand] .menu-toggle { min-height: 44px; min-width: 44px; }
+[data-ess-brand] :is(.button, .ig-step, .route-card, .catalog-categories button, select, input) {
+  scroll-margin-block: 1rem;
+}
+[data-ess-brand] :is(.button, .catalog-categories button, .ig-tire-list button)[aria-pressed="true"] {
+  background: var(--ess-night); border-color: var(--ess-night);
+  color: var(--ess-on-night); box-shadow: inset 0 -3px var(--ess-light-signal);
+}
+[data-ess-brand] :is(input, select) { max-width: 100%; accent-color: var(--ess-measured); }
+[data-ess-brand] :is(.catalog-dialog input, .catalog-dialog select, .perf-controls input, .perf-controls select) { min-height: 44px; }
+[data-ess-brand] .catalog-dialog {
+  border-color: var(--ess-rule); border-radius: .65rem;
+  font-family: var(--ess-text-face);
+}
+[data-ess-brand] .catalog-top h2 { font: 700 clamp(2rem, 4vw, 3.5rem)/1 var(--ess-display-face) !important; }
+[data-ess-brand] .catalog-result { padding: .8rem; border-radius: var(--ess-radius); }
+[data-ess-brand] .catalog-result h3 { font-size: 1.05rem; }
+[data-ess-brand] .catalog-custom { background: var(--ess-soft); padding: .5rem; }
+[data-ess-brand] :is(.ess-config, .active-bar, .ig-car) { border-color: var(--ess-rule); border-radius: var(--ess-radius); }
+[data-ess-brand] :is(.panel, .content-panel, .tool-card, .glab) { border-color: var(--ess-rule); border-radius: var(--ess-radius); }
+[data-ess-brand] :is(.route-card, .ig-step, .ig-path):hover { border-color: var(--ess-measured); }
+[data-ess-brand] .route-card { border-inline-start: 3px solid var(--ess-measured); }
+[data-ess-brand] :is(.perf-formula, .explain summary, .ig-tire-list button) { overflow-wrap: anywhere; }
+
+[data-ess-brand] .ig-hero {
+  position: relative;
+  padding: clamp(1.25rem, 4vw, 4.5rem) var(--ess-gutter);
+  background: var(--ess-night);
+  color: var(--ess-on-night);
+  isolation: isolate;
+}
+[data-ess-brand] .ig-hero::before {
+  content: ""; z-index: -1; position: absolute; inset: 0;
+  background: linear-gradient(90deg, #162720 0%, #162720f2 25%, #16272076 54%, #162720bb 100%),
+    url("palouse-run.webp") 62% 55% / cover no-repeat;
+}
+[data-ess-brand] .ig-hero-inner {
+  max-width: var(--ess-max);
+  gap: clamp(1rem, 3.5vw, 4.75rem);
+  align-items: end;
+}
+[data-ess-brand] .ig-hero h1 {
+  color: var(--ess-on-night);
+  font: 700 clamp(3.9rem, 10.5vw, 10.5rem)/.82 var(--ess-display-face);
+  letter-spacing: -.035em; margin: .45rem 0 1.2rem;
+  text-wrap: nowrap;
+}
+[data-ess-brand] .ig-hero h1 em { color: var(--ess-on-night); }
+body[data-ess-brand] .ig-hero .ig-eyebrow { color: #e0ebe2; margin: 0; }
+[data-ess-brand] .ig-hero p.ig-lede { max-width: 38ch; color: var(--ess-on-night); line-height: 1.5; }
+[data-ess-brand] .ig-hero .ig-invite { color: #e5ece2; }
+[data-ess-brand] .ig-hero a:focus-visible { outline-color: var(--ess-light-signal); }
+[data-ess-brand] .ig-hero-actions .hero-button {
+  min-height: 44px; background: var(--ess-light-signal); color: #2c170e;
+}
+[data-ess-brand] .ig-hero-actions .hero-button:hover { background: #ffc1ac; }
+[data-ess-brand] .ig-hero-actions > a { min-height: 44px; display: inline-flex; align-items: center; padding-inline: .3rem; }
+[data-ess-brand] :is(.ig-live, .ig-live-card) {
+  background: #1b3028; border-color: #5a7669;
+  padding: clamp(.85rem, 1.5vw, 1.3rem);
+  min-width: 0; grid-template-columns: minmax(0, 1fr);
+}
+[data-ess-brand] .ig-live-head > span {
+  min-width: 0; white-space: normal; overflow-wrap: anywhere;
+}
+[data-ess-brand] .ig-live-find { overflow-wrap: anywhere; }
+[data-ess-brand] :is(.ig-live, .ig-live-card) .ig-live-find b { color: var(--ess-light-signal); }
+[data-ess-brand] .ig-live { box-shadow: 0 8px 25px #10171336; }
+[data-ess-brand] .ig-live-cap { color: #d4e2d8; }
+[data-ess-brand] :is(.ig-hero .gc-val, .ig-next .gc-val)::before { background: #1b3028; }
+[data-ess-brand] :is(.ig-hero .gc-bar, .ig-next .gc-bar) { background: #315146; }
+[data-ess-brand] :is(.ig-hero .gc-limit em, .ig-next .gc-limit em) { background: #1b3028; }
+[data-ess-brand] :is(.ig-hero, .ig-next) .gc-s { color: #f2f1e9; }
+[data-ess-brand] .ig-section {
+  box-sizing: border-box;
+  max-width: var(--ess-max);
+  width: min(calc(100% - 2 * var(--ess-gutter)), var(--ess-max));
+  padding: clamp(1.1rem, 3vw, 2.8rem) 0 0;
+}
+[data-ess-brand] .ig-section > h2 { text-transform: none; }
+[data-ess-brand] .ig-path {
+  border-inline-start: 1px solid var(--ess-rule); border-block-start: 3px solid var(--ess-measured);
+  padding: clamp(.7rem, 1.6vw, 1.5rem); min-height: 7.2rem;
+}
+[data-ess-brand] .ig-path svg { color: var(--ess-measured); }
+[data-ess-brand] .ig-path svg [fill="#f2a81d"] { fill: var(--ess-signal); }
+[data-ess-brand] .ig-path span { font-size: .9rem; }
+[data-ess-brand] .ig-feature { background: var(--ess-soft); border-color: var(--ess-rule); align-items: center; }
+[data-ess-brand] .home-fieldnotes {
+  grid-template-columns: minmax(0, 1fr); gap: .55rem; padding-block-end: 1.4rem;
+}
+[data-ess-brand] .home-fieldnotes > .ig-eyebrow { margin-block: 0; }
+
+[data-ess-brand] .perf-grid { gap: clamp(.7rem, 1.2vw, 1.3rem); }
+[data-ess-brand] .perf-results { min-width: 0; }
+[data-ess-brand] .perf-controls { border-block-start: 3px solid var(--ess-measured); }
+[data-ess-brand] .perf-traction { border-top-width: 3px; }
+[data-ess-brand] .ig-slip-wide {
+  background: var(--ess-sheet); border: 1px solid var(--ess-rule); border-radius: var(--ess-radius);
+  box-shadow: none; mask: none;
+}
+[data-ess-brand] .ig-slip-wide::after { display: none; }
+[data-ess-brand] .ig-slip-grid .big b { color: var(--ess-type); }
+[data-ess-brand] .ig-step { border-inline-start: 3px solid var(--ess-measured); padding: .65rem; }
+[data-ess-brand] .ig-step b { color: var(--ess-measured); }
+[data-ess-brand] .ig-step b.worse { color: var(--ess-signal); }
+[data-ess-brand] .ig-feedback { background: var(--ess-soft); border-color: var(--ess-rule); color: var(--ess-type); }
+[data-ess-brand] .gc-row:focus-visible { outline-offset: -3px; }
+[data-ess-brand] .gc-row[aria-pressed="true"] { background: var(--ess-soft); }
+[data-ess-brand] .gc-bar { background: var(--ess-soft); }
+[data-ess-brand] .gc-limit em { color: var(--ess-type); background: var(--ess-sheet); }
+[data-ess-brand] .gc-val::before { background: var(--ess-sheet); }
+[data-ess-brand] .ig-learn a, [data-ess-brand] .ig-links a { min-height: 44px; align-content: center; }
+[data-ess-brand] .compare-workspace .lane-editor, [data-ess-brand] .garage-card { border-block-start: 3px solid var(--ess-measured); }
+
+[data-ess-brand] .page.article { max-width: min(100% - 2 * var(--ess-gutter), 49rem); }
+[data-ess-brand] :is(.article, [data-ess-layout="calculator"]) .callout {
+  background: var(--ess-soft); color: var(--ess-type); border-color: var(--ess-measured);
+}
+[data-ess-brand] .ig-jump a, [data-ess-brand] .ig-jump .go {
+  min-height: 44px; display: inline-flex; align-items: center;
+}
+[data-ess-brand] .ig-next { background: var(--ess-night); color: var(--ess-on-night); }
+[data-ess-brand] .ig-next h2 { color: var(--ess-on-night); }
+[data-ess-brand] .ig-journey {
+  min-width: 0; border-block-start-color: var(--ess-measured);
+  background: var(--ess-sheet);
+}
+[data-ess-brand] .ig-journey .gc-bar { background: #315146; }
+[data-ess-brand] .ig-journey .gc-s { color: var(--ess-on-night); }
+[data-ess-brand] .ig-exp { border-inline-start-color: var(--ess-measured); }
+[data-ess-brand] .ig-exp-list { align-items: stretch; }
+[data-ess-brand] .ig-preview-note { border-inline-start-color: var(--ess-near); }
+[data-ess-brand] .ig-launch-bar { background: linear-gradient(90deg, var(--ess-measured) var(--w), var(--ess-soft) var(--w)); }
+[data-ess-brand] .ig-launch-list li[data-launch="maximum"] .ig-launch-bar {
+  background: linear-gradient(90deg, var(--ess-signal) var(--w), var(--ess-soft) var(--w));
+}
+[data-ess-brand] .ig-lost-bar { background: var(--ess-soft); }
+[data-ess-brand] .ess-study-rail { display: none; }
+[data-ess-brand] .ess-study-rail a { display: block; align-content: center; min-height: 44px; }
+[data-ess-brand] [data-ess-layout="calculator"] .result {
+  border-color: var(--ess-rule); background: var(--ess-soft); border-radius: var(--ess-radius);
+}
+[data-ess-brand] [data-ess-layout="calculator"] .result .v { font: 700 clamp(1.25rem, 3vw, 2rem)/1.25 var(--ess-data-face); color: var(--ess-measured); }
+[data-ess-brand] [data-ess-layout="calculator"] .panel input,
+[data-ess-brand] [data-ess-layout="calculator"] .panel select { min-height: 44px; }
+
+@media (max-width: 53.99rem) {
+  [data-ess-brand] .ig-hero::before {
+    inset: 0 0 auto; height: 25rem;
+    background: linear-gradient(0deg, #162720 0%, #16272000 43%, #16272070 100%),
+      linear-gradient(90deg, #162720d0, #16272015),
+      url("palouse-run.webp") 55% 48% / cover no-repeat;
+  }
+  [data-ess-brand] .ig-hero p.ig-lede { max-width: 33ch; }
+  [data-ess-brand] .perf-grid { display: grid; grid-template-columns: minmax(0, 1fr); }
+  [data-ess-brand] .ig-path { min-height: 6.35rem; }
+}
+@media (max-width: 24rem) {
+  [data-ess-brand] .ig-hero h1 { font-size: clamp(3.1rem, 13vw, 4.1rem); }
+  [data-ess-brand] .catalog-identity { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+  [data-ess-brand] :is(.catalog-result, .ig-ctl-pair, .ig-slip-grid) { min-width: 0; }
+  [data-ess-brand] .ig-step { column-gap: .4rem; }
+}
+@media (min-width: 54rem) {
+  [data-ess-brand] .ig-hero-inner { grid-template-columns: minmax(0, 1.55fr) minmax(18rem, 1fr); }
+  [data-ess-brand] .ig-hero h1 { font-size: clamp(5rem, 9vw, 10.2rem); }
+}
+@media (min-width: 61rem) {
+  [data-ess-brand] .perf-grid { grid-template-columns: minmax(0, 1.13fr) minmax(0, 1fr); align-items: start; }
+  [data-ess-brand] .perf-results { grid-column: 1; grid-row: span 4; position: sticky; top: .75rem; }
+  [data-ess-brand] .perf-grid > :where(.perf-controls, #perf-next, #perf-tires, #perf-launch, .perf-learn) { grid-column: 2; }
+  [data-ess-brand] .page[data-ess-layout="article-rail"] {
+    width: min(calc(100% - 2 * var(--ess-gutter)), 68rem);
+    max-width: none;
+    display: grid;
+    grid-template-columns: minmax(0, 45rem) minmax(14rem, 1fr);
+    column-gap: clamp(2rem, 4vw, 5rem); align-items: start;
+  }
+  [data-ess-brand] [data-ess-layout="article-rail"] > * { grid-column: 1; margin-block-start: 0; }
+  [data-ess-brand] [data-ess-layout="article-rail"] > .ess-study-rail {
+    grid-column: 2; grid-row: 4 / span 30; position: sticky; top: 1.1rem; display: block;
+  }
+  [data-ess-brand] [data-ess-layout="calculator"] > .ess-calculator-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem 1.3rem; align-items: start;
+  }
+  [data-ess-brand] .ess-calculator-grid > .panel { margin: 0; }
+  [data-ess-brand] .ess-calculator-grid > .panel:last-child { grid-row: 1 / span 3; grid-column: 2; position: sticky; top: 1rem; }
+}
+@media (min-width: 100rem) {
+  [data-ess-brand] .perf-grid {
+    grid-template-columns: minmax(0, 1.25fr) minmax(0, 1.03fr) minmax(16rem, .83fr);
+  }
+  [data-ess-brand] #perf-next { grid-column: 3; grid-row: 1 / span 2; }
+  [data-ess-brand] #perf-tires { grid-row: 2; }
+  [data-ess-brand] #perf-launch { grid-column: 2 / -1; grid-row: 3; }
+  [data-ess-brand] .perf-grid > .perf-learn { grid-column: 2 / -1; grid-row: 4; }
+  [data-ess-brand] .phase2-compare-grid { grid-template-columns: minmax(0, 1.7fr) minmax(0, 1fr); gap: 1.25rem; }
+  [data-ess-brand] .page[data-ess-layout="article-rail"] { width: min(calc(100% - 2 * var(--ess-gutter)), 77rem); column-gap: 6rem; }
+}
+@media (min-width: 61rem) and (max-height: 56rem) {
+  [data-ess-brand] .perf-results { position: static; }
+}
+@media (prefers-reduced-motion: reduce) {
+  [data-ess-brand] *, [data-ess-brand] *::before, [data-ess-brand] *::after {
+    scroll-behavior: auto !important;
+    transition-duration: .01ms !important;
+  }
+}

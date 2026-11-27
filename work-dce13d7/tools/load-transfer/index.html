@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Load Transfer Calculator | Endicott Speed Shop</title>
+<meta name="description" content="Free load transfer calculator: braking, acceleration and cornering weight transfer, front/rear split from roll stiffness and roll centers, and the load on each tire.">
+
+
+<link rel="canonical" href="https://endicottspeedshop.com/tools/load-transfer/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Endicott Speed Shop">
+<meta property="og:title" content="Load Transfer Calculator | Endicott Speed Shop">
+<meta property="og:description" content="Free load transfer calculator: braking, acceleration and cornering weight transfer, front/rear split from roll stiffness and roll centers, and the load on each tire.">
+<meta property="og:url" content="https://endicottspeedshop.com/tools/load-transfer/">
+<meta property="og:image" content="https://endicottspeedshop.com/logo-round.png">
+<meta property="og:image:width" content="1536">
+<meta property="og:image:height" content="1024">
+<meta property="og:image:alt" content="Endicott Speed Shop logo: a second-generation Firebird in a round badge">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../../assets/site.css">
+<link rel="stylesheet" href="../../assets/ess-search.css">
+<link rel="stylesheet" href="../../assets/ess-editorial.css">
+<link rel="stylesheet" href="../../assets/ess-identity.css">
+<link rel="stylesheet" href="../../assets/ess-presentation/ess-system.css">
+<link rel="stylesheet" href="../../assets/ess-presentation/ess-claude-adapter.css">
+<link rel="icon" type="image/png" href="../../logo-round.png">
+<link rel="stylesheet" href="../../assets/ess-reference.css">
+<script type="module" src="../../experience/measurement.mjs"></script>
+<meta name="theme-color" content="#ffffff">
+<script src="../../assets/tool-events.js" data-tool="load_transfer" data-result="lx" defer></script><script type="module" src="../../experience/journey.mjs"></script><script type="module" src="../../experience/search-bridge.mjs"></script>
+<link rel="stylesheet" href="../../assets/candidate-a/ess-a-theme.css">
+<meta name="robots" content="noindex,nofollow">
+</head>
+<body class="ess-theme" data-ess-brand="speed" data-ess-skin="candidate-a"><div class="ess-staging-banner" role="note" style="position:relative;z-index:9999;background:#8a1c1c;color:#fff;font:600 13px/1.35 -apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Arial,sans-serif;padding:6px 12px;text-align:center">Preview 1 of 3 · Work's latest website, exact version dce13d7 (as committed, not rebuilt) · Not the live site, results still being checked · <a href="https://endicottspeedshop.com/" style="color:#fff;text-decoration:underline">endicottspeedshop.com</a></div>
+<a class="vr-skip" href="#main">Skip to content</a>
+<header class="site-header"><div class="header-inner">
+<div class="brand-wrap"><a href="../.././" class="brand" aria-label="Endicott Speed Shop home"><img class="a-logo" src="../../logo-horizontal-tight.png" alt="Endicott Speed Shop — Measure, Test, Improve" width="611" height="192"></a><a class="beta-pill" href="../../about/#beta" title="This site is in beta: tools and articles are still being checked and expanded">Beta</a></div>
+<nav class="topnav" aria-label="Main navigation"><a href="../../vehicles/">Explore</a><a href="../../experience/">Test</a><a href="../../plan/">Plan</a><a href="../../learn/" class=on aria-current=page>Learn</a><a href="../../experience/#garage" class=nav-garage>My Garage</a></nav>
+<button class="menu-toggle" id="menuToggle" aria-label="Open menu" aria-expanded="false"><div class="menu-lines"><span></span><span></span><span></span></div></button>
+</div></header>
+<aside class="sidebar" id="sidebar"><button class="close-btn" id="closeBtn" aria-label="Close menu">×</button>
+<nav><a href="../.././">Home<small>Start here</small></a><a href="../../vehicles/">Explore<small>Discover and compare performance cars</small></a><a href="../../experience/">Test<small>Try a change: acceleration, gearing, grip and suspension</small></a><a href="../../plan/">Plan<small>Decide what to do first, step by step</small></a><a href="../../learn/">Learn<small>Articles, calculators and how ESS measures</small></a><a href="../../experience/#garage">My Garage<small>Your saved cars, kept in this browser</small></a><a href="../../about/">About<small>Why this exists</small></a><a href="../../contact/">Contact<small>Corrections, questions and measured data</small></a></nav>
+<p class="hint" style="margin-top:20px">This site is in beta: tools and articles are still being checked and expanded. <a href="../../contact/">Spot a problem? Tell us.</a></p>
+</aside>
+<main id="main" class="page">
+<div class="kicker">Tools</div>
+<h1>Load Transfer Calculator</h1>
+<div class="ess-config" data-ess-vehicle="load-transfer" data-lab-root="../../experience/"></div>
+<p class="lede">Braking, accelerating and cornering move load from one set of tires to another. Enter your car's weight, balance and center of gravity height to see how much moves, where it goes, and how the load on each tire changes when you brake into a corner.</p>
+
+<div class="ess-calculator-grid"><div class="panel"><h2>The car</h2><div class="fields">
+<div><label for="w">Total weight (lb)</label><input id="w" inputmode="decimal" value="3300"></div>
+<div><label for="fp">Weight on front (%)</label><input id="fp" inputmode="decimal" value="54"></div>
+<div><label for="h">CG height (in)</label><input id="h" inputmode="decimal" value="20"></div>
+<div><label for="wb">Wheelbase (in)</label><input id="wb" inputmode="decimal" value="108"></div>
+<div><label for="tf">Front track (in)</label><input id="tf" inputmode="decimal" value="61"></div>
+<div><label for="tr">Rear track (in)</label><input id="tr" inputmode="decimal" value="60"></div></div>
+<p class="hint">Example values: a second-generation Firebird, ready to drive, with an LS swap. They are illustrative, not an ESS measurement. Weight and front % come from corner scales; the <a href="../cg-builder/">Balance &amp; CG Builder</a> estimates CG height.</p></div>
+<div class="panel"><h2>What the car is doing</h2><div class="fields">
+<div><label for="lm">Front to rear</label><select id="lm"><option value="b" selected>Braking</option><option value="a">Accelerating</option><option value="n">Neither</option></select></div>
+<div><label for="ax">Braking / acceleration (g)</label><input id="ax" inputmode="decimal" value="0.4"></div>
+<div><label for="dirn">Cornering</label><select id="dirn"><option value="r" selected>Turning right</option><option value="l">Turning left</option></select></div>
+<div><label for="ay">Cornering (g)</label><input id="ay" inputmode="decimal" value="0.9"></div></div>
+<p class="note" id="labnote" hidden>Filled in from the grip experiment on the home page: weight, front %, CG height, braking and cornering. The suspension values below are the same defaults it uses.</p><p class="hint">Example: trail-braking at 0.4 g while cornering at 0.9 g. Set either value to 0 to look at braking or cornering alone. Street tires reach roughly 0.8–0.9 g; the <a href="../../articles/traction-circle/">traction circle</a> explains why you can't have full braking and full cornering at the same time.</p></div>
+<details class="panel"><summary><strong>Suspension (changes the front/rear split of cornering load only)</strong></summary><div class="fields" style="margin-top:12px">
+<div><label for="kf">Roll stiffness on front (%)</label><input id="kf" inputmode="decimal" value="60"></div>
+<div><label for="zf">Front roll center height (in)</label><input id="zf" inputmode="decimal" value="2"></div>
+<div><label for="zr">Rear roll center height (in)</label><input id="zr" inputmode="decimal" value="12"></div></div>
+<p class="hint">Example values only (engineering judgment, not measured): a stock-style front suspension with a low roll center, and a leaf-spring live axle whose roll center sits near the spring mounts. Roll stiffness on front is the front springs' and anti-roll bar's share of the car's total resistance to body roll. Not known? Leave these: they don't change the total amount transferred, only how it splits between the front and rear tires.</p></details>
+<div class="panel"><h2>Result</h2><div class="results">
+<div class="result"><div class="l">Front to rear transfer</div><div class="v" id="lx">–</div><div class="d" id="lxd"></div></div>
+<div class="result"><div class="l">Side to side, front axle</div><div class="v" id="lf">–</div><div class="d" id="lfd"></div></div>
+<div class="result"><div class="l">Side to side, rear axle</div><div class="v" id="lr">–</div><div class="d" id="lrd"></div></div>
+<div class="result"><div class="l">Front share of cornering transfer</div><div class="v" id="lltd">–</div><div class="d">higher tends toward understeer</div></div></div>
+<h2 style="margin-top:20px">Load on each tire</h2>
+<div class="results">
+<div class="result"><div class="l">Left front</div><div class="v" id="clf">–</div><div class="d" id="dlf"></div></div>
+<div class="result"><div class="l">Right front</div><div class="v" id="crf">–</div><div class="d" id="drf"></div></div>
+<div class="result"><div class="l">Left rear</div><div class="v" id="clr">–</div><div class="d" id="dlr"></div></div>
+<div class="result"><div class="l">Right rear</div><div class="v" id="crr">–</div><div class="d" id="drr"></div></div></div>
+<div class="note warn" id="warn"></div>
+<p class="callout" id="take">–</p></div>
+</div>
+<div class="section narrow"><div class="section-label">How it works</div>
+<p><strong>Front to rear.</strong> Braking pushes load onto the front tires; accelerating pushes it onto the rears. The amount is weight × CG height × g ÷ wheelbase. Only three things matter: weight, how high the mass sits, and how long the car is. Where the weight sits front to rear (the front %) changes the starting point, not the amount that moves.</p>
+<p><strong>Side to side.</strong> Cornering moves load to the outside tires: weight × CG height × g ÷ track, in total. A lower CG or a wider track moves less. How that total splits between the front and rear axles is set by the suspension: part travels straight through the suspension links (the roll centers), and the rest through the springs and anti-roll bars in proportion to each end's share of roll stiffness.</p>
+<p><strong>Why it matters.</strong> A tire's grip grows more slowly than the load on it, so the axle that carries more of the cornering transfer loses grip first. Shift the transfer toward the front and the car tends to push (understeer); toward the rear and it tends to rotate (oversteer). This is why a stiffer front anti-roll bar adds understeer.</p>
+<p><strong>What this tool assumes.</strong> Steady braking and cornering on a flat road; the whole car's mass is treated as one body (wheels and axles are not separated out); no aerodynamic downforce or drag; the front/rear split of cornering transfer uses the static axle loads. Tire grip is not modeled: the tool shows the loads, not whether the tires can hold them. These simplifications are fine for comparing changes on the same car; treat the absolute numbers as estimates.</p>
+<p>Related: <a href="../cg-builder/">Balance &amp; CG Builder</a> · <a href="../spring-rate/">Spring Rate &amp; Ride Frequency</a> · <a href="../../articles/weight-distribution-50-50/">Why 50/50 is not the goal</a> · <a href="../../articles/traction-circle/">The traction circle</a></p></div>
+<section class="ig-journey" data-ess-journey="tools/load-transfer" data-lab-root="../../experience/" aria-label="Try it on a car"><noscript><p><a href="../../experience/">Open the Vehicle Lab</a></p></noscript></section></main>
+<script type="module">
+import { tireLoads } from "../../engine/loads.mjs";
+(function(){
+function num(v){v=(v||'').toString().trim().replace(/,/g,'');if(v==='')return null;if(!/^[-+]?(\d+\.?\d*|\.\d+)$/.test(v))return NaN;return parseFloat(v)}
+function f(v,d){return v.toLocaleString(undefined,{minimumFractionDigits:d,maximumFractionDigits:d})}
+function $(id){return document.getElementById(id)}
+var RULES={w:[0,null,false],fp:[0,100,false],h:[0,null,false],wb:[0,null,false],tf:[0,null,false],tr:[0,null,false],ax:[0,3,true],ay:[0,3,true],kf:[0,100,true],zf:[null,null,true],zr:[null,null,true]};
+var OUT=['lx','lxd','lf','lfd','lr','lrd','lltd','clf','crf','clr','crr','dlf','drf','dlr','drr'];
+var DESC=['lxd','lfd','lrd','dlf','drf','dlr','drr'];
+function clearOut(){OUT.forEach(function(id){$(id).textContent=DESC.indexOf(id)>=0?'':'–'})}
+function calc(){
+ var v={},bad=false,blank=false;
+ Object.keys(RULES).forEach(function(id){var r=RULES[id],el=$(id),x=num(el.value),ok=x===x;
+  if(ok&&x!==null){if(r[0]!==null&&(r[2]?x<r[0]:x<=r[0]))ok=false;if(r[1]!==null&&(r[2]?x>r[1]:x>=r[1]))ok=false}
+  if(ok)el.removeAttribute('aria-invalid');else{el.setAttribute('aria-invalid','true');bad=true}
+  if(x===null)blank=true;v[id]=x});
+ if(bad)return show('Check the highlighted numbers: weight, CG height, wheelbase and tracks must be positive; front % between 0 and 100; g values from 0 to 3; roll stiffness share from 0 to 100. Plain numbers only.');
+ if(blank)return show('Fill in every value.');
+ var W=v.w,Wf=W*v.fp/100,Wr=W-Wf,ay=v.ay;
+ var sx=$('lm').value==='b'?1:$('lm').value==='a'?-1:0, ax=sx===0?0:v.ax;
+ var result=tireLoads({weight:W,front:v.fp/100,wheelbase:v.wb,cg:v.h,frontTrack:v.tf,rearTrack:v.tr},sx*ax,ay,
+   {frontRoll:v.kf/100,frontCenter:v.zf,rearCenter:v.zr});
+ var dx=Math.abs(result.longitudinal),F=Wf+result.longitudinal,R=Wr-result.longitudinal;
+ var H=v.h-result.rollAxis,dF=result.front,dR=result.rear,right=$('dirn').value==='r';
+ var order=right?[0,1,2,3]:[1,0,3,2];
+ var c=Object.fromEntries(['lf','rf','lr','rr'].map((key,i)=>[key,result.tires[order[i]]]));
+ var st={lf:Wf/2,rf:Wf/2,lr:Wr/2,rr:Wr/2};
+ $('lx').textContent=f(dx,0)+' lb';
+ $('lxd').textContent=sx===0||ax===0?'no braking or acceleration':(sx>0?'onto the front tires':'onto the rear tires')+' · front now '+f(100*F/W,1)+'%';
+ $('lf').textContent=f(dF,0)+' lb';$('lfd').textContent='to the '+(right?'left':'right')+' front';
+ $('lr').textContent=f(dR,0)+' lb';$('lrd').textContent='to the '+(right?'left':'right')+' rear';
+ $('lltd').textContent=ay>0&&dF+dR>0?f(100*dF/(dF+dR),0)+'%':'–';
+ ['lf','rf','lr','rr'].forEach(function(k){$('c'+k).textContent=f(c[k],0)+' lb';var d=c[k]-st[k];$('d'+k).textContent=(d>=0?'+':'−')+f(Math.abs(d),0)+' lb vs parked'});
+ var msgs=[],lift=[];
+ ['lf','rf','lr','rr'].forEach(function(k){if(c[k]<=0)lift.push({lf:'left front',rf:'right front',lr:'left rear',rr:'right rear'}[k])});
+ if(lift.length)msgs.push('The '+lift.join(' and ')+' would lift off the ground. Past that point the car no longer behaves as this tool assumes, so the other numbers are not valid.');
+ if(R<=0||F<=0)msgs.push('This much braking or acceleration would lift an axle (a stoppie or wheelie). Check the g value.');
+ if(H<=0)msgs.push('The roll axis is at or above the CG height. That is unusual for a car; check the roll center heights.');
+ if(ax>1.6||ay>1.6)msgs.push('More than about 1.6 g needs racing slicks or downforce, which this tool does not model.');
+ show(msgs.join(' '),true);
+ var inner=right?'right':'left', outer=right?'left':'right';
+ if(!lift.length&&R>0&&F>0){
+  var t=[];
+  if(dx>0)t.push((sx>0?'Braking':'Accelerating')+' moves '+f(dx,0)+' lb '+(sx>0?'onto the front':'onto the rear')+' tires');
+  if(ay>0)t.push('cornering '+(right?'right':'left')+' moves '+f(dF+dR,0)+' lb to the '+outer+' tires, '+f(100*dF/(dF+dR),0)+'% of it at the front');
+  var lo=Math.min(c[inner[0]+'f'],c[inner[0]+'r']),loK=c[inner[0]+'f']<c[inner[0]+'r']?'front':'rear';
+  $('take').textContent=t.length?(t.join('; ')+'. The '+inner+' '+loK+' tire is the most lightly loaded, at '+f(lo,0)+' lb.'):'No braking, acceleration or cornering: each tire carries its parked load.';
+ }else $('take').textContent='–';
+}
+function show(m,keep){var w=$('warn');w.style.display=m?'block':'none';w.textContent=m;if(m&&!keep){$('take').textContent='–';clearOut()}}
+document.querySelectorAll('input,select').forEach(function(i){i.addEventListener('input',calc);i.addEventListener('change',calc)});
+// Opened from the home-page grip experiment: '#lab:w=..&fp=..&h=..&ax=..&ay=..' fills those inputs (other inputs keep their defaults).
+(function(){var m=(location.hash||'').match(/^#lab:(.+)$/);if(!m)return;var n=0;m[1].split('&').forEach(function(kv){var p=kv.split('='),el=['w','fp','h','ax','ay'].indexOf(p[0])>=0?$(p[0]):null;if(el&&/^\d+(\.\d+)?$/.test(p[1]||'')){el.value=p[1];n++}});
+ if(n){$('lm').value=parseFloat($('ax').value)>0?'b':'n';$('dirn').value='r';var h=$('labnote');if(h)h.hidden=false}})();
+calc();
+})();
+</script>
+
+<footer class="footer"><div class="line"><span class="ig-sign">Measure. Test. Improve.</span><span>© 2026 Endicott Speed Shop · Beta — <a href="../../contact/?from=/tools/load-transfer/">Give feedback</a></span><span><a href="../../privacy/">Privacy</a> · <a href="../../contact/">Contact</a></span><label class="ess-units"><span>Units</span><select data-units-pref aria-label="Measurement units"><option value="us">US customary</option><option value="metric">Metric</option><option value="dual">Both</option></select></label></div></footer>
+<script src="../../assets/site.js"></script>
+<script type="module" src="../../experience/units.mjs"></script>
+</body>
+</html>

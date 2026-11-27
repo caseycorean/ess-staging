@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Spring Rate &amp; Ride Frequency Calculator | Endicott Speed Shop</title>
+<meta name="description" content="Free spring rate calculator: wheel rate from motion ratio and spring angle, ride rate with the tire, ride frequency front and rear, and the spring rate needed for a target frequency.">
+
+
+<link rel="canonical" href="https://endicottspeedshop.com/tools/spring-rate/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Endicott Speed Shop">
+<meta property="og:title" content="Spring Rate &amp; Ride Frequency Calculator | Endicott Speed Shop">
+<meta property="og:description" content="Free spring rate calculator: wheel rate from motion ratio and spring angle, ride rate with the tire, ride frequency front and rear, and the spring rate needed for a target frequency.">
+<meta property="og:url" content="https://endicottspeedshop.com/tools/spring-rate/">
+<meta property="og:image" content="https://endicottspeedshop.com/logo-round.png">
+<meta property="og:image:width" content="1536">
+<meta property="og:image:height" content="1024">
+<meta property="og:image:alt" content="Endicott Speed Shop logo: a second-generation Firebird in a round badge">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="../../assets/site.css">
+<link rel="stylesheet" href="../../assets/ess-search.css">
+<link rel="stylesheet" href="../../assets/ess-editorial.css">
+<link rel="stylesheet" href="../../assets/ess-identity.css">
+<link rel="stylesheet" href="../../assets/ess-presentation/ess-system.css">
+<link rel="stylesheet" href="../../assets/ess-presentation/ess-claude-adapter.css">
+<link rel="icon" type="image/png" href="../../logo-round.png">
+<link rel="stylesheet" href="../../assets/ess-reference.css">
+<script type="module" src="../../experience/measurement.mjs"></script>
+<meta name="theme-color" content="#ffffff">
+<script src="../../assets/tool-events.js" data-tool="spring_rate" data-result="ff" defer></script><script type="module" src="../../experience/journey.mjs"></script><script type="module" src="../../experience/search-bridge.mjs"></script>
+<link rel="stylesheet" href="../../assets/candidate-a/ess-a-theme.css">
+<meta name="robots" content="noindex,nofollow">
+</head>
+<body class="ess-theme" data-ess-brand="speed" data-ess-skin="candidate-a"><div class="ess-staging-banner" role="note" style="position:relative;z-index:9999;background:#8a1c1c;color:#fff;font:600 13px/1.35 -apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Arial,sans-serif;padding:6px 12px;text-align:center">Preview 1 of 3 · Work's latest website, exact version dce13d7 (as committed, not rebuilt) · Not the live site, results still being checked · <a href="https://endicottspeedshop.com/" style="color:#fff;text-decoration:underline">endicottspeedshop.com</a></div>
+<a class="vr-skip" href="#main">Skip to content</a>
+<header class="site-header"><div class="header-inner">
+<div class="brand-wrap"><a href="../.././" class="brand" aria-label="Endicott Speed Shop home"><img class="a-logo" src="../../logo-horizontal-tight.png" alt="Endicott Speed Shop — Measure, Test, Improve" width="611" height="192"></a><a class="beta-pill" href="../../about/#beta" title="This site is in beta: tools and articles are still being checked and expanded">Beta</a></div>
+<nav class="topnav" aria-label="Main navigation"><a href="../../vehicles/">Explore</a><a href="../../experience/">Test</a><a href="../../plan/">Plan</a><a href="../../learn/" class=on aria-current=page>Learn</a><a href="../../experience/#garage" class=nav-garage>My Garage</a></nav>
+<button class="menu-toggle" id="menuToggle" aria-label="Open menu" aria-expanded="false"><div class="menu-lines"><span></span><span></span><span></span></div></button>
+</div></header>
+<aside class="sidebar" id="sidebar"><button class="close-btn" id="closeBtn" aria-label="Close menu">×</button>
+<nav><a href="../.././">Home<small>Start here</small></a><a href="../../vehicles/">Explore<small>Discover and compare performance cars</small></a><a href="../../experience/">Test<small>Try a change: acceleration, gearing, grip and suspension</small></a><a href="../../plan/">Plan<small>Decide what to do first, step by step</small></a><a href="../../learn/">Learn<small>Articles, calculators and how ESS measures</small></a><a href="../../experience/#garage">My Garage<small>Your saved cars, kept in this browser</small></a><a href="../../about/">About<small>Why this exists</small></a><a href="../../contact/">Contact<small>Corrections, questions and measured data</small></a></nav>
+<p class="hint" style="margin-top:20px">This site is in beta: tools and articles are still being checked and expanded. <a href="../../contact/">Spot a problem? Tell us.</a></p>
+</aside>
+<main id="main" class="page">
+<div class="kicker">Tools</div>
+<h1>Spring Rate &amp; Ride Frequency Calculator</h1>
+<div class="ess-config" data-ess-vehicle="spring-rate" data-lab-root="../../experience/"></div>
+<p class="lede">A spring's rate on the box is not what the wheel feels. Enter your springs, where they mount and what each corner weighs to see the rate at the wheel, how stiff the car rides (its ride frequency), and what spring you would need to reach a target.</p>
+
+<div class="ess-calculator-grid"><div class="panel"><h2>The car</h2><div class="fields">
+<div><label for="w">Total weight (lb)</label><input id="w" inputmode="decimal" value="3300"></div>
+<div><label for="fp">Weight on front (%)</label><input id="fp" inputmode="decimal" value="54"></div>
+<div><label for="uf">Unsprung weight, each front corner (lb)</label><input id="uf" inputmode="decimal" value="95"></div>
+<div><label for="ur">Unsprung weight, each rear corner (lb)</label><input id="ur" inputmode="decimal" value="150"></div>
+<div><label for="kt">Tire vertical rate (lb/in)</label><input id="kt" inputmode="decimal" value="1400"></div></div>
+<p class="hint">Example values: a second-generation Firebird with an LS swap and a live rear axle. They are illustrative, not an ESS measurement. Unsprung weight is what moves up and down with the wheel: the wheel, tire, brake and hub plus about half of the control arms, and for a live axle half of the whole axle. Tire rate: roughly 1,200–1,600 lb/in for a street tire; leave it blank to ignore the tire.</p></div>
+<div class="panel"><h2>Front springs</h2><div class="fields">
+<div><label for="sf">Spring rate (lb/in)</label><input id="sf" inputmode="decimal" value="500"></div>
+<div><label for="mf">Motion ratio</label><input id="mf" inputmode="decimal" value="0.55"></div>
+<div><label for="af">Spring angle from vertical (°)</label><input id="af" inputmode="decimal" value="0"></div>
+<div><label for="tgf">Target frequency (Hz, optional)</label><input id="tgf" inputmode="decimal" value=""></div></div>
+<p class="hint">Motion ratio = how far the spring compresses when the wheel moves 1 inch. For a coil spring on the lower control arm, measure from the arm's inner pivot to the spring's center and divide by the distance from the pivot to the ball joint. The example 0.55 is a typical value for this kind of front end (judgment, not measured).</p></div>
+<div class="panel"><h2>Rear springs</h2><div class="fields">
+<div><label for="sr">Spring rate (lb/in)</label><input id="sr" inputmode="decimal" value="150"></div>
+<div><label for="mr">Motion ratio</label><input id="mr" inputmode="decimal" value="1"></div>
+<div><label for="ar">Spring angle from vertical (°)</label><input id="ar" inputmode="decimal" value="0"></div>
+<div><label for="tgr">Target frequency (Hz, optional)</label><input id="tgr" inputmode="decimal" value=""></div></div>
+<p class="hint">Leaf springs, and coil springs or coilovers that sit on a live axle tube (as on a 3-link), move with the axle: use a motion ratio of 1. A leaf spring's published rate is already at the axle. The example 150 lb/in is illustrative.</p></div>
+<div class="panel"><h2>Result</h2>
+<div class="results">
+<div class="result"><div class="l">Front wheel rate</div><div class="v" id="wf">–</div><div class="d" id="wfd"></div></div>
+<div class="result"><div class="l">Front ride rate</div><div class="v" id="rf">–</div><div class="d">wheel rate with the tire in series</div></div>
+<div class="result"><div class="l">Front ride frequency</div><div class="v" id="ff">–</div><div class="d" id="ffd"></div></div>
+<div class="result"><div class="l">Front spring for target</div><div class="v" id="nf">–</div><div class="d" id="nfd"></div></div>
+<div class="result"><div class="l">Rear wheel rate</div><div class="v" id="wr">–</div><div class="d" id="wrd"></div></div>
+<div class="result"><div class="l">Rear ride rate</div><div class="v" id="rr">–</div><div class="d">wheel rate with the tire in series</div></div>
+<div class="result"><div class="l">Rear ride frequency</div><div class="v" id="fr">–</div><div class="d" id="frd"></div></div>
+<div class="result"><div class="l">Rear spring for target</div><div class="v" id="nr">–</div><div class="d" id="nrd"></div></div></div>
+<div class="note warn" id="warn"></div>
+<p class="callout" id="take">–</p></div>
+</div>
+<div class="section narrow"><div class="section-label">How it works</div>
+<p><strong>Wheel rate.</strong> A spring mounted partway along a control arm moves less than the wheel does, and it also has less leverage over the wheel. Both effects multiply, so the rate at the wheel is the spring rate × motion ratio². A 500 lb/in spring at a 0.55 ratio is only about 150 lb/in at the wheel. A spring leaning over by an angle loses a little more: × cos(angle)². This is the most common mistake when people compare springs between different suspensions.</p>
+<p><strong>Ride rate.</strong> The tire is a spring too, sitting in series with the suspension. The ride rate the car body actually sits on is lower than either: wheel rate × tire rate ÷ (wheel rate + tire rate).</p>
+<p><strong>Ride frequency.</strong> How many times per second the body would bounce on its springs at that corner: 3.13 × √(ride rate ÷ sprung corner weight). It lets you compare stiffness between cars of different weights. Rough guide (published ranges, judgment): about 1.0–1.5 Hz for a comfortable road car, 1.5–2.0 Hz for a firm performance street car, 2 Hz and up for track cars without much downforce. Road cars usually run the rear slightly higher than the front so the car settles flat over a bump instead of pitching.</p>
+<p><strong>Spring for a target.</strong> Enter a target frequency and the tool works backwards through the tire and the motion ratio to the spring rate you would need.</p>
+<p><strong>What this tool assumes.</strong> Each corner is treated on its own (one wheel moving straight up and down); no anti-roll bars, bushings or damping; the motion ratio is constant through travel; the sprung weight is the corner weight minus the unsprung weight you entered, split equally left and right. Results are estimates for comparing setups, not a substitute for measuring the real installation.</p>
+<p>Related: <a href="../load-transfer/">Load Transfer Calculator</a> · <a href="../cg-builder/">Balance &amp; CG Builder</a></p></div>
+<section class="ig-journey" data-ess-journey="tools/spring-rate" data-lab-root="../../experience/" aria-label="Try it on a car"><noscript><p><a href="../../experience/">Open the Vehicle Lab</a></p></noscript></section></main>
+<script type="module">
+import { ride, springForFrequency } from "../../engine/loads.mjs";
+(function(){
+function num(v){v=(v||'').toString().trim().replace(/,/g,'');if(v==='')return null;if(!/^[-+]?(\d+\.?\d*|\.\d+)$/.test(v))return NaN;return parseFloat(v)}
+function f(v,d){return v.toLocaleString(undefined,{minimumFractionDigits:d,maximumFractionDigits:d})}
+function $(id){return document.getElementById(id)}
+// [min, max, inclusive, optional]
+var RULES={w:[0,null,false,false],fp:[0,100,false,false],uf:[0,null,true,false],ur:[0,null,true,false],kt:[0,null,false,true],
+ sf:[0,null,false,false],mf:[0,3,false,false],af:[0,60,true,false],tgf:[0,10,false,true],
+ sr:[0,null,false,false],mr:[0,3,false,false],ar:[0,60,true,false],tgr:[0,10,false,true]};
+var OUT=['wf','wfd','rf','ff','ffd','nf','nfd','wr','wrd','rr','fr','frd','nr','nrd'];
+var DESC=['wfd','ffd','nfd','wrd','frd','nrd'];
+function clearOut(){OUT.forEach(function(id){$(id).textContent=DESC.indexOf(id)>=0?'':'–'})}
+function band(hz){return hz<1?'very soft':hz<1.5?'comfortable road car range':hz<2?'firm performance street range':hz<2.5?'track-car range':'very stiff for a car without downforce'}
+function calc(){
+ var v={},bad=false,blank=false;
+ Object.keys(RULES).forEach(function(id){var r=RULES[id],el=$(id),x=num(el.value),ok=x===x;
+  if(ok&&x!==null){if(r[0]!==null&&(r[2]?x<r[0]:x<=r[0]))ok=false;if(r[1]!==null&&(r[2]?x>r[1]:x>=r[1]))ok=false}
+  if(ok)el.removeAttribute('aria-invalid');else{el.setAttribute('aria-invalid','true');bad=true}
+  if(x===null&&!r[3])blank=true;v[id]=x});
+ if(bad)return show('Check the highlighted numbers: weights, spring rates, tire rate and motion ratios must be positive (motion ratio under 3); unsprung weight can be 0; spring angle from 0 to 60°; target frequency between 0 and 10 Hz. Plain numbers only.');
+ if(blank)return show('Fill in every value (tire rate and target frequencies are optional).');
+ var cw={f:v.w*v.fp/100/2, r:v.w*(1-v.fp/100)/2}, un={f:v.uf,r:v.ur}, kt=v.kt;
+ var res={},msgs=[];
+ ['f','r'].forEach(function(e){
+  var k=v['s'+e],inputs={cornerLb:cw[e],unsprung:un[e],spring:k,motion:v['m'+e],angleDeg:v['a'+e],tireRate:kt};
+  var prediction=ride(inputs),wr=prediction.wheel,rr=prediction.rate,ws=prediction.sprung,hz=prediction.hz;
+  res[e]={hz:hz};
+  if(hz===null){msgs.push('The '+(e==='f'?'front':'rear')+' unsprung weight is as large as the whole corner weight. Check the weights.');return}
+  $('w'+e).textContent=f(wr,0)+' lb/in'; $('w'+e+'d').textContent=f(100*wr/k,0)+'% of the spring rate';
+  $('r'+e).textContent=f(rr,0)+' lb/in';
+  $('f'+e).textContent=f(hz,2)+' Hz'; $('f'+e+'d').textContent=band(hz)+' · sits '+f(ws/rr,1)+' in down on its springs';
+  var t=v['tg'+e];
+  if(t){var sp=springForFrequency({...inputs,hz:t});
+   if(sp===null){$('n'+e).textContent='–';$('n'+e+'d').textContent='not reachable: the tire alone is softer than that';}
+   else{$('n'+e).textContent=f(sp,0)+' lb/in';$('n'+e+'d').textContent='for '+f(t,2)+' Hz ('+(sp>=k?'+':'−')+f(Math.abs(sp-k),0)+' lb/in vs now)';}
+  }else{$('n'+e).textContent='–';$('n'+e+'d').textContent='enter a target frequency'}
+ });
+ if(msgs.length){show(msgs.join(' '));return}
+ var ratio=res.r.hz/res.f.hz;
+ if(res.f.hz>3||res.r.hz>3)msgs.push('Above about 3 Hz is race-car territory with real downforce; check the spring rate and motion ratio.');
+ if(v.mf>1.2||v.mr>1.2)msgs.push('A motion ratio above 1 means the spring moves more than the wheel. That is unusual (some pushrod or rocker setups); check how it was measured.');
+ show(msgs.join(' '),true);
+ $('take').textContent='Front '+f(res.f.hz,2)+' Hz, rear '+f(res.r.hz,2)+' Hz: the rear is '+(Math.abs(ratio-1)<0.005?'the same as':f(Math.abs(ratio-1)*100,0)+'% '+(ratio>1?'higher than':'lower than'))+' the front. '+
+  (ratio>=1.05&&ratio<=1.25?'That is the usual road-car arrangement for a flat ride over bumps.':ratio<0.995?'A rear lower than the front tends to make the car pitch over bumps; many track cars accept that for other reasons.':ratio>1.25?'That is a large difference; the rear will feel much stiffer than the front over bumps.':'Front and rear are close; fine on smooth surfaces.');
+}
+function show(m,keep){var w=$('warn');w.style.display=m?'block':'none';w.textContent=m;if(m&&!keep){$('take').textContent='–';clearOut()}}
+document.querySelectorAll('input,select').forEach(function(i){i.addEventListener('input',calc);i.addEventListener('change',calc)});
+calc();
+})();
+</script>
+
+<footer class="footer"><div class="line"><span class="ig-sign">Measure. Test. Improve.</span><span>© 2026 Endicott Speed Shop · Beta — <a href="../../contact/?from=/tools/spring-rate/">Give feedback</a></span><span><a href="../../privacy/">Privacy</a> · <a href="../../contact/">Contact</a></span><label class="ess-units"><span>Units</span><select data-units-pref aria-label="Measurement units"><option value="us">US customary</option><option value="metric">Metric</option><option value="dual">Both</option></select></label></div></footer>
+<script src="../../assets/site.js"></script>
+<script type="module" src="../../experience/units.mjs"></script>
+</body>
+</html>

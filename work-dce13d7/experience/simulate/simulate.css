@@ -1,0 +1,77 @@
+/* ESS Test → Simulations. Uses the site tokens (site.css / candidate-a theme). Mobile first. */
+[data-simulate]{max-width:960px;margin:0 auto;padding:8px 0 40px}
+.sim-head h1{margin:.1em 0 .2em;font-size:clamp(1.7rem,5vw,2.4rem);line-height:1.1}
+.sim-head .kicker{margin:0;font-size:.8rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.sim-head .lede{margin:0 0 14px;color:var(--muted);max-width:60ch}
+.sim-car{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center;margin:0 0 10px}
+.sim-car span{font-weight:600}
+.sim-car select{flex:1 1 240px;min-width:0;max-width:100%;padding:8px;border:1px solid var(--line-strong);border-radius:8px;font:inherit;background:#fff}
+.sim-car small{flex-basis:100%;color:var(--muted)}
+.sim-change{border:1px solid var(--line-strong);border-radius:10px;background:var(--soft);padding:0 12px;margin:0 0 14px}
+.sim-change summary{cursor:pointer;padding:10px 0;font-weight:600;min-height:24px}
+.sim-pill{display:inline-block;margin-left:6px;padding:1px 8px;border-radius:99px;background:var(--accent);color:#fff;font-size:.75rem;font-weight:600}
+.sim-change-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;padding:0 0 12px}
+.sim-change-grid label{display:flex;flex-direction:column;gap:4px;font-weight:600;font-size:.9rem}
+.sim-change-grid small{font-weight:400;color:var(--muted)}
+.sim-change-grid select,.sim-change-grid input[type=number]{font:inherit;padding:6px 8px;border:1px solid var(--line-strong);border-radius:6px;background:#fff;max-width:100%}
+.sim-inline{display:flex;align-items:center;gap:6px;font-weight:400}
+.sim-inline input[type=number]{width:7em}
+.sim-inline input[type=range]{flex:1;min-width:0}
+.sim-tabs{display:flex;gap:4px;overflow-x:auto;border-bottom:2px solid var(--line-strong);margin:0 0 14px;scrollbar-width:thin;-webkit-overflow-scrolling:touch}
+.sim-tabs a{flex:0 0 auto;padding:10px 12px;text-decoration:none;color:var(--text);border-radius:8px 8px 0 0;font-weight:600;font-size:.92rem;white-space:nowrap}
+.sim-tabs a[aria-current]{background:var(--accent);color:#fff}
+.sim-tabs a:not([aria-current]):hover{background:var(--soft)}
+.sim-ctl{display:flex;flex-direction:column;gap:10px;margin:0 0 14px}
+.sim-seg,.sim-chips{display:flex;flex-wrap:wrap;gap:6px}
+.sim-seg button,.sim-chips button{font:inherit;font-size:.9rem;min-height:36px;padding:6px 12px;border:1px solid var(--line-strong);border-radius:99px;background:#fff;color:var(--text);cursor:pointer}
+.sim-seg button[aria-pressed=true],.sim-chips button[aria-pressed=true]{background:var(--accent);border-color:var(--accent);color:#fff}
+[data-simulate] .sim-range{display:grid;margin:0;grid-template-columns:5.5em 1fr 5.5em auto;align-items:center;gap:8px}
+.sim-range span{font-weight:600}
+.sim-range .u{font-weight:400;color:var(--muted)}
+.sim-range input[type=range]{width:100%;min-width:0}
+.sim-range input[type=number]{width:100%;font:inherit;padding:6px;border:1px solid var(--line-strong);border-radius:6px}
+[data-simulate] .sim-check{display:flex;gap:8px;align-items:center;margin:0}
+[data-simulate] .sim-check input{width:20px;height:20px;margin:0;flex:0 0 auto}
+[data-simulate] .sim-car{display:flex}
+[data-simulate] input[type=range]{padding:0;border:0;background:none;height:28px}
+.sim-link{font:inherit;background:none;border:0;padding:2px 0;color:var(--accent);text-decoration:underline;cursor:pointer;text-align:left}
+.sim-out{border:1px solid var(--line);border-radius:12px;padding:12px;background:#fff}
+.sim-label{margin:0 0 8px;font-size:.78rem;letter-spacing:.04em;text-transform:uppercase;color:#8a5300;font-weight:700}
+.sim-nums{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;margin:0 0 10px}
+.sim-num{display:flex;flex-direction:column;gap:2px;padding:10px;border-radius:10px;background:var(--soft)}
+.sim-num span{font-size:.85rem;color:var(--muted)}
+.sim-num b{font-size:1.6rem;line-height:1.15;font-variant-numeric:tabular-nums}
+.sim-num b small{font-size:.9rem;font-weight:600;margin-left:3px;color:var(--muted)}
+.sim-num b.sim-word{font-size:1.05rem}
+.sim-num em{font-style:normal;font-size:.85rem}
+.sim-num em.good{color:#1d6b33}.sim-num em.bad{color:#9b2c1f}
+.sim-compare{margin:0 0 10px;padding:8px 10px;border-left:4px solid var(--accent);background:var(--soft);border-radius:0 8px 8px 0}
+.sim-note{margin:6px 0;color:var(--muted);font-size:.9rem}
+.sim-why{margin:10px 0 0;padding-left:1.1em;font-size:.92rem;color:var(--text)}
+.sim-why li{margin:4px 0}
+.warn{padding:10px;border:1px solid var(--warn-line);background:var(--warn);border-radius:8px}
+.sim-fig{margin:6px 0;max-width:100%}
+.sim-fig svg,.sim-gg svg{width:100%;height:auto;display:block}
+.sim-fig figcaption,.sim-gg figcaption{font-size:.82rem;color:var(--muted)}
+.sim-grid{stroke:#e2e8ef;stroke-width:1}
+.sim-ax{font-size:11px;fill:#5b5b59}
+.sim-line{fill:none;stroke-width:2.4;stroke-linejoin:round}
+.sim-line.stock{stroke:#2f557f}.sim-line.mod{stroke:#c4561c}.sim-line.alt{stroke:#8a8a86;stroke-dasharray:6 4}
+.sim-band.band-braking{fill:#c4561c;opacity:.09}.sim-band.band-limit{fill:#2f557f;opacity:.09}
+.sim-key{display:inline-block;width:18px;height:4px;border-radius:2px;margin:0 4px 2px 8px;vertical-align:middle}
+.sim-key.stock{background:#2f557f}.sim-key.mod{background:#c4561c}.sim-key.alt{background:#8a8a86}
+.sim-key.band-braking{background:#c4561c;opacity:.3;height:10px}.sim-key.band-limit{background:#2f557f;opacity:.3;height:10px}
+.sim-gg{max-width:300px;margin:8px auto}
+.sim-ell{fill:#eef3f8;stroke:#2f557f;stroke-width:1.5}
+.sim-dot{fill:#c4561c;opacity:.75}
+.sim-axles,.sim-bars{display:grid;gap:8px;margin:0 0 10px}
+.sim-axles div,.sim-bars div{display:grid;grid-template-columns:1fr auto;gap:2px 10px;align-items:baseline}
+.sim-axles span,.sim-bars span{font-weight:600}
+.sim-axles em,.sim-bars em{grid-column:1/-1;font-style:normal;font-size:.85rem;color:var(--muted)}
+.sim-axles i,.sim-bars i{grid-column:1/-1;height:8px;border-radius:4px;background:linear-gradient(90deg,var(--accent) var(--w),var(--soft) var(--w))}
+.sim-foot{margin:18px 0 0;font-size:.85rem;color:var(--muted)}
+@media (max-width:520px){
+  [data-simulate] .sim-range{grid-template-columns:1fr 5em auto;gap:2px 8px}
+  [data-simulate] .sim-range>span:first-child{grid-column:1/-1}
+  .sim-num b{font-size:1.35rem}
+}
