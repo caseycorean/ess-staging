@@ -1,9 +1,9 @@
 {
-  "website_commit": "a6b74944b9839aec0db0b4402a5df25efb487a3e",
-  "branch": "work/ess-plan-convergence",
+  "website_commit": "6e87d271f8c6c176fe31e5ccb40a010dfc395c3f",
+  "branch": "claude/plan-release",
   "local_changes": false,
-  "built": "2026-11-26 22:23 PST",
-  "source_note": "Interactive Plan and My Garage convergence",
+  "built": "2026-11-26 23:08 PST",
+  "source_note": "Claude Plan release revision on Work a6b7494",
   "pages": 143,
   "notes": "Unlisted development site. noindex on every page, robots.txt disallows all, no sitemap, no analytics."
 }

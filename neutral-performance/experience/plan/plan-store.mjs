@@ -5,6 +5,7 @@
 import { OBJECTIVES, STEPS, STEP_KEYS } from './objectives.mjs';
 import { cleanSetup, usableSetup } from '../models.mjs';
 import { vehicles } from '../vehicles.mjs';
+import { cleanExpectation, cleanPrediction, cleanMeasurement } from './outcomes.mjs';
 
 export const PLAN_KEY = 'ess.plan.v1';
 export const LIMITS = { projects: 12, name: 60, vision: 600, note: 600, blocker: 140, blockers: 8, measured: 400 };
@@ -52,10 +53,14 @@ export function cleanObjective(raw) {
   const approach = o.approaches.some(a => a.key === raw.approach) ? raw.approach : null;
   if (!approach) { delete done.approaches; delete done.decision; }
   const measured = line(raw.measured, LIMITS.measured);
-  if (!measured) delete done.verify;
+  const expectation = cleanExpectation(raw.expectation, raw.key);
+  const prediction = cleanPrediction(raw.prediction, raw.key);
+  const measurement = cleanMeasurement(raw.measurement, raw.key);
+  if (!measured && !measurement) delete done.verify;
   const blockers = Array.isArray(raw.blockers) ? raw.blockers.map(b => line(b, LIMITS.blocker)).filter(Boolean).slice(0, LIMITS.blockers) : [];
   return { key: raw.key, done, approach, decisionNote: text(raw.decisionNote, LIMITS.note), notes: text(raw.notes, LIMITS.note),
-    blockers, measured, measuredOn: measured ? cleanDate(raw.measuredOn) : '' };
+    blockers, measured, measuredOn: measured ? cleanDate(raw.measuredOn) : '',
+    ...(expectation ? { expectation } : {}), ...(prediction ? { prediction } : {}), ...(measurement ? { measurement } : {}) };
 }
 
 export function newObjective(key) { return cleanObjective({ key }); }

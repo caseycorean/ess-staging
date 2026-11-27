@@ -21,7 +21,7 @@
 .plan-app h4 { font-size: 1rem; margin: 0; }
 .plan-app :is(.quiet,.plan-note,.plan-summary,.plan-stage) { color: var(--p-sub); font-size: .93rem; }
 .plan-label { display: block; font-size: .88rem; color: var(--p-sub); margin: 0 0 .3rem; font-weight: 600; }
-.plan-project, .plan-objectives, .plan-objective, .plan-start, .plan-shared {
+.plan-project, .plan-objectives, .plan-objective, .plan-start, .plan-shared, .plan-explore {
   min-width: 0;
   background: var(--p-sheet);
   border: 1px solid var(--p-line);
@@ -101,8 +101,8 @@
 .plan-objectives .plan-add { grid-template-columns: repeat(auto-fit,minmax(min(100%, 8rem), 1fr)); }
 .plan-stages { display: flex; flex-wrap: wrap; gap: .3rem; margin: .55rem 0 .7rem; }
 .plan-stages button { flex: 1 0 auto; font-size: .86rem; text-align: center; padding-inline: .34rem; }
-.plan-stages button[aria-current=step] { background: var(--p-sig); border-color: var(--p-sig); color: #fff; font-weight: 700; }
-.plan-stages button[aria-current=step]:hover { background: var(--ess-signal-hover,#063975); }
+.plan-stages button[aria-current] { background: var(--p-sig); border-color: var(--p-sig); color: #fff; font-weight: 700; }
+.plan-stages button[aria-current]:hover { background: var(--ess-signal-hover,#063975); }
 .plan-step-body { border-top: 1px solid var(--p-line); padding-top: .7rem; }
 .plan-step-body p { margin: .4rem 0; }
 .plan-continue { margin-top: .35rem; }
@@ -143,6 +143,7 @@
 .plan-inline, .plan-tail { display: flex; gap: .45rem; align-items: center; }
 .plan-tail { flex-wrap: wrap; justify-content: space-between; margin: .6rem 0 0; }
 .plan-tail select { width: auto; }
+.plan-tail .ess-units { display: flex; align-items: center; gap: .45rem; white-space: nowrap; }
 
 body[data-ess-skin=candidate-a] .plan-app .button.secondary {
   display: inline-flex;
@@ -162,3 +163,60 @@ body[data-ess-skin=candidate-a] .plan-app .button.secondary {
   .plan-objective-list button { padding-block: .28rem; }
   .plan-project, .plan-objectives, .plan-objective { padding-block: .55rem; }
 }
+
+/* Claude 26 Nov: exploration first, compact board, evidence classes and the expected → predicted → measured loop. */
+.plan-explore { max-width: 48rem; margin-top: .65rem; border-color: var(--p-sig); }
+.plan-explore > h2 { margin-bottom: .3rem; }
+.plan-explore-actions { margin-top: .7rem; }
+.plan-car-line { margin: .2rem 0 .45rem; }
+.plan-chip[aria-pressed=true] { background: var(--p-sig); border-color: var(--p-sig); color: #fff; font-weight: 700; }
+.plan-guess-toggle { font-weight: 500; font-size: .92rem; color: var(--p-sub); }
+.plan-headline { display: flex; flex-wrap: wrap; align-items: baseline; gap: .2rem .55rem; margin: .65rem 0 .5rem !important;
+  padding: .6rem .7rem; background: var(--p-soft); border-radius: 6px; font-variant-numeric: tabular-nums; }
+.plan-headline > span { width: 100%; font-size: .88rem; color: var(--p-sub); font-weight: 600; }
+.plan-headline strong { font-size: 1.15rem; }
+.plan-headline em { font-style: normal; font-weight: 700; color: #17622f; }
+.plan-headline small { width: 100%; color: var(--p-sub); font-size: .88rem; }
+.plan-ev { display: inline-block; font-size: .72rem; font-weight: 700; letter-spacing: .02em; text-transform: uppercase;
+  padding: .05rem .38rem; border-radius: 5px; border: 1px solid currentColor; margin-right: .3rem; vertical-align: .08em; }
+.plan-ev[data-ev=model] { color: var(--p-sig); }
+.plan-ev[data-ev=judgment] { color: #6a4b16; }
+.plan-ev[data-ev=owner] { color: #4e545a; }
+.plan-ev[data-ev=measured] { color: #17622f; }
+.plan-hint { margin-top: .7rem; padding-top: .55rem; border-top: 1px solid var(--p-line); }
+.plan-hint p { margin: .25rem 0; }
+.plan-guess { padding: .6rem .7rem; background: var(--p-soft); border-radius: 6px; margin: .5rem 0; }
+.plan-expect-form, .plan-measure-form { margin: .35rem 0; }
+.plan-expect-form { flex-wrap: wrap; align-items: end; }
+.plan-expect-form label { flex: 1 1 14rem; }
+.plan-expect-form label > span:first-child { display: block; font-weight: 600; font-size: .9rem; margin-bottom: .2rem; }
+.plan-unit-input { display: flex; align-items: center; gap: .35rem; }
+.plan-unit-input input { flex: 1 1 auto; }
+.plan-unit-input > span { color: var(--p-sub); min-width: 1.6rem; }
+.plan-loop { margin-top: .85rem; border: 1px solid var(--p-line); border-radius: 8px; padding: .65rem .75rem; }
+.plan-loop h3 { font-size: 1.02rem; margin-bottom: .4rem; }
+.plan-loop-grid { display: grid; gap: .6rem; }
+@media (min-width: 40rem) { .plan-loop:not(.plan-loop-stack) .plan-loop-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .plan-loop-stack .plan-loop-grid { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+  .plan-loop-stack .plan-loop-grid > div:last-child { grid-column: 1 / -1; } }
+.plan-loop-grid > div { min-width: 0; padding: .45rem .5rem; background: var(--p-soft); border-radius: 6px; }
+.plan-loop-grid .plan-expect-form label { flex-basis: 100%; }
+.plan-loop-value { font-size: 1.1rem; font-weight: 700; font-variant-numeric: tabular-nums; margin: .1rem 0 !important; }
+.plan-loop .plan-measure { grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr)); align-items: end; }
+.plan-finding { margin: .6rem 0 0 !important; font-weight: 600; }
+.plan-warn { color: #7a3d0c !important; }
+.plan-acc { display: flex; flex-wrap: wrap; gap: .3rem; list-style: none; padding: 0; margin: .4rem 0 0; }
+.plan-acc li { font-size: .83rem; padding: .12rem .45rem; border-radius: 6px; background: #e3efe6; color: #17422a; }
+.plan-acc li.plan-open { background: #f4ead9; color: #5a3b0b; }
+.plan-next { margin: .45rem 0 0; font-size: .95rem; }
+.plan-link { font: inherit; border: 0; padding: 0; background: none; color: var(--p-sig); text-decoration: underline; cursor: pointer; min-height: 32px; text-align: left; }
+.plan-objective-list small { display: block; font-size: .78rem; color: var(--p-sub); }
+.plan-checklist { margin: .3rem 0 .6rem; padding-left: 1.15rem; }
+.plan-checklist li { margin: .2rem 0; }
+.plan-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+@media (min-width: 52rem) {
+  .plan-objective-list { flex-direction: column; }
+  .plan-objective-list li { flex: 0 0 auto; }
+}
+.plan-app [tabindex="-1"], .plan-explore, .plan-objective { scroll-margin-top: 5.5rem; }
+.plan-app .button.primary { font: inherit; font-weight: 700; }
