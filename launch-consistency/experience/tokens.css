@@ -1,0 +1,20 @@
+:root {
+  --ess-bg: #f4f1eb;
+  --ess-panel: #fffdf8;
+  --ess-raised: #ebe6dd;
+  --ess-line: #d5cfc3;
+  --ess-text: #252824;
+  --ess-muted: #555b52;
+  --ess-accent: #7b4529;
+  --ess-mint: #326454;
+  --ess-warning: #80391f;
+  --ess-mono: "IBM Plex Mono", ui-monospace, "Liberation Mono", monospace;
+  --ess-display: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", Palatino, Georgia, serif;
+  --ess-body: "Instrument Sans", system-ui, sans-serif;
+  --ess-car-c: #285f9c;
+  --ess-car-d: #844866;
+  --ess-header: #242823;
+  --ess-header-text: #f4eee4;
+  --ess-header-accent: #e1b783;
+  --ess-focus: #326454;
+}

@@ -1,0 +1,9 @@
+{
+  "website_commit": "62ab22352fbfce127d8eb5216e277bc8c6171296",
+  "branch": "claude/launch-consistency",
+  "local_changes": false,
+  "built": "2026-11-27 05:52 PST",
+  "source_note": "Claude: one lb/hp rounding and the tire-revolution card section link, on acceleration alignment f366a2f (Work 9eeca84)",
+  "pages": 143,
+  "notes": "Unlisted development site. noindex on every page, robots.txt disallows all, no sitemap, no analytics."
+}

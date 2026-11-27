@@ -1,0 +1,229 @@
+/* Shared Neutral Performance surfaces, with an objective list and one working step. */
+.plan-page { max-width: 68rem; }
+.plan-page > h1 { margin: 0 0 .3rem; }
+.plan-page > .lede { margin: 0; }
+.plan-guide { max-width: 48rem; margin-inline: auto; padding-top: 1rem; }
+
+.plan-app {
+  --p-line: var(--ess-rule, #d7d3cc);
+  --p-sheet: var(--ess-sheet, #fff);
+  --p-soft: var(--ess-soft, #ebe9e5);
+  --p-ink: var(--ess-type, #20242a);
+  --p-sub: var(--ess-subtle, #4e545a);
+  --p-sig: var(--ess-signal, #084da8);
+  --p-r: var(--np-radius, 10px);
+  margin: 1rem 0 2rem;
+  color: var(--p-ink);
+  overflow-wrap: anywhere;
+}
+.plan-app h2 { font-size: 1.35rem; line-height: 1.2; margin: 0; color: var(--p-ink); }
+.plan-app h3 { font-size: 1.17rem; margin: 0 0 .55rem; }
+.plan-app h4 { font-size: 1rem; margin: 0; }
+.plan-app :is(.quiet,.plan-note,.plan-summary,.plan-stage) { color: var(--p-sub); font-size: .93rem; }
+.plan-label { display: block; font-size: .88rem; color: var(--p-sub); margin: 0 0 .3rem; font-weight: 600; }
+.plan-project, .plan-objectives, .plan-objective, .plan-start, .plan-shared, .plan-explore {
+  min-width: 0;
+  background: var(--p-sheet);
+  border: 1px solid var(--p-line);
+  border-radius: var(--p-r);
+  padding: clamp(.75rem, 2vw, 1.2rem);
+}
+.plan-start { max-width: 48rem; }
+.plan-start > p { margin: .55rem 0; }
+.plan-start .plan-switch { margin-bottom: .8rem; }
+.plan-shared { border-color: var(--p-sig); margin-bottom: .7rem; }
+.plan-shared p { margin: .4rem 0; }
+.plan-project-head { display: flex; flex-wrap: wrap; justify-content: space-between; gap: .45rem 1rem; }
+.plan-summary, .plan-stage { margin: .2rem 0 0; }
+.plan-project-grid { display: grid; gap: .85rem; }
+@media (min-width: 48rem) {
+  .plan-project-grid { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+}
+.plan-status { margin: .35rem 0; font-size: .91rem; font-weight: 600; }
+.plan-status:empty { margin: 0; }
+.plan-car { margin: .1rem 0 .6rem; }
+.plan-tag { display: inline-block; font-size: .78rem; padding: .1rem .45rem; border-radius: 8px; background: var(--p-soft); }
+.plan-actions { display: flex; flex-wrap: wrap; gap: .4rem; align-items: center; }
+.plan-app .button { min-width: 44px; min-height: 44px; text-align: left; }
+.plan-app .button.secondary { background: var(--p-sheet); color: var(--p-sig); border: 1px solid var(--p-line); border-radius: 6px; }
+.plan-app .button.secondary:hover { background: var(--p-soft); border-color: var(--p-sig); }
+.plan-identity label, .plan-block { display: block; margin: 0 0 .65rem; }
+.plan-app :is(input:not([type=radio],[type=checkbox]), textarea, select) {
+  width: 100%;
+  min-width: 0;
+  min-height: 44px;
+  padding: .45rem .55rem;
+  border: 1px solid var(--ess-edge,#85837e);
+  border-radius: 6px;
+  background: var(--p-sheet);
+  color: var(--p-ink);
+  font: inherit;
+}
+.plan-app :is(input,textarea):disabled { opacity: 1; background: var(--p-soft); }
+.plan-app input[data-plan-copy-url] { margin: .3rem 0; }
+.plan-block > span { display: block; font-weight: 600; margin-bottom: .25rem; }
+.plan-garage-pick { flex: 1 1 13rem; min-width: 0; }
+.plan-garage-pick span { font-size: .88rem; color: var(--p-sub); }
+.plan-switch { display: block; max-width: 24rem; margin: .5rem 0; }
+.plan-notes { border-top: 1px solid var(--p-line); margin-top: .65rem; }
+.plan-app summary { cursor: pointer; padding: .6rem 0; min-height: 44px; color: var(--p-sig); font-weight: 600; }
+.plan-known { margin-block: .45rem; }
+.plan-known h3 { font-size: 1rem; margin-top: .4rem; }
+.plan-facts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .35rem; margin: .4rem 0 .75rem; }
+.plan-fact { background: var(--p-soft); border-radius: 6px; padding: .35rem .5rem; }
+.plan-fact span, .plan-fact em { display: block; color: var(--p-sub); font-size: .82rem; font-style: normal; }
+.plan-fact strong { font-size: 1rem; font-variant-numeric: tabular-nums; }
+.plan-workspace { display: grid; gap: .65rem; align-items: start; margin-top: .65rem; }
+@media (min-width: 52rem) {
+  .plan-workspace { grid-template-columns: minmax(13.25rem, 1fr) minmax(0, 3fr); gap: .85rem; }
+}
+.plan-add { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .35rem; margin: .5rem 0; }
+.plan-chip, .plan-stages button, .plan-objective-list button {
+  font: inherit;
+  color: var(--p-sig);
+  cursor: pointer;
+  background: var(--p-sheet);
+  border: 1px solid var(--p-line);
+  border-radius: 6px;
+  padding: .42rem .5rem;
+  min-height: 44px;
+  text-align: left;
+}
+.plan-chip { font-size: .94rem; }
+.plan-app :is(.plan-chip,.plan-stages button,.plan-objective-list button):hover { border-color: var(--p-sig); background: var(--p-soft); }
+.plan-objective-list { list-style: none; display: flex; flex-wrap: wrap; padding: 0; gap: .3rem; margin: .45rem 0 0; }
+.plan-objective-list li { flex: 1 1 5.7rem; }
+.plan-objective-list button { width: 100%; }
+.plan-objective-list button span { display: block; font-size: .83rem; color: var(--p-sub); }
+.plan-objective-list button[aria-pressed=true] { border-color: var(--p-sig); box-shadow: inset 3px 0 var(--p-sig); }
+.plan-add-more { margin-top: .4rem; }
+.plan-add-more:not([open]) summary { padding-bottom: .1rem; }
+.plan-objectives .plan-add { grid-template-columns: repeat(auto-fit,minmax(min(100%, 8rem), 1fr)); }
+.plan-stages { display: flex; flex-wrap: wrap; gap: .3rem; margin: .55rem 0 .7rem; }
+.plan-stages button { flex: 1 0 auto; font-size: .86rem; text-align: center; padding-inline: .34rem; }
+.plan-stages button[aria-current] { background: var(--p-sig); border-color: var(--p-sig); color: #fff; font-weight: 700; }
+.plan-stages button[aria-current]:hover { background: var(--ess-signal-hover,#063975); }
+.plan-step-body { border-top: 1px solid var(--p-line); padding-top: .7rem; }
+.plan-step-body p { margin: .4rem 0; }
+.plan-continue { margin-top: .35rem; }
+.plan-connect { background: var(--p-soft); border-radius: 6px; padding: .55rem .7rem; }
+.plan-connect ul { margin: 0; padding: 0; list-style: none; }
+.plan-connect li, .plan-learn li { margin: .25rem 0; }
+.plan-sign { display: inline-grid; place-items:center; min-width: 1.4rem; font-weight: 700; }
+.plan-sign[data-sign="+"] { color: #17622f; }
+.plan-sign[data-sign="−"] { color: #9b2c1a; }
+.plan-learn { margin: .3rem 0 .6rem; padding-left: 1.1rem; }
+.plan-check { display:flex; align-items:center; min-height:44px; gap:.5rem; font-weight:600; cursor:pointer; }
+.plan-check input { flex: 0 0 1.25rem; width:1.25rem; height:1.25rem; accent-color:var(--p-sig); }
+.plan-table { max-width: 100%; }
+.plan-fx { width: 100%; table-layout: fixed; border-collapse: collapse; font-size: .94rem; font-variant-numeric: tabular-nums; }
+.plan-fx th:first-child { width: 30%; }
+.plan-fx th:last-child { width: 28%; }
+.plan-fx th, .plan-fx td { padding: .36rem .25rem; border-bottom: 1px solid var(--p-line); text-align: left; }
+.plan-v-better { color: #17622f; font-weight: 600; }
+.plan-v-worse { color: #9b2c1a; font-weight: 600; }
+.plan-v-same { color: var(--p-sub); }
+.plan-approaches { display: grid; gap: .45rem; }
+@media (min-width: 40rem) {
+  .plan-approaches { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+.plan-approach { display: flex; flex-direction: column; gap: .25rem; position: relative; border: 1px solid var(--p-line); border-radius: 6px; padding: .6rem; cursor: pointer; }
+.plan-approach input { position: absolute; top: .65rem; right: .6rem; width: 1.15rem; height: 1.15rem; accent-color: var(--p-sig); }
+.plan-approach.chosen { border-color: var(--p-sig); box-shadow: inset 0 0 0 1px var(--p-sig); }
+.plan-approach-name { padding-right: 1.8rem; font-weight: 700; }
+.plan-bands { display: flex; flex-wrap: wrap; gap: .28rem; }
+.plan-bands span { font-size: .83rem; background: var(--p-soft); border-radius: 6px; padding: .1rem .32rem; }
+.plan-components { display: grid; list-style: none; padding: 0; margin: .4rem 0; gap: .4rem; }
+.plan-components li { display: flex; flex-direction: column; border: 1px solid var(--p-line); border-radius: 6px; padding: .45rem .55rem; }
+.plan-components small { color: var(--p-sub); }
+.plan-measure { display: grid; gap: .5rem; }
+@media (min-width: 40rem) { .plan-measure { grid-template-columns: minmax(0, 1fr) 11rem; } }
+.plan-blockers ul { margin: .2rem 0 .5rem; padding-left: 1.1rem; }
+.plan-x { font: inherit; border: 0; background: none; color: var(--p-sig); text-decoration: underline; cursor: pointer; min-height: 44px; }
+.plan-inline, .plan-tail { display: flex; gap: .45rem; align-items: center; }
+.plan-tail { flex-wrap: wrap; justify-content: space-between; margin: .6rem 0 0; }
+.plan-tail select { width: auto; }
+.plan-tail .ess-units { display: flex; align-items: center; gap: .45rem; white-space: nowrap; }
+
+body[data-ess-skin=candidate-a] .plan-app .button.secondary {
+  display: inline-flex;
+  align-items: center;
+  padding: .42rem .65rem;
+  border-radius: 6px !important;
+  border-color: var(--p-line) !important;
+  font: 600 .94rem/1.15 var(--np-face);
+  text-decoration: none;
+}
+[data-ess-tone=neutral] .plan-app .plan-project details:not([open]) > summary,
+[data-ess-tone=neutral] .plan-app .plan-add-more:not([open]) > summary { padding-bottom: 0; }
+@media (max-width: 47.99rem) {
+  .plan-page:has(.plan-project) > .lede { display: none; }
+  .plan-page:has(.plan-project) > h1 { font-size: clamp(1.45rem, 6vw, 2rem); }
+  .plan-objectives h2 { font-size: 1.1rem; }
+  .plan-objective-list button { padding-block: .28rem; }
+  .plan-project, .plan-objectives, .plan-objective { padding-block: .55rem; }
+}
+
+/* Claude 26 Nov: exploration first, compact board, evidence classes and the expected → predicted → measured loop. */
+.plan-explore { max-width: 48rem; margin-top: .65rem; border-color: var(--p-sig); }
+.plan-explore > h2 { margin-bottom: .3rem; }
+.plan-explore-actions { margin-top: .7rem; }
+.plan-car-line { margin: .2rem 0 .45rem; }
+.plan-chip[aria-pressed=true] { background: var(--p-sig); border-color: var(--p-sig); color: #fff; font-weight: 700; }
+.plan-guess-toggle { font-weight: 500; font-size: .92rem; color: var(--p-sub); }
+.plan-headline { display: flex; flex-wrap: wrap; align-items: baseline; gap: .2rem .55rem; margin: .65rem 0 .5rem !important;
+  padding: .6rem .7rem; background: var(--p-soft); border-radius: 6px; font-variant-numeric: tabular-nums; }
+.plan-headline > span { width: 100%; font-size: .88rem; color: var(--p-sub); font-weight: 600; }
+.plan-headline strong { font-size: 1.15rem; }
+.plan-headline em { font-style: normal; font-weight: 700; color: #17622f; }
+.plan-headline small { width: 100%; color: var(--p-sub); font-size: .88rem; }
+.plan-ev { display: inline-block; font-size: .72rem; font-weight: 700; letter-spacing: .02em; text-transform: uppercase;
+  padding: .05rem .38rem; border-radius: 5px; border: 1px solid currentColor; margin-right: .3rem; vertical-align: .08em; }
+.plan-ev[data-ev=model] { color: var(--p-sig); }
+.plan-ev[data-ev=judgment] { color: #6a4b16; }
+.plan-ev[data-ev=owner] { color: #4e545a; }
+.plan-ev[data-ev=measured] { color: #17622f; }
+.plan-hint { margin-top: .7rem; padding-top: .55rem; border-top: 1px solid var(--p-line); }
+.plan-hint p { margin: .25rem 0; }
+.plan-guess { padding: .6rem .7rem; background: var(--p-soft); border-radius: 6px; margin: .5rem 0; }
+.plan-expect-form, .plan-measure-form { margin: .35rem 0; }
+.plan-expect-form { flex-wrap: wrap; align-items: end; }
+.plan-expect-form label { flex: 1 1 14rem; }
+.plan-expect-form label > span:first-child { display: block; font-weight: 600; font-size: .9rem; margin-bottom: .2rem; }
+.plan-unit-input { display: flex; align-items: center; gap: .35rem; }
+.plan-unit-input input { flex: 1 1 auto; }
+.plan-unit-input > span { color: var(--p-sub); min-width: 1.6rem; }
+.plan-loop { margin-top: .85rem; border: 1px solid var(--p-line); border-radius: 8px; padding: .65rem .75rem; }
+.plan-loop h3 { font-size: 1.02rem; margin-bottom: .4rem; }
+.plan-loop-grid { display: grid; gap: .6rem; }
+@media (min-width: 40rem) { .plan-loop:not(.plan-loop-stack) .plan-loop-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .plan-loop-stack .plan-loop-grid { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+  .plan-loop-stack .plan-loop-grid > div:last-child { grid-column: 1 / -1; } }
+.plan-loop-grid > div { min-width: 0; padding: .45rem .5rem; background: var(--p-soft); border-radius: 6px; }
+.plan-loop-grid .plan-expect-form label { flex-basis: 100%; }
+.plan-loop-value { font-size: 1.1rem; font-weight: 700; font-variant-numeric: tabular-nums; margin: .1rem 0 !important; }
+.plan-loop .plan-measure { grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr)); align-items: end; }
+.plan-finding { margin: .6rem 0 0 !important; font-weight: 600; }
+.plan-warn { color: #7a3d0c !important; }
+.plan-acc { display: flex; flex-wrap: wrap; gap: .3rem; list-style: none; padding: 0; margin: .4rem 0 0; }
+.plan-acc li { font-size: .83rem; padding: .12rem .45rem; border-radius: 6px; background: #e3efe6; color: #17422a; }
+.plan-acc li.plan-open { background: #f4ead9; color: #5a3b0b; }
+.plan-next { margin: .45rem 0 0; font-size: .95rem; }
+.plan-link { font: inherit; border: 0; padding: 0; background: none; color: var(--p-sig); text-decoration: underline; cursor: pointer; min-height: 32px; text-align: left; }
+.plan-objective-list small { display: block; font-size: .78rem; color: var(--p-sub); }
+.plan-checklist { margin: .3rem 0 .6rem; padding-left: 1.15rem; }
+.plan-checklist li { margin: .2rem 0; }
+.plan-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+@media (min-width: 52rem) {
+  .plan-objective-list { flex-direction: column; }
+  .plan-objective-list li { flex: 0 0 auto; }
+}
+.plan-app [tabindex="-1"], .plan-explore, .plan-objective { scroll-margin-top: 5.5rem; }
+.plan-app .button.primary { font: inherit; font-weight: 700; }
+.plan-confirms { border: 1px solid var(--p-line); border-radius: 6px; padding: .35rem .6rem .2rem; margin: .2rem 0 .6rem; min-width: 0; }
+.plan-confirms legend { font-weight: 600; font-size: .9rem; padding: 0 .25rem; }
+.plan-confirm { font-weight: 500; font-size: .92rem; align-items: flex-start; padding-top: .55rem; }
+.plan-confirm input { margin-top: .1rem; }
+.plan-block > .plan-unit-input, .plan-expect-form .plan-unit-input { display: flex; margin: 0; font-weight: 400; }
+.plan-unit-input > span { white-space: nowrap; flex: 0 0 auto; }
+.plan-unit-input input { min-width: 0; }
