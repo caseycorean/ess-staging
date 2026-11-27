@@ -18,6 +18,7 @@ if (input) {
   let limit = pageSize;
   let interest = 'all';
   let categoryIds = null;
+  input.value = (new URLSearchParams(location.search).get('q') ?? '').slice(0, 100);
   input.closest('label').hidden = false;
   const search = () => {
     const tokens = normalizeVehicleSearch(input.value).split(' ').filter(Boolean);

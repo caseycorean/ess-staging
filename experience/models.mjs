@@ -1,9 +1,9 @@
 import { fields, stock, vehicles, customEstimates } from './vehicles.mjs';
-import { components, componentOverrides, componentProvenance } from './components.mjs';
+import { components, componentOverrides, componentProvenance, stockEngineFamily } from './components.mjs';
 import { axleWeights as sharedAxles, applyItems, tireLoads as sharedLoads, ride as sharedRide } from '../engine/loads.mjs';
 import { availableDrive, driveAt, resistanceAt, straightLine as sharedStrip, tractionLimit, wheelRpm } from '../engine/acceleration.mjs';
 import { missingFor, missingText } from './readiness.mjs';
-import { engineFamilyFor, engineFamilies } from '../engine/data/engines.mjs';
+import { engineFamilies } from '../engine/data/engines.mjs';
 import { swapMassChange } from '../engine/resolve.mjs';
 import { tireClasses as tractionClasses, surfaces as tractionSurfaces, frictionFor, pickerOrder as tirePickerOrder } from '../engine/traction.mjs';
 
@@ -40,6 +40,31 @@ export const presets = {
 };
 
 const between = (x, low, high) => Number.isFinite(x) && x >= low && x <= high;
+export const installationRoles = ['engine', 'transmission', 'powertrain'];
+
+export function isInstallation(part, role) {
+  return part.role === role || part.role === 'powertrain' || part.preset === 'driveline';
+}
+
+export function overlappingInstallation(parts, role) {
+  return parts.some(part => role === 'powertrain'
+    ? installationRoles.includes(part.role) || part.preset === 'driveline'
+    : isInstallation(part, role));
+}
+
+/** Replace a modeled component and retire any installation entry that described the old selection. */
+export function setComponent(setup, kind, id) {
+  const previous = setup.components?.[kind];
+  if ((previous ?? '') === id) return;
+  const current = components[kind][previous];
+  const next = components[kind][id];
+  setup.components = {...setup.components};
+  if (next) setup.components[kind] = id;
+  else delete setup.components[kind];
+  for (const key of new Set([...Object.keys(current?.values ?? {}), ...Object.keys(next?.values ?? {})])) delete setup.tune[key];
+  if (kind !== 'tireClass') setup.parts = setup.parts.filter(part => !isInstallation(part, kind));
+}
+
 const isObject = x => x !== null && typeof x === 'object' && !Array.isArray(x);
 
 export function validValue(key, value) {
@@ -114,10 +139,14 @@ export function cleanSetup(raw) {
     if (!isObject(part) || typeof part.label !== 'string' || !part.label.trim() || part.label.length > 60 ||
         !between(part.oldWeight, 0, 1800) || !between(part.newWeight, 0, 1800) ||
         !between(part.oldX, -75, 220) || !between(part.newX, -75, 220) ||
-        (part.preset !== undefined && !Object.hasOwn(presets, part.preset))) return null;
+        (part.preset !== undefined && !Object.hasOwn(presets, part.preset)) ||
+        (part.role !== undefined && (!installationRoles.includes(part.role) || part.preset ||
+          overlappingInstallation(setup.parts, part.role) || part.oldWeight <= 0 || part.newWeight <= 0 ||
+          (part.oldWeight === part.newWeight && part.oldX === part.newX))) ||
+        (part.preset === 'driveline' && overlappingInstallation(setup.parts, 'powertrain'))) return null;
     // Validate the stored numbers, even when the operation began as a preset.
-    const { label, oldWeight, oldX, newWeight, newX, preset } = part;
-    setup.parts.push({ label, oldWeight, oldX, newWeight, newX, ...(preset ? {preset} : {}) });
+    const { label, oldWeight, oldX, newWeight, newX, preset, role } = part;
+    setup.parts.push({ label, oldWeight, oldX, newWeight, newX, ...(preset ? {preset} : {}), ...(role ? {role} : {}) });
   }
   return setup;
 }
@@ -135,16 +164,18 @@ export function newSetup(id) {
 export function engineSwapMass(setup) {
   const id = setup.components?.engine;
   if (!id) return null;
+  if (overlappingInstallation(setup.parts ?? [], 'engine'))
+    return { ownerInstalled: true };
   const v = vehicles[setup.id];
   const to = components.engine[id]?.family ?? null;
-  const from = v ? engineFamilyFor(`${setup.id} ${v.ref ?? ''} ${v.name ?? ''} ${v.trim ?? ''}`) : null;
+  const from = v ? stockEngineFamily(setup.id, v) : null;
   if (v?.layout && v.layout !== 'FR' && v.layout !== 'F4' && !/^F/.test(v.layout))
     return {unchanged: 'Engine position is not modeled for mid- or rear-engine cars, so the stock mass and balance are kept.'};
   if (!from) return {unchanged: 'The stock engine is not in the component weight library yet, so the stock mass and balance are kept.'};
   if (!to || !engineFamilies[to]) return {unchanged: 'The swap engine’s installed weight is not in the component library yet, so the stock mass and balance are kept.'};
   if (from === to) return {unchanged: 'Same engine family: installed mass treated as unchanged.'};
   const part = swapMassChange({fromFamily: from, toFamily: to});
-  return part ? {part, from, to} : {unchanged: 'Engine weights incomplete; stock mass kept.'};
+  return part ? {part, from, to} : {unchanged: 'Comparable engine weights are unavailable. Enter a confirmed installed package to model mass and balance.'};
 }
 
 export function resolve(setup, modified = true) {
@@ -176,7 +207,8 @@ export function resolve(setup, modified = true) {
   const swap = modified ? engineSwapMass(setup) : null;
   const ownMass = Object.hasOwn(setup.tune ?? {}, 'weight') || Object.hasOwn(setup.tune ?? {}, 'front');
   const items = [...(swap?.part && !ownMass ? [swap.part] : []), ...(modified ? setup.parts : [])];
-  if (swap?.part && !ownMass) { evidence.weight = 'estimated'; evidence.front = 'estimated'; }
+  if (swap?.part && !ownMass) evidence.weight = evidence.front = 'estimated';
+  else if (items.length) evidence.weight = evidence.front = 'user';
   const extra = swap ? {engineSwap: ownMass && swap.part ? {unchanged: 'Your own weight or balance entry is used instead of the library estimate.'} : swap} : {};
   return {...tuned, ...(items.length ? applyItems(tuned, items) : sharedAxles(tuned)), ...extra};
 }

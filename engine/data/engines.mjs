@@ -4,17 +4,17 @@ const lib = { title: 'ESS component weight library v5', url: 'ess-knowledge arch
 const teardown = { title: 'ESS LS1 teardown weight log (2004 GTO donor)', url: 'ess-knowledge archive/kb-v1.0.2/corpus/…LS1_Teardown_Weight_Log' };
 
 export const engineFamilies = {
-  'gm-ls-gen3': { name: 'GM LS Gen III/IV (aluminum block)', weight: { value: 474, low: 430, high: 474, evidence: 'published', basis: 'LS1 fully dressed 474 lb; aluminum LS family 430–470 dressed', sources: [lib] } },
+  'gm-ls-gen3': { name: 'GM LS Gen III/IV (aluminum block)', weight: { value: 474, low: 430, high: 474, evidence: 'published', boundary: 'dressed-engine-scenario', basis: 'LS1 fully dressed 474 lb; aluminum LS family 430–470 dressed', sources: [lib] } },
   'gm-ls7': { name: 'GM LS7 7.0', weight: { low: 430, high: 470, evidence: 'estimated', basis: 'Aluminum LS family range; dry-sump hardware not itemised' } },
   'gm-lt-gen5': { name: 'GM LT1/LT4 Gen V', weight: { low: 450, high: 520, evidence: 'estimated', basis: 'Aluminum Gen V; supercharger adds weight on LT4' } },
   'gm-bbc': { name: 'Chevrolet big-block (396/427/454)', weight: { value: 675, evidence: 'published', basis: '454, unspecified dress', sources: [lib] } },
-  'gm-sbc': { name: 'Chevrolet small-block (iron)', weight: { low: 525, high: 575, evidence: 'estimated', basis: 'Iron small-block, dressed; library lists an aluminum-head 400 at 470 lb without accessories' } },
-  'pontiac-v8': { name: 'Pontiac V8 (326–455)', weight: { low: 600, high: 650, evidence: 'estimated', basis: 'Iron Pontiac V8 dressed; measure before use' } },
+  'gm-sbc': { name: 'Chevrolet small-block (iron)', weight: { low: 525, high: 575, evidence: 'estimated', boundary: 'dressed-engine-scenario', basis: 'Iron small-block, dressed; library lists an aluminum-head 400 at 470 lb without accessories' } },
+  'pontiac-v8': { name: 'Pontiac V8 (326–455)', weight: { low: 600, high: 650, evidence: 'estimated', boundary: 'dressed-engine-scenario', basis: 'Iron Pontiac V8 dressed; measure before use' } },
   'ford-modular-sohc': { name: 'Ford 4.6/5.4 SOHC Modular', weight: { value: 529, evidence: 'published', basis: '1998 Mustang 4.6 SOHC dressed with flywheel, dry', sources: [lib] } },
   'ford-modular-dohc': { name: 'Ford 4.6 DOHC Modular', weight: { value: 535, evidence: 'published', basis: '1998 4.6 DOHC dressed, dry', sources: [lib] } },
-  'ford-windsor': { name: 'Ford Windsor 289/302/351W', weight: { low: 460, high: 500, evidence: 'estimated', basis: 'Iron small-block Ford, dressed' } },
-  'ford-fe': { name: 'Ford FE 352–428', weight: { low: 625, high: 675, evidence: 'estimated', basis: 'Iron FE big-block, dressed' } },
-  'mopar-hemi-426': { name: 'Chrysler 426 Hemi', weight: { low: 750, high: 800, evidence: 'estimated', basis: 'Iron Hemi, dressed' } },
+  'ford-windsor': { name: 'Ford Windsor 289/302/351W', weight: { low: 460, high: 500, evidence: 'estimated', boundary: 'dressed-engine-scenario', basis: 'Iron small-block Ford, dressed' } },
+  'ford-fe': { name: 'Ford FE 352–428', weight: { low: 625, high: 675, evidence: 'estimated', boundary: 'dressed-engine-scenario', basis: 'Iron FE big-block, dressed' } },
+  'mopar-hemi-426': { name: 'Chrysler 426 Hemi', weight: { low: 750, high: 800, evidence: 'estimated', boundary: 'dressed-engine-scenario', basis: 'Iron Hemi, dressed' } },
 };
 
 /** Measured ESS parts that change installed weight (owner-measured tier). */
@@ -65,4 +65,12 @@ export const swapEngines = {
   lt4zl1: { name: 'LT4 · 2017 Camaro ZL1 (650 hp)', from: 'chevrolet-camaro-6th-gen--2017-zl1-lt4-a10-coupe', family: 'gm-lt-gen5' },
   coyote18: { name: 'Coyote 5.0 · 2018 Mustang GT', from: 'ford-mustang-s550--2018-gt-pp2-5.0-m6-fastback', family: null },
   hemi392: { name: '392 Hemi · 2023 Challenger Scat Pack (485 hp)', from: 'dodge-challenger-la--2023-rt-scat-pack-6.4-m6-coupe', family: null },
+  // Reuse exact public vehicle references; the shared resolver carries ratings and evidence.
+  windsor93: { name: 'Ford 5.0 Windsor · 1993 Mustang LX SSP', from: 'ford-mustang-fox--1993-lx-ssp-5.0-m5-notchback', family: 'ford-windsor' },
+  chevyLs6Classic: { name: '454 LS6 · 1970 Chevelle SS', from: 'chevrolet-chevelle-2nd-gen--1970-ss-454-ls6-m22-coupe', family: 'gm-bbc' },
+  hemi426: { name: '426 Hemi · 1970 Challenger R/T', from: 'dodge-challenger-1st-gen--1970-rt-426-hemi-a3-3.23-hardtop-drums', family: 'mopar-hemi-426' },
+  cobraJet428: { name: '428 Cobra Jet · 1969 Mustang Mach 1', from: 'ford-mustang-1st-gen--1969-mach-1-428-a3-3.91-sportsroof', family: 'ford-fe' },
+  buickLc2: { name: 'Turbo 3.8 LC2 · 1987 Grand National', from: 'buick-regal-g-body--1987-grand-national-lc2-a4-coupe', family: null },
+  hondaK20c1: { name: 'K20C1 · 2023 Civic Type R', from: 'honda-civic-fl5--2023-type-r-k20c1-m6-hatch', family: null },
+  chevyL87: { name: '6.2 L87 · 2022 Silverado ZR2', from: 'chevrolet-silverado-1500-t1--2022-zr2-l87-a10-crew-cab-4wd', family: 'gm-lt-gen5' },
 };

@@ -3,7 +3,7 @@
 // calculated traces, and the visitor can share a link that reopens the same comparison or save a picture of it.
 // Reads the visitor's active Garage car; never writes to the Garage.
 import { EXPERIMENTS, EXPERIMENT_KEYS, REPLAY_NOTE, NO_CHANGE, MATCHUPS, readyIds, nextExperiments, publishedCompare, USUAL_ERROR_PCT, estimatedInputs, LETTERS, quickChanges, runLane, road, summarize, replayDuration, laneLabel, laneTags, laneVehicle, vehicleName, changeLabel, isChanged } from './runs.mjs';
-import { encodeState, decodeState, cleanParams } from './share-state.mjs';
+import { encodeState, decodeState, cleanParams, cleanLane, LIMITS } from './share-state.mjs';
 import { createStage, laneColor } from './stage.mjs';
 import { drawShareCard } from './share-card.mjs';
 import { installCatalog } from '../catalog.mjs';
@@ -74,7 +74,9 @@ function applyMatchup(x, i) {
   if (m.mode === 'change') S.change = b.change;
 }
 
-function lanes() {
+// Every lane passes the same boundary as the share link, so what runs here is exactly what a recipient will run.
+function lanes() { return rawLanes().map(l => cleanLane(l) ?? l); }
+function rawLanes() {
   if (S.sharedLanes) return S.sharedLanes;   // exactly what the sender saw, until the visitor changes something
   const A = { id: S.a.id, setup: S.a.setup, change: S.aChange ?? NO_CHANGE };
   if (S.mode === 'change') return [A, { ...A, change: S.change ?? quickChanges(S.x, laneVehicle(A))[0][0], ...(S.bDiff ? { diff: S.bDiff } : {}) }];
@@ -153,7 +155,8 @@ function renderCompare(ls) {
   $('[data-compare]').innerHTML = muHtml + `<div class="rp-modes" role="group" aria-label="Compare with">${modes.map(m => `<button type="button" data-mode="${m}" aria-pressed="${m === S.mode}">${MODES[m]}</button>`).join('')}</div>${body}`;
 }
 function customFields(c = NO_CHANGE) {
-  const f = (k, label, unit, step) => `<label><span>${label}</span><input type="number" step="${step}" value="${c[k] || 0}" data-custom="${k}" aria-label="${label} (${unit})"><small>${unit}</small></label>`;
+  const base = Number(laneVehicle({ id: S.a.id })?.weight) || 3000;
+  const f = (k, label, unit, step) => `<label><span>${label}</span><input type="number" step="${step}" min="${LIMITS[k].min instanceof Function ? LIMITS[k].min(base) : LIMITS[k].min}" max="${LIMITS[k].max}" value="${c[k] || 0}" data-custom="${k}" aria-label="${label} (${unit}), ${LIMITS[k].text(base)}"><small>${unit}</small></label>`;
   return `<div class="rp-custom-grid">${f('weight', 'Weight', 'lb', 10)}${f('power', 'Power', '%', 5)}${f('cg', 'CG height', 'in', .5)}</div>`;
 }
 function renderResult(summary, runs) {
@@ -172,6 +175,7 @@ function renderResult(summary, runs) {
     return out.join('');
   };
   $('[data-result]').innerHTML = `<p class="rp-what">${esc(summary.what)} ${badge}</p><h2 class="rp-headline">${esc(summary.headline)}</h2>
+    <p class="rp-evidence">${esc(e.check)} <a href="../learn/">How ESS checks its models</a></p>
     ${summary.caveat ? `<p class="rp-caveat">${esc(summary.caveat)}</p>` : ''}
     <ul class="rp-lanes-out">${summary.lanes.map((l, i) => `<li><span class="rp-letter" style="background:${laneColor(i)}" aria-hidden="true">${LETTERS[i]}</span><div><b><span class="rp-sr">Car ${LETTERS[i]}: </span>${esc(l.name)}${place(i) ? ` <em class="rp-place">${place(i)}</em>` : ''}</b><span class="rp-fig">${l.ok ? esc(l.figures.join(' · ')) : 'no run'}</span><small>${esc(l.why)}</small>${laneExtra(i)}</div></li>`).join('')}</ul>`;
   renderNext(runs);
@@ -259,9 +263,15 @@ root.addEventListener('input', e => {
 root.addEventListener('change', e => {
   const t = e.target;
   if (t.matches('[data-custom]')) {
-    const cur = { ...(lastLanes?.[1]?.change ?? NO_CHANGE) };
-    cur[t.dataset.custom] = +t.value || 0; cur.tire = cur.tire ?? '';
-    S.change = cur; userChanged(); run();
+    const cur = { ...(lastLanes?.[1]?.change ?? NO_CHANGE) }, k = t.dataset.custom, asked = +t.value || 0;
+    cur[k] = asked; cur.tire = cur.tire ?? '';
+    const clean = cleanLane({ id: lastLanes[0].id, change: cur })?.change ?? NO_CHANGE;
+    S.change = clean; userChanged(); run();
+    if (clean[k] !== asked) {   // say so, visibly, instead of running a value the share link would change
+      const base = Number(laneVehicle({ id: lastLanes[0].id })?.weight) || 3000;
+      msg(`${k === 'cg' ? 'CG height' : k[0].toUpperCase() + k.slice(1)} change must be ${LIMITS[k].text(base)}: using ${clean[k] > 0 ? '+' : clean[k] < 0 ? '−' : ''}${Math.abs(clean[k]).toLocaleString('en-US')}${LIMITS[k].unit === '%' ? '%' : ' ' + LIMITS[k].unit}.`);
+      const box = root.querySelector(`[data-custom="${k}"]`); if (box) box.value = clean[k];
+    }
   }
 });
 root.addEventListener('ess:vehicle-selected', e => {

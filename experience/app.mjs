@@ -1,10 +1,10 @@
 import "./lab-measurement.mjs";
 import { track } from './measurement.mjs';
 import { vehicles, vehicleIds, customEstimates } from './vehicles.mjs';
-import { resolve, massIssue, choices, cleanSetup, newSetup, presets, validValue, usableSetup } from './models.mjs';
+import { resolve, massIssue, choices, cleanSetup, newSetup, presets, validValue, usableSetup, setComponent, overlappingInstallation } from './models.mjs';
 import { example, clone, modified, shareFragment, readFragment, getSaved, saveBuild, getGarage, saveToGarage, removeFromGarage, shareResult, getActive, useConfig, laneKeys, lanes, labelLane, modeOf } from './configuration.mjs';
 import { home, build, toolsView, learn, inputGroups, toolResults } from './views.mjs';
-import { fmt, numberField } from './ui.mjs';
+import { fmt, delta, numberField } from './ui.mjs';
 import { compare, matchupEntries, comparisonResults, liveGrid, resultTime, setupName, quickImpact } from './matchup.mjs';
 import { paintReplay, replayFrame } from './replay.mjs';
 import { garageView } from './garage-view.mjs';
@@ -13,7 +13,7 @@ import { suspensionPageHtml, mountSuspensionPage, loadSusp, saveSusp, cleanSusp 
 import { bindUnitControls, format as formatUnits } from './units.mjs';
 import { installCatalog } from './catalog.mjs';
 import { tractionPanel } from './drivetrain-view.mjs';
-import { components, componentOverrides } from './components.mjs';
+import { components, componentOverrides, gearboxDryDifference } from './components.mjs';
 import { mountCamber } from './diagrams.mjs';
 import { mountFrontGeometry, frontGeometry } from './front-geometry.mjs';
 import { studies, missingFor } from './readiness.mjs';
@@ -70,6 +70,7 @@ const perfViews = ['performance', 'performance-why', 'performance-math'];
 let replay;
 let pendingPreset;
 let sharedLinkNotice = '';
+let previousBuildResult = null;
 
 const active = () => state[state.focus];
 const toolSettings = () => state.tool ?? defaults;
@@ -101,8 +102,10 @@ function navigate(next) {
 }
 
 let openedShare = false;
+let legacySuspensionShare = false;
 function applyLocation() {
   const route = readFragment(location.hash);
+  legacySuspensionShare = route.view === 'suspension' && Boolean(route.state?.susp);
   if (route.state) {
     const {perf: sharedPerf, susp: sharedSusp, ...rest} = route.state;
     state = rest;
@@ -143,8 +146,8 @@ function applyLocation() {
 }
 
 function render(next = view, restoreDetails = false) {
-  // Suspension V2 replaces the earlier Lab suspension view (owner direction, 26 Nov); old links land on V2.
-  if (next === 'suspension') { location.replace(new URL('../suspension-v2/', location.href).href); return; }
+  // Navigation uses V2. Only a saved legacy geometry payload opens its original solver.
+  if (next === 'suspension' && !legacySuspensionShare) { location.replace(new URL('../suspension-v2/', location.href).href); return; }
   const openSections = new Map(restoreDetails ? [...app.querySelectorAll('details[data-details]')].map(el => [el.dataset.details, el.open]) : []);
   const priorFocus = restoreDetails ? app.querySelector(':focus') : null;
   const focusData = priorFocus && Object.entries(priorFocus.dataset)[0];
@@ -152,7 +155,10 @@ function render(next = view, restoreDetails = false) {
   pendingPreset = null;
   view = next;
   switch (view) {
-    case 'build': app.innerHTML = build(state, saved) + labJourney('lab-build'); break;
+    case 'build':
+      app.innerHTML = build(state, saved, {previous: previousBuildResult, suggestion: labJourney('lab-build', 'strip', true)});
+      previousBuildResult = null;
+      break;
     case 'compare': {
       const entries = matchupEntries(state);
       app.innerHTML = compare(state, entries) + labJourney('lab-compare', state.event);
@@ -165,7 +171,7 @@ function render(next = view, restoreDetails = false) {
       const setup = active();
       const v = resolve(setup, true), orig = resolve(setup, false);
       const rear = cleanRear(susp.rear);
-      app.innerHTML = suspensionPageHtml({ name: setupName(setup), v, susp,
+      app.innerHTML = '<div class="shell"><p class="link-notice">Saved geometry from an earlier experiment. <a href="../suspension-v2/">Open current suspension geometry</a>.</p></div>' + suspensionPageHtml({ name: setupName(setup), v, susp,
         provenance: state[state.focus + 'Mode'] === 'after' ? 'modified configuration' : 'original configuration',
         rearHtml: suspensionView(setupName(setup), v, { embedded: true, initial: rear }) });
       mountSuspensionPage(app, {
@@ -236,9 +242,11 @@ function commitExperiment(next, message) {
     track('missing_inputs', {capability:view, outcome:'blocked'});
     return false;
   }
+  if (view === 'build') previousBuildResult = resolve(active());
   changeFocused(next);
   render(view, true);
-  speak(message);
+  const feedback = view === 'build' ? app.querySelector('.build-feedback')?.textContent : '';
+  speak(feedback ? `${message} ${feedback}` : message);
   if (!massIssue(resolve(next))) track('experiment_result', {capability:view, outcome:'ready'});
   return true;
 }
@@ -264,6 +272,10 @@ function choosePreset(key) {
     return;
   }
   if (preset.requiresOld) {
+    if (overlappingInstallation(next.parts, 'powertrain')) {
+      speak('Undo the existing installation package before adding another.');
+      return;
+    }
     pendingPreset = key;
     byId('preset-form').innerHTML = `<form data-form="measured" class="edit-form">
       <p>${preset.note}</p><div class="input-grid">
@@ -302,10 +314,20 @@ app.addEventListener('submit', event => {
   if (group === 'part' || group === 'measured') {
     if (next.parts.length >= 8) { issue.textContent = 'The experiment can hold eight component changes.'; return; }
     if (group === 'part') {
-      next.parts.push({
+      const role = values.get('role');
+      const part = {
         label: values.get('label').trim(), oldWeight: +values.get('oldWeight'), newWeight: +values.get('newWeight'),
-        oldX: +values.get('oldX'), newX: +values.get('newX'),
-      });
+        oldX: +values.get('oldX'), newX: +values.get('newX'), ...(role ? {role} : {}),
+      };
+      const unchanged = part.oldWeight === part.newWeight && (part.oldWeight === 0 || part.oldX === part.newX);
+      if (unchanged) { issue.textContent = 'Enter a change in weight or position.'; return; }
+      if (role && (!values.has('sameBasis') || !part.oldWeight || !part.newWeight)) {
+        issue.textContent = 'Enter both installed weights and confirm the measurement basis.'; return;
+      }
+      if (role && overlappingInstallation(next.parts, role)) {
+        issue.textContent = 'Undo the existing installation entry before applying a replacement for the same hardware.'; return;
+      }
+      next.parts.push(part);
     } else if (pendingPreset) {
       const part = addPreset(next, pendingPreset);
       Object.assign(part, { oldWeight: +values.get('oldWeight'), oldX: +values.get('oldX'), newX: +values.get('newX') });
@@ -367,10 +389,31 @@ app.addEventListener('ess:vehicle-selected', event => {
   speak('Selected ' + vehicles[id].name + '.');
 });
 
+app.addEventListener('input', event => {
+  const input = event.target;
+  if (!input.dataset.componentSearch) return;
+  const normalize = text => text.toLowerCase().replace(/[^a-z0-9]/g, '');
+  const words = input.value.trim().split(/\s+/).map(normalize).filter(Boolean);
+  const select = app.querySelector(`[data-component="${input.dataset.componentSearch}"]`);
+  for (const option of select.options) {
+    const search = normalize(option.textContent + option.value);
+    option.hidden = !!option.value && !option.selected && !words.every(word => search.includes(word));
+  }
+});
+
 app.addEventListener('change', event => {
   const el = event.target;
   if (el.hasAttribute('data-study-select')) {
     for (const row of app.querySelectorAll('[data-study]')) row.hidden = row.dataset.study !== el.value;
+  } else if (el.name === 'role' && el.closest('[data-form="part"]')) {
+    const confirmation = el.form.querySelector('[data-install-basis]');
+    confirmation.hidden = !el.value;
+    confirmation.querySelector('input').checked = false;
+  } else if (el.dataset.gearboxWeight) {
+    const [from, to] = ['from', 'to'].map(side => app.querySelector(`[data-gearbox-weight="${side}"]`).value);
+    const difference = gearboxDryDifference(from, to);
+    app.querySelector('[data-gearbox-difference]').textContent = difference === null ? '' :
+      `${delta(difference, 1)} lb dry gearbox difference. This comparison does not modify the vehicle.`;
   } else if (el.dataset.component) {
     const kind = el.dataset.component;
     const next = clone(active());
@@ -378,11 +421,7 @@ app.addEventListener('change', event => {
     if (before === el.value) return;
     const specs = components[kind][el.value] ?? components[kind][before];
     if (perfViews.includes(view)) perfLabel = (specs?.name ?? 'Transmission') + (el.value ? '' : ' removed');
-    const config = {...next.components};
-    if (el.value) config[kind] = el.value;
-    else delete config[kind];
-    next.components = config;
-    for (const key of Object.keys(specs?.values ?? {})) delete next.tune[key];
+    setComponent(next, kind, el.value);
     commitExperiment(next, specs ? specs.name + (el.value ? ' applied.' : ' removed.') : '');
   } else if (el.hasAttribute('data-perf-tire')) {
     perf = {...perf, tire: el.value};
@@ -637,18 +676,18 @@ function carryLane(key, selection = modeOf(state, key)) {
 
 
 // ---- In-Lab next experiments (Build, Compare) ----
-function labJourney(key, event = 'strip') {
-  try { return `<div class="shell">${labJourneyHtml(key, active(), labelLane(state.focus) + ' · ' + setupName(active()), {event})}</div>`; }
+function labJourney(key, event = 'strip', compact = false) {
+  try {
+    const band = labJourneyHtml(key, active(), labelLane(state.focus) + ' · ' + setupName(active()), {event, compact});
+    return compact ? band : `<div class="shell">${band}</div>`;
+  }
   catch { return ''; }
 }
 function applyLabExperiment(el) {
   const x = journeyExperiments(el.dataset.labPlan, active(), undefined, {event: el.dataset.labEvent === 'oval' ? 'oval' : 'strip'}).list.find(item => item.gen === el.dataset.labTry);
   if (!x || !usableSetup(x.setup)) { speak('That experiment no longer applies to this car.'); return; }
-  state[state.focus] = x.setup;
-  state[state.focus + 'Mode'] = modified(x.setup) ? 'after' : 'before';
-  render(view, true);
-  speak(x.title + ' applied to ' + setupName(x.setup) + '.');
-  (view === 'compare' ? byId('race-results') : app.querySelector('h1'))?.scrollIntoView({block: 'start'});
+  commitExperiment(x.setup, x.title + ' applied to ' + setupName(x.setup) + '.');
+  if (view === 'compare') byId('race-results')?.scrollIntoView({block: 'start'});
 }
 
 // ---- Performance page (gearing and traction) ----
@@ -792,6 +831,13 @@ document.addEventListener('click', event => {
   if (el.dataset.labTry) { applyLabExperiment(el); return; }
   if (el.matches('[data-susp-share]')) { suspShare(); return; }
   if (el.dataset.preset) { choosePreset(el.dataset.preset); return; }
+  if (el.dataset.undoComponent) {
+    const next = clone(active());
+    const name = components[el.dataset.undoComponent][next.components[el.dataset.undoComponent]].name;
+    setComponent(next, el.dataset.undoComponent, '');
+    commitExperiment(next, name + ' undone.');
+    return;
+  }
   if (el.dataset.remove !== undefined) {
     const next = clone(active());
     next.parts.splice(+el.dataset.remove, 1);

@@ -1,3 +1,4 @@
+import { components } from './components.mjs';
 import { vehicles, fields, customEstimates } from './vehicles.mjs';
 import { presets, limits, choices, resolve, massIssue, powerIssue, tireLoads, ride } from './models.mjs';
 import { modified } from './configuration.mjs';
@@ -35,7 +36,7 @@ export function home(state, saved) {
       <a class="route-card" href="../plan/"><strong>Plan my next build</strong><span>Turn a goal into a practical sequence.</span></a>
       <a class="route-card" href="../learn/"><strong>Understand the engineering</strong><span>Explore experiments and the physics behind your results.</span></a>
     </div>
-    <div class="actions"><a class="button secondary" href="#performance">Test gearing and traction</a>
+    <div class="actions"><a class="button primary" href="../replay/">Watch a graphical replay</a> <a class="button secondary" href="#performance">Test gearing and traction</a>
     <a class="button secondary" href="#tools">Explore tire loads and ride</a>
     <a class="button secondary" href="../suspension-v2/">Explore suspension geometry</a>
     ${saved ? '<button class="button secondary" data-action="load-saved">Open my saved build</button>' : ''}</div>
@@ -86,19 +87,42 @@ export function massMetrics(before, after, isCompare = false) {
 }
 
 function partForm() {
-  return `<details class="explain" data-details="part"><summary>Add a custom removal, relocation or swap</summary>
-    <p>Enter old and new weight and position. Use 0 lb for a missing part. Positive distance is behind the front axle.</p>
+  return `<details class="explain" data-details="part"><summary>Enter a custom part or installed package</summary>
+    <p>For a removal or addition enter 0 lb on the absent side. Use positions behind the front axle (negative ahead of it). For a powertrain installation include the same kinds of hardware and fluid on both sides or account for the difference.</p>
     <form data-form="part" class="edit-form">
-      <label><span>Part name</span><input name="label" maxlength="60" placeholder="e.g. T5 transmission" required></label>
+      <label><span>Part or package</span><input name="label" maxlength="60" placeholder="e.g. T56 with clutch and mount" required></label>
+      <label><span>Type of change</span><select name="role">
+        <option value="">Addition, removal, relocation or other part</option>
+        <option value="engine">Installed engine swap</option>
+        <option value="transmission">Installed transmission swap</option>
+        <option value="powertrain">Combined engine and transmission package</option>
+      </select></label>
       <div class="input-grid">
-      ${numberField('oldWeight', 'Old weight (lb)', 0, { min: 0, max: 1800, required: true })}
-      ${numberField('oldX', 'Old position (in)', 0, { min: -75, max: 220, required: true })}
-      ${numberField('newWeight', 'New weight (lb)', 0, { min: 0, max: 1800, required: true })}
-      ${numberField('newX', 'New position (in)', 0, { min: -75, max: 220, required: true })}
+      ${numberField('oldWeight', 'Old weight (lb)', '', { min: 0, max: 1800, required: true })}
+      ${numberField('oldX', 'Old position (in)', '', { min: -75, max: 220, required: true })}
+      ${numberField('newWeight', 'New weight (lb)', '', { min: 0, max: 1800, required: true })}
+      ${numberField('newX', 'New position (in)', '', { min: -75, max: 220, required: true })}
       </div>
-      <button class="button secondary">Add component change</button><p class="form-issue" role="alert"></p>
+      <label class="checkbox-line" data-install-basis hidden><input type="checkbox" name="sameBasis"><span>I have comparable before/after weights and defensible positions for this installation.</span></label>
+      <button class="button secondary">Apply component change</button><p class="form-issue" role="alert"></p>
     </form>
   </details>`;
+}
+
+function resultFeedback(previous, after) {
+  if (!previous) return '';
+  const figures = [
+    ['Weight', 'weight', 'lb', 1], ['Front axle', 'frontLb', 'lb', 1],
+    ['Power', 'hp', 'hp', 0], ['Torque', 'torque', 'lb-ft', 0], ['Grip assumption μ', 'grip', '', 2],
+  ].flatMap(([label, key, unit, places]) => {
+    const original = previous[key], value = after[key];
+    return Number.isFinite(value) && (!Number.isFinite(original) || Math.abs(value - original) >= 10 ** -places / 2)
+      ? [`${label}: ${fmt(original, places)} → ${fmt(value, places)} ${unit}`.trim()] : [];
+  });
+  if (JSON.stringify(previous.gears) !== JSON.stringify(after.gears) && after.gears?.length) {
+    figures.push(`Gear ratios: ${after.gears.length} speeds, first ${fmt(after.gears[0], 2)}`);
+  }
+  return figures.join(' · ');
 }
 
 function axleGraphic(before, after) {
@@ -121,7 +145,10 @@ function dataReadiness(setup, current) {
       const optional = (studies[id].optional ?? []).filter(key => current[key] == null);
       const suggested = [...missing, ...optional].filter(key => setup.id === 'custom' && Object.hasOwn(customEstimates, key));
       const other = missing.filter(key => !suggested.includes(key));
-      const format = key => `${fields[key]} ${key === 'front' ? current[key] * 100 : (current[key] ?? customEstimates[key][0])}`;
+      const format = key => {
+        const value = current[key] ?? customEstimates[key]?.[0];
+        return `${fields[key]} ${key === 'front' ? fmt(value * 100, 1) + '%' : value}`;
+      };
       const issue = !missing.length && ['quarter', 'oval'].includes(id) ? powerIssue(current, id) : '';
       return `<div class="study-readiness" data-study="${id}" ${index ? 'hidden' : ''}>
         ${other.length ? `<p>Enter ${escape(missingText(other))}.</p>` : ''}
@@ -136,23 +163,26 @@ function dataReadiness(setup, current) {
   </section>`;
 }
 
-export function build(state, saved) {
+export function build(state, saved, { previous = null, suggestion = '' } = {}) {
   const setup = state[state.focus];
   const before = resolve(setup, false);
   const after = resolve(setup);
   const estimateBalance = setup.base.front === undefined && vehicles[setup.id].data.front[1] === 'estimated';
+  const changed = modified(setup);
+  const feedback = resultFeedback(previous, after);
   const frontMove = after.frontLb - before.frontLb;
   const rearMove = after.rearLb - before.rearLb;
   const massMessage = massIssue(after) || (modified(setup) ?
     `Front axle ${delta(frontMove, 1)} lb. Rear axle ${delta(rearMove, 1)} lb. ${estimateBalance && 'Original front share is estimated.' || ''}` :
     `Add a part change to see its effect. ${estimateBalance && 'Original front share is estimated.' || ''}`);
   return `<section class="shell workspace">
-    ${pageTitle('Garage', 'Build your car', 'Make a change and see where the weight goes. Keep an original to compare against.')}
-    ${setupPicker(setup, `Car ${state.focus.toUpperCase()}`)}
+    ${pageTitle('Build', 'Modify your car', 'Choose a change and see what it does to your setup.')}
+    ${setupPicker(setup, 'Your vehicle')}
     <div class="workspace-grid ${massIssue(after) ? 'awaiting-specs' : ''}">
       <aside class="panel sticky-result">
-        <div class="result-caption"><span>Modified weight</span><strong>${fmt(after.weight)} <small>lb</small></strong>
-        <span>${Number.isFinite(after.front) && Number.isFinite(before.weight) ? delta(after.weight - before.weight) + ' lb vs original · ' + fmt(after.front * 100, 1) + '% front' : 'Weight or balance data missing'}</span></div>
+        <div class="result-caption ${feedback ? 'result-changed' : ''}"><span>${changed ? 'Setup weight' : 'Original weight'}</span><strong>${fmt(after.weight)} <small>lb</small></strong>
+        <span>${Number.isFinite(after.front) && Number.isFinite(before.weight) ? delta(after.weight - before.weight) + ' lb vs original · ' + fmt(after.front * 100, 1) + '% front' : 'Weight or balance data missing'}</span>
+        ${feedback ? `<p class="build-feedback">${escape(feedback)}</p>` : ''}</div>
         <div class="result-body">
         ${massMetrics(before, after)}
         <p class="takeaway">${massMessage}</p>
@@ -161,13 +191,19 @@ export function build(state, saved) {
         </div>
       </aside>
       <section class="panel content-panel mod-controls">
-          <h2>Try a modification</h2>
-          <div class="quick-grid">${Object.entries(presets).filter(([, p]) => (!p.firebird || setup.id === 'firebird') && !p.requiresOld).map(([key, p]) =>
+          <h2>Choose a modification</h2>
+          ${drivetrainPanel(setup)}
+          ${partForm()}
+          ${suggestion}
+          <details class="explain" data-details="presets"><summary>Try a weight or balance experiment</summary>
+          <div class="quick-grid">${Object.entries(presets).filter(([, p]) => !p.firebird || setup.id === 'firebird').map(([key, p]) =>
             `<button class="preset" data-preset="${key}" ${massIssue(after) || setup.parts.some(x => x.preset === key) ? 'disabled' : ''}>
               <strong>${p.label}</strong><span>${p.note}</span></button>`).join('')}</div>
-          <div id="preset-form"></div>
-          ${partForm()}
-          <div class="parts">${setup.parts.map((p, i) => `<div><span><strong>${escape(p.label)}</strong>
+          <div id="preset-form"></div></details>
+          <div class="parts">${Object.entries(setup.components ?? {}).map(([kind, id]) =>
+            `<div><span><strong>${escape(components[kind][id].name)}</strong></span>
+            <button type="button" class="button secondary small" data-undo-component="${kind}" aria-label="Undo ${escape(components[kind][id].name)}">Undo</button></div>`).join('')}
+          ${setup.parts.map((p, i) => `<div><span><strong>${escape(p.label)}</strong>
             <small>${fmt(p.oldWeight, 1)} lb at ${fmt(p.oldX, 1)} in → ${fmt(p.newWeight, 1)} lb at ${fmt(p.newX, 1)} in</small>
             ${p.preset ? `<small>${presets[p.preset].note}</small>` : ''}</span>
             <button class="button secondary small" data-remove="${i}" aria-label="Undo ${escape(p.label)}">Undo</button></div>`).join('')}</div>
@@ -182,9 +218,8 @@ export function build(state, saved) {
         <section class="panel content-panel build-specs">
           <h2>Change the specifications</h2>
           ${dataReadiness(setup, after)}
-          ${drivetrainPanel(setup)}
           ${overrideForm('original', before, 'Original specifications', 'Enter your real readings to replace the reference inputs used for both original and modified.', inputGroups.original, setup.name)}
-          ${overrideForm('power', after, 'Engine, transmission and tires', 'Enter your replacement power figures, gear ratios, or tire changes. Component weights are changed separately above.', powerKeys)}
+          ${overrideForm('power', after, 'Manual power, gearing and tire inputs', 'Override individual model inputs for your own component.', powerKeys)}
           ${overrideForm('ride', after, 'Springs and tire stiffness', 'These settings affect ride frequency.', rideKeys)}
           ${overrideForm('geometry', after, 'Center of gravity height', 'Enter a different CG height to explore load transfer. Part movements above compute only longitudinal CG.', inputGroups.geometry)}
           ${evidence(setup)}

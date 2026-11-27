@@ -103,3 +103,4 @@
   .rp-presets{margin-bottom:6px}
   .rp-stage canvas{height:clamp(220px,58vw,300px)}
 }
+.rp-evidence{margin:-.2em 0 .5em;font-size:.84rem;color:var(--rp-muted)}

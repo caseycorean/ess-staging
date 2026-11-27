@@ -1,14 +1,14 @@
 {
-  "website_commit": "28ebe1f96d6c9fc3c26ece7e516957f5a5efcd4e",
-  "branch": "experience/graphical-sims",
+  "website_commit": "204c3af99a4b1e61e037a9252e09088edf694dc6",
+  "branch": "integration/combined-staging",
   "local_changes": false,
-  "built": "2026-11-26 17:33 PST",
-  "source_note": "website branch experience/graphical-sims; base: Work product sprint be2967a + simulations caption fix 0d29ed0; graphical simulations, improvements, contact email",
+  "built": "2026-11-26 17:51 PST",
+  "source_note": "website branch integration/combined-staging: Work dce13d7 (unified Build/Modify, four-area home, Candidate B palette, donor engines) + Claude replay improvements, phone layout, contact email, replay input boundary fix",
   "pages": 142,
   "notes": "Unlisted development site. noindex on every page, robots.txt disallows all, no sitemap, no analytics.",
   "previews": {
-    "work-dce13d7/": "Work website dce13d772c8e3279d614f7f27f6b9b1874f77358 as committed (bundle ess-knowledge launch/2026-11-29/capability-integration)",
-    "design-work/": "Work design study, exact ess-design-study.html + six boards (ess-knowledge launch/2026-11-29/design-evaluation, commit 66926d2)",
-    "design-claude/": "Claude landing proposal ess-landing-proposal.html (ess-knowledge design/landing-review-2026-11-26)"
+    "work-dce13d7/": "Work website dce13d772c8e3279d614f7f27f6b9b1874f77358 as committed",
+    "design-work/": "Work design study (exact ess-design-study.html + six boards)",
+    "design-claude/": "Claude landing proposal (ess-landing-proposal.html)"
   }
 }

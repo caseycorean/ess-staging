@@ -2,7 +2,7 @@
 // the visitor's own car. Every number is a shared-engine run; every "Try it" link opens the Vehicle Lab with that
 // experiment already applied (reproducible share fragment). No host services, no network: plain ES modules.
 import { getActive, example, shareFragment } from './configuration.mjs';
-import { newSetup, resolve, usableSetup, presets, validValue, engineSwapMass } from './models.mjs';
+import { newSetup, resolve, usableSetup, presets, validValue, engineSwapMass, setComponent } from './models.mjs';
 import { perfModel, perfDefaults, nextSteps, frictionOptions, quickEt, effectivePerf, baseVehicle, withConditions } from './performance-view.mjs';
 import { tractionCheck, frictionFor } from '../engine/traction.mjs';
 import { components } from './components.mjs';
@@ -123,13 +123,12 @@ const generators = {
     const current = base.components?.engine;
     const id = ['ls1gto', ...Object.keys(components.engine)].find(k => components.engine[k] && k !== current && !components.engine[k].hidden);
     if (!id) return null;
-    const setup = clone(base); setup.components = { ...(setup.components ?? {}), engine: id };
-    for (const k of Object.keys(components.engine[id].values ?? {})) delete setup.tune[k];
+    const setup = clone(base); setComponent(setup, 'engine', id);
     if (!usableSetup(setup)) return null;
     // Say what the model did with mass (owner Plan review 26 Nov: the old text claimed mass was not modelled while the
     // weight changed): library installed-weight change when both engines are in it, otherwise stock mass kept.
     const mass = engineSwapMass(setup);
-    const massText = mass?.part ? 'installed weight change from ESS component-library weights (estimate)' : mass?.unchanged ? mass.unchanged.replace(/\.$/, '').replace(/^./, c => c.toLowerCase()) : 'stock mass kept';
+    const massText = mass?.part ? 'estimated dressed-engine weight change (installation hardware excluded)' : mass?.unchanged ? mass.unchanged.replace(/\.$/, '').replace(/^./, c => c.toLowerCase()) : 'stock mass kept';
     return { setup, perf, title: `Swap to the ${components.engine[id].name}`, what: `Donor power ratings; ${massText}`, view: 'performance' };
   },
 };
@@ -194,16 +193,16 @@ export function journeyHtml(planKey, labRoot, active) {
 }
 
 /** In-Lab version: buttons apply the experiment to the focused car in place (data-lab-try), no navigation. */
-export function labJourneyHtml(planKey, setup, laneLabel, { event = 'strip' } = {}) {
+export function labJourneyHtml(planKey, setup, laneLabel, { event = 'strip', compact = false } = {}) {
   const plan = plans[planKey];
   const oval = event === 'oval';
   const { before, list } = experiments(planKey, setup, perfDefaults(), { event });
   if (!list.length) return '';
   const testName = oval ? 'Flying lap' : 'Quarter mile';
   const copy = oval ? 'Each option is a model run of the car you are tuning on the test oval, ranked by modelled lap gain. Apply one and the comparison reruns.' : plan.copy;
-  return `<section class="ig-journey ig-lab-journey" aria-labelledby="lab-journey-title"><p class="ig-eyebrow">${escape(laneLabel)}</p>
-    <h2 id="lab-journey-title">${escape(plan.title)}</h2><p class="ig-journey-copy">${escape(copy)}</p>
-    <ol class="ig-exp-list">${list.map(x => {
+  return `<section class="ig-journey ig-lab-journey${compact ? ' build-suggestions' : ''}" aria-labelledby="lab-journey-title">${compact ? '' : `<p class="ig-eyebrow">${escape(laneLabel)}</p>`}
+    <h2 id="lab-journey-title">${compact ? 'Try a model-guided change' : escape(plan.title)}</h2>${compact ? '' : `<p class="ig-journey-copy">${escape(copy)}</p>`}
+    <ol class="ig-exp-list">${(compact ? list.slice(0, 2) : list).map(x => {
       const gain = x.dEt === null ? '' : Math.abs(x.dEt) < .005 ? '±0.00 s' : `${delta(x.dEt, 2)} s`;
       const etLine = Number.isFinite(x.before.et) && Number.isFinite(x.after.et) ? `${testName} ${fmt(x.before.et, 2)} → ${fmt(x.after.et, 2)} s` : '';
       return `<li><button type="button" class="ig-exp" data-lab-try="${x.gen}" data-lab-plan="${planKey}" data-lab-event="${oval ? 'oval' : 'strip'}">

@@ -127,10 +127,10 @@ export function linkSwapDonors(catalog) {
   return swapEngines;
 }
 
-/** Mass change from swapping engine or transmission families (estimated positions; owner can measure). */
+/** Dressed-engine mass scenario with a comparable boundary and estimated longitudinal position. */
 export function swapMassChange({ fromFamily, toFamily, wheelbase }) {
   const w = f => engineFamilies[f]?.weight; const a = w(fromFamily), b = w(toFamily);
-  if (!a || !b) return null;
+  if (!a?.boundary || a.boundary !== b?.boundary) return null;
   const mid = x => x.value ?? (x.low + x.high) / 2;
   return { label: `Engine ${engineFamilies[fromFamily].name} → ${engineFamilies[toFamily].name}`, oldWeight: mid(a), newWeight: mid(b), oldX: 8, newX: 8,
     evidence: a.evidence === 'published' && b.evidence === 'published' ? 'published' : 'estimated',

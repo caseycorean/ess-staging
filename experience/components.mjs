@@ -1,8 +1,9 @@
 // Browser-facing views of the shared engineering component records.
 import { garageComponents, labVehicle } from '../engine/garage-adapter.mjs';
 import { tireClasses } from '../engine/tires.mjs';
-import { engineFamilies } from '../engine/data/engines.mjs';
+import { engineFamilyFor, engineFamilies } from '../engine/data/engines.mjs';
 import { catalog, sources } from './catalog-data.mjs';
+import { vehicleTransmission, vehicleTransmissionChoices } from '../engine/data/transmissions.mjs';
 
 const library = garageComponents();
 const engineKeys = ['hp','hpRpm','torque','torqueRpm','redline'];
@@ -13,7 +14,8 @@ const engines = Object.fromEntries(Object.entries(library.engine).flatMap(([id, 
   const estimated = engineKeys.filter(key => donor.provenance[key]?.evidence === 'estimated');
   const source = sources[catalog[item.from]?.fields.hp?.[2]]?.[1];
   const mass = engineFamilies[item.family]?.weight ?? null;
-  return [[id, {...item, values, estimated, url: source, mass, evidence: 'published',
+  const evidence = estimated.includes('hp') || estimated.includes('torque') ? 'estimated' : donor.provenance.hp?.evidence ?? 'published';
+  return [[id, {...item, values, estimated, url: source, mass, evidence,
     note: 'Donor ratings and shift ceiling. Installation mass and position depend on the swap.'}]];
 }));
 const transmissions = Object.fromEntries(Object.entries(library.transmission).map(([id, item]) => [id, {
@@ -49,4 +51,40 @@ export function componentOverrides(setup) {
 export function componentProvenance(setup) {
   return Object.assign({}, ...selected(setup).map(spec =>
     Object.fromEntries(Object.keys(spec.values).map(key => [key, spec.estimated?.includes(key) ? 'estimated' : 'component']))));
+}
+
+export function factoryComponent(kind, vehicle) {
+  const ref = vehicle.ref;
+  if (kind === 'engine') {
+    const donor = Object.entries(components.engine).find(([, item]) => item.from === ref);
+    return donor ? { item: donor[1], id: donor[0] } : {};
+  }
+  if (kind !== 'transmission') return {};
+  const candidates = vehicleTransmissionChoices[ref];
+  if (candidates?.length) return { candidates: candidates.map(id => components.transmission[id]) };
+  const original = vehicleTransmission[ref];
+  return original ? { item: components.transmission[original.id], ...original } : {};
+}
+
+export function stockEngineFamily(id, vehicle) {
+  const known = factoryComponent('engine', vehicle).item;
+  if (known) return known.family ?? null;
+  return engineFamilyFor(`${id} ${vehicle.ref ?? ''} ${vehicle.name ?? ''} ${vehicle.trim ?? ''}`);
+}
+
+/** Reuse catalog facts by task. An installed estimate requires vehicle-specific evidence. */
+export function eligibleComponent(kind, id, task) {
+  const item = components[kind]?.[id];
+  if (!item) return false;
+  if (task === 'gearing') return kind === 'transmission' && item.values.gears.length >= 2;
+  if (task === 'engine-output') return kind === 'engine' && ['hp', 'torque'].every(key => Number.isFinite(item.values[key]));
+  if (task === 'tire-grip') return kind === 'tireClass' && Number.isFinite(item.values.grip);
+  if (task === 'known-gearbox-weight') return kind === 'transmission' && !!item.mass?.boundary && Number.isFinite(item.mass.value);
+  return false;
+}
+
+export function gearboxDryDifference(from, to) {
+  if (![from, to].every(id => eligibleComponent('transmission', id, 'known-gearbox-weight'))) return null;
+  const [before, after] = [from, to].map(id => components.transmission[id].mass);
+  return before.boundary === after.boundary ? after.value - before.value : null;
 }

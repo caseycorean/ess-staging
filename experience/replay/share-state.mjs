@@ -1,7 +1,7 @@
 // Graphical simulations: the shareable state. Pure; works in the browser and in Node tests.
 // A shared link carries the experiment, its settings and each lane's car (with its saved build and change), in the URL
 // fragment (#r=…). Fragments are not sent to the server and opening one never writes to the recipient's Garage.
-import { EXPERIMENTS, SEQUENCES, NO_CHANGE } from './runs.mjs';
+import { EXPERIMENTS, SEQUENCES, NO_CHANGE, laneVehicle } from './runs.mjs';
 import { cleanSetup, usableSetup } from '../models.mjs';
 import { vehicles } from '../vehicles.mjs';
 import { tireGrip } from '../../engine/acceleration.mjs';
@@ -22,12 +22,21 @@ export function cleanParams(x, p = {}) {
   for (const [k, [lo, hi, d]] of Object.entries(r)) out[k] = Math.round(clamp(p[k], lo, hi, d));
   return out;
 }
+/** Limits for one-change inputs (shared by the page's custom fields, the model run and the share link). */
+export const LIMITS = {
+  weight: { min: base => -Math.round(base * .3 / 10) * 10, max: 1500, unit: 'lb', text: base => `between −${Math.round(base * .3 / 10) * 10} and +1,500 lb` },
+  power: { min: -50, max: 150, unit: '%', text: () => 'between −50% and +150%' },
+  cg: { min: -4, max: 4, unit: 'in', text: () => 'between −4 and +4 in' },
+};
+
 export function cleanLane(l) {
   if (!l || typeof l !== 'object' || !vehicles[l.id] || l.id === 'custom') return null;
   const c = l.change ?? {};
+  // One input boundary for the model, the page and the share link (QA P0, 26 Nov): the same limits everywhere.
+  const base = Number(laneVehicle({ id: l.id })?.weight) || 3000;
   const lane = { id: l.id, change: { ...NO_CHANGE,
     tire: tireGrip[c.tire] ? c.tire : '',
-    weight: Math.round(clamp(c.weight, -1500, 2000, 0)), cg: clamp(c.cg, -6, 6, 0), power: Math.round(clamp(c.power, -50, 150, 0)) } };
+    weight: Math.round(clamp(c.weight, LIMITS.weight.min(base), LIMITS.weight.max, 0)), cg: clamp(c.cg, LIMITS.cg.min, LIMITS.cg.max, 0), power: Math.round(clamp(c.power, LIMITS.power.min, LIMITS.power.max, 0)) } };
   if (DIFFS[l.diff]) lane.diff = l.diff;
   if (l.technique === 'straight' || l.technique === 'trail') lane.technique = l.technique;
   if (l.setup) { try { const s = cleanSetup(l.setup); if (s && s.id === l.id && usableSetup(s)) lane.setup = s; } catch { /* drop an unusable build */ } }

@@ -32,6 +32,11 @@ const S = {
   oocities: { title: 'Mustang T-5 vs TREMEC comparison (77 / 100 lb)', url: 'https://www.oocities.org/2bav8/compare.html' },
 };
 const src = (...keys) => keys.map(k => S[k]);
+const tkxManual = { title: 'TREMEC TKX service manual', url: 'https://tremec.com/wp-content/uploads/2023/05/TKX-Service-Manual_04.05.2021.pdf' };
+const tkxWeight = { value: 99, evidence: 'manufacturer', basis: 'dry gearbox, before installation', boundary: 'dry-gearbox', sources: [tkxManual] };
+const magnumGuide = { title: 'TREMEC Magnum installation guide', url: 'https://tremec.com/wp-content/uploads/2023/05/TREMEC_Magnum_Installation.Tips_.pdf' };
+const magnumDependencies = { source: magnumGuide, checks: ['Clutch and bellhousing alignment', 'Mount and crossmember', 'Driveshaft and slip yoke', 'Fluid and shifter position'] };
+
 
 export const transmissions = {
   // ---------- GM manual ----------
@@ -44,20 +49,20 @@ export const transmissions = {
   'muncie-m22': { name: 'Muncie M22 "Rock Crusher" close-ratio 4-speed', type: 'manual', gears: [2.2, 1.64, 1.28, 1],
     evidence: 'published', sources: src('randys', 'jalopnik'), note: 'Same ratios as the M21; heavier-duty, lower-helix gears.' },
   'super-t10-243': { name: 'Borg-Warner Super T-10 (2.43 first)', type: 'manual', gears: [2.43, 1.61, 1.23, 1],
-    evidence: 'manufacturer', sources: [{ title: 'ESS vehicle reference, 1977 Trans Am W72 record', url: 'data/vehicle-reference' }],
+    evidence: 'manufacturer', sources: [{ title: 'ESS vehicle reference, 1977 Trans Am W72 record', url: 'https://www.gm.com/content/dam/company/no_search/heritage-archive-docs/vehicle-information-kits/chevrolet/2002-Chevrolet-Camaro.pdf' }],
     weight: { value: 92, evidence: 'published', basis: 'Chevrolet-pattern Super T-10, unspecified dryness', sources: src('weightLib') } },
   't56-fbody': { name: 'T56 6-speed, 1998–2002 LS1 F-body', type: 'manual', gears: [2.66, 1.78, 1.3, 1, .74, .5],
-    evidence: 'manufacturer', sources: [{ title: 'ESS vehicle reference, 2002 Camaro SS (GM)', url: 'data/vehicle-reference' }] },
+    evidence: 'manufacturer', sources: [{ title: 'ESS vehicle reference, 2002 Camaro SS (GM)', url: 'https://www.gm.com/content/dam/company/no_search/heritage-archive-docs/vehicle-information-kits/chevrolet/2002-Chevrolet-Camaro.pdf' }] },
   't56-magnum-266': { name: 'TREMEC T56 Magnum, 2.66 first (.80/.63)', type: 'manual', gears: [2.66, 1.78, 1.3, 1, .8, .63],
-    evidence: 'manufacturer', sources: src('chevyPerf', 'malwood', 'tremecMag'), weight: { value: 135, evidence: 'manufacturer', basis: 'dry', sources: src('tremecMag') } },
+    evidence: 'manufacturer', sources: src('chevyPerf', 'malwood', 'tremecMag'), weight: { value: 135, evidence: 'manufacturer', basis: 'dry gearbox, before installation', boundary: 'dry-gearbox', sources: src('tremecMag') }, dependencies: magnumDependencies },
   't56-magnum-297': { name: 'TREMEC T56 Magnum, 2.97 first (.74/.50)', type: 'manual', gears: [2.97, 2.1, 1.46, 1, .74, .5],
-    evidence: 'published', sources: src('malwood', 'tremecMag'), weight: { value: 135, evidence: 'manufacturer', basis: 'dry', sources: src('tremecMag') } },
+    evidence: 'published', sources: src('malwood', 'tremecMag'), weight: { value: 135, evidence: 'manufacturer', basis: 'dry gearbox, before installation', boundary: 'dry-gearbox', sources: src('tremecMag') }, dependencies: magnumDependencies },
   'tkx-287-068': { name: 'TREMEC TKX, 2.87 first / .68 fifth', type: 'manual', gears: [2.87, 1.89, 1.28, 1, .68],
-    evidence: 'manufacturer', sources: src('tremecTkx', 'malwood') },
+    evidence: 'manufacturer', sources: [tkxManual, ...src('tremecTkx', 'malwood')], weight: tkxWeight },
   'tkx-287-081': { name: 'TREMEC TKX, 2.87 first / .81 fifth', type: 'manual', gears: [2.87, 1.89, 1.28, 1, .81],
-    evidence: 'manufacturer', sources: src('fordTkx') },
+    evidence: 'manufacturer', sources: [tkxManual, ...src('fordTkx')], weight: tkxWeight },
   'tkx-327-072': { name: 'TREMEC TKX, 3.27 first / .72 fifth', type: 'manual', gears: [3.27, 1.98, 1.34, 1, .72],
-    evidence: 'manufacturer', sources: src('tremecTkx') },
+    evidence: 'manufacturer', sources: [tkxManual, ...src('tremecTkx')], weight: tkxWeight },
   'tr6060-mm6': { name: 'TREMEC TR6060 close-ratio (GM MM6)', type: 'manual', gears: [2.66, 1.78, 1.3, 1, .74, .5],
     evidence: 'published', sources: [{ title: 'Camaro5 forum, MM6 vs M10 ratios', url: 'https://www.camaro5.com/forums/showthread.php?p=5531850' },
       { title: 'Motor Matchup, 2015 Camaro Z/28 drivetrain', url: 'https://www.motormatchup.com/catalog/Chevrolet/Camaro/2015/Z+28-2DR-Coupe' }],
@@ -71,7 +76,7 @@ export const transmissions = {
     note: 'Sixth gear .62 (Ford Techline) — CJ table truncated at fifth; verify against a Ford workshop manual.' },
   'mt82-gt-2011': { name: 'Getrag MT82, 2011–17 Mustang GT', type: 'manual', gears: [3.66, 2.43, 1.69, 1.31, 1, .65],
     evidence: 'manufacturer', sources: [{ title: '2014 Mustang Workshop Manual, MT82 specifications (123.5 lb dry)', url: 'https://reichwein.it/manuals/Mustang_2014/Workshop_Manual_Wiring_Diagrams/Resources/Service_Manual/seb83a01.htm' }],
-    weight: { value: 123.5, evidence: 'manufacturer', basis: 'dry (Ford workshop manual)' } },
+    weight: { value: 123.5, evidence: 'manufacturer', basis: 'dry (Ford workshop manual)', boundary: 'dry-gearbox' } },
   't5-wc-v8': { name: 'Borg-Warner T5 World Class, 5.0 Mustang (1985–93)', type: 'manual', gears: [3.35, 1.93, 1.29, 1, .68],
     evidence: 'published', sources: src('lmrT5', 'mdT5', 'amT5'), weight: { value: 78, evidence: 'published', basis: 'Ford-pattern T-5, unspecified', sources: src('weightLib') } },
   't5-nwc': { name: 'Borg-Warner T5 non-World Class (1983–84)', type: 'manual', gears: [2.95, 1.94, 1.34, 1, .73],
@@ -109,6 +114,7 @@ export const converterDefaults = { stallRpm: { low: 1800, value: 2200, high: 280
 
 /** Which library gearbox each reference vehicle uses (only where the record's transmission is identified). */
 export const vehicleTransmission = {
+  'chevrolet-camaro-4th-gen--2002-ss-ls1-m6-coupe': { id: 't56-fbody', basis: '2002 Chevrolet information kit, factory V8 six-speed gear stack.' },
   'chevrolet-chevelle-2nd-gen--1970-ss-454-ls6-m22-coupe': { id: 'muncie-m22', basis: 'Record name: M22 four-speed' },
   'dodge-challenger-1st-gen--1970-rt-426-hemi-a3-3.23-hardtop-drums': { id: 'torqueflite-727', basis: 'Hemi automatics used the A727' },
   'ford-mustang-1st-gen--1969-mach-1-428-a3-3.91-sportsroof': { id: 'ford-c6', basis: '428 Cobra Jet automatic used the C6' },
