@@ -74,7 +74,6 @@ let perf = loadPerf();
 let susp = loadSusp();
 const perfViews = ['performance', 'performance-why', 'performance-math'];
 let replay;
-let pendingPreset;
 let sharedLinkNotice = '';
 let previousBuildResult = null;
 
@@ -166,7 +165,6 @@ function render(next = view, restoreDetails = false) {
   const priorFocus = restoreDetails ? app.querySelector(':focus') : null;
   const focusData = priorFocus && Object.entries(priorFocus.dataset)[0];
   stopReplay();
-  pendingPreset = null;
   view = next;
   document.body.dataset.labView = view;
   switch (view) {
@@ -286,23 +284,6 @@ function choosePreset(key) {
     speak('The experiment can hold eight component changes. Undo one to add another.');
     return;
   }
-  if (preset.requiresOld) {
-    if (overlappingInstallation(next.parts, 'powertrain')) {
-      speak('Undo the existing installation package before adding another.');
-      return;
-    }
-    pendingPreset = key;
-    byId('preset-form').innerHTML = `<form data-form="measured" class="edit-form">
-      <p>${preset.note}</p><div class="input-grid">
-      ${numberField('oldWeight', 'Removed package (lb)', '', { min: 1, max: 1800, required: true })}
-      ${numberField('oldX', 'Removed package position (in)', preset.oldX, { min: -75, max: 220, required: true })}
-      ${numberField('newX', 'Installed package position (in)', preset.newX, { min: -75, max: 220, required: true })}
-      </div><label class="checkbox-line"><input type="checkbox" name="donor">
-      <span>Use the donor GTO’s published 350 hp and 365 lb-ft engine ratings in simulation.</span></label>
-      <button class="button secondary">Add LS1/T5 swap</button><p class="form-issue" role="alert"></p></form>`;
-    byId('preset-form').querySelector('input').focus();
-    return;
-  }
   addPreset(next, key);
   if (!commitExperiment(next, preset.label + ' applied to the experiment.'))
     speak('This change puts the mass or axle loading outside the model limits.');
@@ -326,32 +307,22 @@ app.addEventListener('submit', event => {
   const issue = form.querySelector('.form-issue');
   const next = clone(active());
   const values = new FormData(form);
-  if (group === 'part' || group === 'measured') {
+  if (group === 'part') {
     if (next.parts.length >= 8) { issue.textContent = 'The experiment can hold eight component changes.'; return; }
-    if (group === 'part') {
-      const role = values.get('role');
-      const part = {
-        label: values.get('label').trim(), oldWeight: +values.get('oldWeight'), newWeight: +values.get('newWeight'),
-        oldX: +values.get('oldX'), newX: +values.get('newX'), ...(role ? {role} : {}),
-      };
-      const unchanged = part.oldWeight === part.newWeight && (part.oldWeight === 0 || part.oldX === part.newX);
-      if (unchanged) { issue.textContent = 'Enter a change in weight or position.'; return; }
-      if (role && (!values.has('sameBasis') || !part.oldWeight || !part.newWeight)) {
-        issue.textContent = 'Enter both installed weights and confirm the measurement basis.'; return;
-      }
-      if (role && overlappingInstallation(next.parts, role)) {
-        issue.textContent = 'Undo the existing installation entry before applying a replacement for the same hardware.'; return;
-      }
-      next.parts.push(part);
-    } else if (pendingPreset) {
-      const part = addPreset(next, pendingPreset);
-      Object.assign(part, { oldWeight: +values.get('oldWeight'), oldX: +values.get('oldX'), newX: +values.get('newX') });
-      if (values.has('donor')) {
-        const donor = stock('gto');
-        for (const field of ['hp', 'hpRpm', 'torque', 'torqueRpm']) next.tune[field] = donor[field];
-        next.tune.redline = donor.redline; // Illustrative shift ceiling, not a measured installed limit.
-      }
+    const role = values.get('role');
+    const part = {
+      label: values.get('label').trim(), oldWeight: +values.get('oldWeight'), newWeight: +values.get('newWeight'),
+      oldX: +values.get('oldX'), newX: +values.get('newX'), ...(role ? {role} : {}),
+    };
+    const unchanged = part.oldWeight === part.newWeight && (part.oldWeight === 0 || part.oldX === part.newX);
+    if (unchanged) { issue.textContent = 'Enter a change in weight or position.'; return; }
+    if (role && (!values.has('sameBasis') || !part.oldWeight || !part.newWeight)) {
+      issue.textContent = 'Enter both installed weights and confirm the measurement basis.'; return;
     }
+    if (role && overlappingInstallation(next.parts, role)) {
+      issue.textContent = 'Undo the existing installation entry before applying a replacement for the same hardware.'; return;
+    }
+    next.parts.push(part);
     if (!cleanSetup(next) || !commitExperiment(next, 'Component change applied to the experiment.'))
       issue.textContent = 'Check the part name and values. The result must stay within the mass and axle-balance limits.';
     return;

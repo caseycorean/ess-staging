@@ -34,9 +34,6 @@ export const presets = {
   remove: { label: 'Remove 50 lb from rear cabin',
     note: 'Common hypothetical deletion for comparing platforms. Position is 70% of the wheelbase.',
     oldWeight: 50, oldX: 0, newWeight: 0, newX: 0 },
-  driveline: { label: 'Model measured LS1/T5 package', firebird: true,
-    note: 'ESS measured the dressed LS1/T5 at 558 lb, plus 50 lb for the GTO clutch and flywheel. Enter the removed package weight and its location. Engine output and gear overrides are entered separately.',
-    oldWeight: 0, oldX: 18, newWeight: 608, newX: 18, requiresOld: true },
 };
 
 const between = (x, low, high) => Number.isFinite(x) && x >= low && x <= high;
@@ -139,7 +136,7 @@ export function cleanSetup(raw) {
     if (!isObject(part) || typeof part.label !== 'string' || !part.label.trim() || part.label.length > 60 ||
         !between(part.oldWeight, 0, 1800) || !between(part.newWeight, 0, 1800) ||
         !between(part.oldX, -75, 220) || !between(part.newX, -75, 220) ||
-        (part.preset !== undefined && !Object.hasOwn(presets, part.preset)) ||
+        (part.preset !== undefined && part.preset !== 'driveline' && !Object.hasOwn(presets, part.preset)) ||
         (part.role !== undefined && (!installationRoles.includes(part.role) || part.preset ||
           overlappingInstallation(setup.parts, part.role) || part.oldWeight <= 0 || part.newWeight <= 0 ||
           (part.oldWeight === part.newWeight && part.oldX === part.newX))) ||

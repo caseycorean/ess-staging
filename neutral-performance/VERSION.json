@@ -1,9 +1,9 @@
 {
-  "website_commit": "4cb7d970c0d34477cd851855dcc3ab3fb2e0da34",
-  "branch": "claude/plan-release-fix",
+  "website_commit": "9eeca8482715a2b78da8829e0e8cfe8de5c5e415",
+  "branch": "work/friday-consolidated",
   "local_changes": false,
-  "built": "2026-11-26 23:41 PST",
-  "source_note": "Claude Plan comparison-basis correction on Plan release 6e87d27 (Work a6b7494)",
+  "built": "2026-11-26 23:47 PST",
+  "source_note": "Friday review on Claude Plan basis fix; scope-cleared review examples",
   "pages": 143,
   "notes": "Unlisted development site. noindex on every page, robots.txt disallows all, no sitemap, no analytics."
 }

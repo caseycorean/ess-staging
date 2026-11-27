@@ -32,7 +32,7 @@
 <link rel="stylesheet" href="../../assets/candidate-a/ess-a-theme.css">
 <link rel="stylesheet" href="../../assets/ess-neutral.css"><meta name="robots" content="noindex,nofollow">
 </head>
-<body class="ess-theme" data-ess-brand="speed" data-ess-skin="candidate-a" data-ess-tone="neutral"><div class="ess-staging-banner" role="note" style="position:relative;z-index:9999;background:#8a1c1c;color:#fff;font:600 13px/1.35 -apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Arial,sans-serif;padding:6px 12px;text-align:center">Development preview · version 4cb7d97 · built 2026-11-26 23:41 PST · Not the live site, results still being checked · <a href="https://endicottspeedshop.com/" style="color:#fff;text-decoration:underline">endicottspeedshop.com</a></div>
+<body class="ess-theme" data-ess-brand="speed" data-ess-skin="candidate-a" data-ess-tone="neutral"><div class="ess-staging-banner" role="note" style="position:relative;z-index:9999;background:#8a1c1c;color:#fff;font:600 13px/1.35 -apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Arial,sans-serif;padding:6px 12px;text-align:center">Development preview · version 9eeca84 · built 2026-11-26 23:47 PST · Not the live site, results still being checked · <a href="https://endicottspeedshop.com/" style="color:#fff;text-decoration:underline">endicottspeedshop.com</a></div>
 <a class="vr-skip" href="#main">Skip to content</a>
 <!-- ess-shell:start -->
 <header class="site-header ess-global" data-ess-current="Learn">
@@ -109,7 +109,7 @@
 <button class="btn-small ghost" type="button" id="clearAll">Clear all</button>
 </div>
 <div class="changes" id="rows"></div>
-<p class="empty hint" id="empty">No changes yet. Choose what you want to do above — each change can be filled in by hand or from the list of measured and typical parts.</p>
+<p class="empty hint" id="empty">No changes yet. Choose what you want to do above — each change can be filled in by hand or from the list of example parts.</p>
 <p class="summary" id="summary"></p>
 <details class="hint coords"><summary><strong>Where locations are measured from</strong></summary>
 <p><strong>X</strong> = inches <em>behind the front axle</em> (negative = ahead of it; the rear axle is at the wheelbase). <strong>Y</strong> = inches right of the car's centerline (left is negative; blank = on the centerline). <strong>Z</strong> = inches above the ground (blank = at the car's CG height). Use the location of the part's own center of gravity, not its mounting point.</p></details>
@@ -137,31 +137,19 @@
 
 <div class="section narrow"><div class="section-label">How it works</div>
 <p>Each part's weight times its distance from the front axle is a moment. Removing a part takes its moment away; adding one puts a moment in; moving one does both; replacing one removes the old part and adds the new one. The new center of gravity is the total moment divided by the new total weight; front weight follows from where that center sits between the axles. The same arithmetic gives side-to-side balance and, when you supply a starting height, CG height.</p>
-<p>Part weights marked <span class="badge">measured</span> were weighed by ESS (see <a href="../../build/">how ESS records measurements</a>); <span class="badge">typical</span> values are reasonable starting points, not measurements. Locations in the list are typical estimates for a second-gen F-body — edit them for your car. Measured weights include different hardware (for example, the stock subframe was weighed on its wheels and the C5 assembly without), so when you replace one with another, make sure the two include the same parts.</p></div>
+<p>The part list contains illustrative weights and positions. Replace them with your own measurements. For a swap, include the same categories on both sides: wheels, steering, brakes, mounts, hardware and fluids as applicable. <a href="../../build/">How ESS records measurements</a>.</p></div>
 <section class="ig-journey" data-ess-journey="tools/cg-builder" data-lab-root="../../experience/" aria-label="Try it on a car"><noscript><p><a href="../../experience/">Open the Vehicle Lab</a></p></noscript></section></main>
 <script>
 (function(){
 // [name, weight lb, source, X, Y, Z] — X behind front axle, Y right of centerline, Z above ground (in)
 var PRESETS=[
- ["LS1 + T5 engine package (no clutch/flywheel)",558,"measured",18,0.5,18],
- ["GTO flywheel + clutch",50,"measured",30,0,11],
- ["Stock radiator (drained)",31,"measured",-20,0,18],
- ["Aluminum 2-core radiator",11,"measured",-20,0,18],
- ["Battery — engine bay",40,"typical",-12,18,20],
- ["Battery — trunk",40,"typical",138,10,12],
- ["Hood (no hinges)",61,"measured",8,0,34],
- ["Front bumper assembly (1977)",73,"measured",-38,0,18],
- ["Front fender, left",32,"measured",-5,-33,26],
- ["Front fender, right",32,"measured",-5,33,26],
- ["Stock front seat, driver",44,"measured",64,-16,16],
- ["Racing-style seat, driver",29,"measured",64,-16,14],
- ["Steering box + pump",41,"measured",-11,-14,10],
- ["Stock front subframe assembly (on wheels)",474,"measured",3,0,12],
- ["C5 front assembly (partial, no wheels)",247,"measured",0,0,12],
- ["Speedway steel bellhousing",23.6,"measured",26,0,14],
- ["Driver (180 lb)",180,"typical",64,-16,20],
- ["Fuel, 10 gal gasoline (62 lb)",62,"typical",118,0,14],
- ["Trunk lid",24,"measured",140,0,34]];
+ ["Battery in engine bay",40,"example",-12,18,20],
+ ["Battery in trunk",40,"example",120,10,14],
+ ["Front seat",45,"example",64,-16,16],
+ ["Lighter front seat",30,"example",64,-16,16],
+ ["Front cooling assembly",35,"example",-20,0,18],
+ ["Driver",180,"example",64,-16,20],
+ ["Fuel",60,"example",110,0,14]];
 var OPS={add:"Add a part",remove:"Remove a part",move:"Move a part",replace:"Replace a part"};
 function num(v){v=(v===undefined||v===null?'':v).toString().trim().replace(/,/g,'');if(v==='')return null;if(!/^[-+]?(\d+\.?\d*|\.\d+)$/.test(v))return NaN;return parseFloat(v)}
 var BAD=false;
@@ -170,7 +158,7 @@ function g(id,rule){var el=document.getElementById(id),v=num(el.value),ok=!(v!==
 function pos(v){return v>0}function nonneg(v){return v>=0}function pct(v){return v>=0&&v<=100}
 function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
 var rows=document.getElementById('rows'),seq=0;
-function presetSelect(){var h='<option value="">Fill from list (optional)…</option>';PRESETS.forEach(function(p,i){h+='<option value="'+i+'">'+esc(p[0])+' — '+p[1]+' lb ('+p[2]+')</option>'});return '<select class="pick" aria-label="Fill from the list of measured and typical parts">'+h+'</select>'}
+function presetSelect(){var h='<option value="">Fill from list (optional)…</option>';PRESETS.forEach(function(p,i){h+='<option value="'+i+'">'+esc(p[0])+' — '+p[1]+' lb ('+p[2]+')</option>'});return '<select class="pick" aria-label="Fill from the list of example parts">'+h+'</select>'}
 function inp(cls,lab,ph){return '<div class="'+(cls.indexOf('name')>=0?'f-name':'f')+'"><label>'+lab+'</label><input class="'+cls+'" aria-label="'+lab+'" '+(cls.indexOf('name')>=0?'':'inputmode="decimal"')+(ph?' placeholder="'+ph+'"':'')+'></div>'}
 // A change has two part groups: "o" (the part as it is now / the part taken out) and "n" (where it goes / the part put in).
 function group(k,title,showPart,locLabel,locPh){
