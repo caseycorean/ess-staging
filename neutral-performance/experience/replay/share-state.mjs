@@ -75,3 +75,31 @@ export function decodeState(hash) {
     return cleanState(JSON.parse(fromB64(m[1])));
   } catch { return null; }
 }
+
+/** Carry the exact comparison through the input editor using fragments only. */
+export function replayInputSuffix(state, lane, plan = '') {
+  const encoded = encodeState(state);
+  if (decodeState(encoded)?.lanes.length !== state.lanes.length) return '';
+  return `&lane=${lane}&${encoded}${/^[A-Za-z0-9-]{1,80}$/.test(plan) ? '&plan=' + plan : ''}`;
+}
+
+export function readReplayInput(fragment) {
+  if (typeof fragment !== 'string' || fragment.length > 32768) return null;
+  const match = /^(#v2\/build\/[A-Za-z0-9_-]+)&lane=([012])&(r=[A-Za-z0-9_-]+)(?:&plan=([A-Za-z0-9-]{1,80}))?$/.exec(fragment);
+  if (!match) return null;
+  const experiment = decodeState(match[3]);
+  const selected = Number(match[2]);
+  return experiment?.lanes[selected] ? { build: match[1], experiment, selected, plan: match[4] || '' } : null;
+}
+
+export function replayWithInputs(context, setup) {
+  const picked = context.experiment.lanes[context.selected];
+  if (picked.id !== setup.id) return null;
+  const starting = JSON.stringify(picked.setup ?? null);
+  const lanes = context.experiment.lanes.map((lane, index) => {
+    // Technique, differential and same-setup comparisons need a common baseline.
+    return index === context.selected || (lane.id === picked.id && JSON.stringify(lane.setup ?? null) === starting)
+      ? { ...lane, setup } : lane;
+  });
+  return encodeState({ ...context.experiment, lanes });
+}

@@ -335,3 +335,8 @@ body[data-ess-tone=neutral][data-ess-tone]{
 .ess-showcase-heading [data-showcase-controls]:not([hidden]){align-items:center;flex-wrap:wrap;gap:.1rem}
 .ess-showcase-heading button[data-showcase-pause]{width:auto}
 [data-ess-tone=neutral] .ess-home .ess-intent{min-width:0}
+
+.ess-home .ess-intent.ess-home-garage{margin-block-start:.7rem}
+.ess-directory-body a[data-ess-section="My Garage"]{background:var(--np-blue-dark);color:white}
+.ess-directory-body a[data-ess-section="My Garage"]:hover{background:var(--np-blue);color:white}
+.weight-advanced{margin-block:1rem .1rem;text-wrap:pretty}

@@ -8,6 +8,7 @@ import { home, build, toolsView, learn, inputGroups, toolResults } from './views
 import { fmt, delta, numberField } from './ui.mjs';
 import { compare, matchupEntries, comparisonResults, liveGrid, resultTime, setupName, quickImpact } from './matchup.mjs';
 import { paintReplay, replayFrame } from './replay.mjs';
+import { encodeState, readReplayInput, replayWithInputs } from './replay/share-state.mjs';
 import { garageView, exampleGarage } from './garage-view.mjs';
 import { getWorkspace, saveActivity, removeActivity, workspaceHref, saveProject, forgetProject, localPhoto, updatePreferences } from './garage-workspace.mjs';
 import { mountSuspension, suspensionView, cleanRear } from './suspension-view.mjs';
@@ -108,9 +109,14 @@ function navigate(next) {
 
 let openedShare = false;
 let legacySuspensionShare = false;
+let replayInput = null;
+let replayInputEdited = false;
 function applyLocation() {
   const fragment = location.hash || (query.get('view') === 'garage' ? '#garage' : '');
-  const route = readFragment(fragment);
+  const pending = query.get('via') === 'replay' ? readReplayInput(fragment) : null;
+  const route = readFragment(pending?.build ?? fragment);
+  replayInput = pending && route.state?.a.id === pending.experiment.lanes[pending.selected].id ? pending : null;
+  replayInputEdited = false;
   legacySuspensionShare = route.view === 'suspension' && Boolean(route.state?.susp);
   if (route.state) {
     const {perf: sharedPerf, susp: sharedSusp, ...rest} = route.state;
@@ -127,7 +133,7 @@ function applyLocation() {
       openedShare = true;
       track('share_open', {capability: route.view === 'compare' ? raceCapability(state.event) : route.view});
     }
-    sharedLinkNotice = query.get('via') === 'reference' ? 'Factory reference loaded. Add a measurement or try a change.' : route.view === 'suspension' ? 'Shared suspension experiment: same car, springs and geometry, shown in your units. Move one thing to see what it does.' : perfViews.includes(route.view) ? 'Shared experiment: same car, gearing, tire and surface. Change one thing to see what it does.'
+    sharedLinkNotice = replayInput ? 'Update the vehicle inputs below, then return to the same Replay.' : query.get('via') === 'reference' ? 'Factory reference loaded. Add a measurement or try a change.' : route.view === 'suspension' ? 'Shared suspension experiment: same car, springs and geometry, shown in your units. Move one thing to see what it does.' : perfViews.includes(route.view) ? 'Shared experiment: same car, gearing, tire and surface. Change one thing to see what it does.'
       : 'Shared experiment. Try a change or run the comparison to see it play out.';
   } else if (route.invalid) {
     track('invalid_setup', {outcome:'blocked'});
@@ -149,7 +155,14 @@ function applyLocation() {
         evidence.querySelector('summary').focus({preventScroll:true});
       }
     }
-    if (query.get('edit') === 'original') app.querySelector('[data-details="original"]').open = true;
+    if (query.get('edit') === 'original') {
+      const original = app.querySelector('[data-details="original"]');
+      original.open = true;
+      if (replayInput) {
+        original.scrollIntoView({block:'start'});
+        (original.querySelector('input[name="weight"]:placeholder-shown') ?? original.querySelector('summary')).focus({preventScroll:true});
+      }
+    }
     const study = query.get('study');
     if (Object.hasOwn(studies, study)) {
       app.querySelector('[data-study-select]').value = study;
@@ -172,6 +185,20 @@ function render(next = view, restoreDetails = false) {
     case 'build':
       app.innerHTML = build(state, saved, {previous: previousBuildResult, suggestion: labJourney('lab-build', 'strip', true)});
       previousBuildResult = null;
+      if (replayInput && active().id === replayInput.experiment.lanes[replayInput.selected].id) {
+        const fragment = replayInputEdited ? replayWithInputs(replayInput, active()) : encodeState(replayInput.experiment);
+        if (fragment) {
+          const link = document.createElement('a');
+          const url = new URL('../replay/', location.href);
+          if (replayInput.plan) url.searchParams.set('plan', replayInput.plan);
+          url.hash = fragment;
+          link.href = url.href;
+          link.className = 'button primary';
+          link.textContent = replayInputEdited ? 'Run the same Replay with these inputs' : 'Return to the same Replay';
+          link.dataset.replayReturn = '';
+          app.querySelector('[data-details="original"] form').append(link);
+        }
+      }
       break;
     case 'compare': {
       const entries = matchupEntries(state);
@@ -229,7 +256,7 @@ function render(next = view, restoreDetails = false) {
   bindUnitControls(app);
   watchPerfSticky();
   fillLaunchPanel();
-  if (view !== 'garage' && view !== 'home') rememberDraft();
+  if (view !== 'garage' && view !== 'home' && !replayInput) rememberDraft();
   notice.textContent = sharedLinkNotice;
   notice.classList.toggle('link-notice', Boolean(sharedLinkNotice));
   for (const nav of document.querySelectorAll('nav a[data-view]')) {
@@ -258,6 +285,7 @@ function commitExperiment(next, message) {
   }
   if (view === 'build') previousBuildResult = resolve(active());
   changeFocused(next);
+  if (replayInput && view === 'build') replayInputEdited = true;
   render(view, true);
   const feedback = view === 'build' ? app.querySelector('.build-feedback')?.textContent : '';
   speak(feedback ? `${message} ${feedback}` : message);

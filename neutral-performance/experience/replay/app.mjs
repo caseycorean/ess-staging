@@ -3,7 +3,7 @@
 // calculated traces, and the visitor can share a link that reopens the same comparison or save a picture of it.
 // Reads the working setup, with updates limited to explicit adoption.
 import { EXPERIMENTS, EXPERIMENT_KEYS, REPLAY_NOTE, NO_CHANGE, MATCHUPS, readiness, nextExperiments, publishedCompare, USUAL_ERROR_PCT, estimatedInputs, quickChanges, runLane, road, summarize, replayDuration, laneLabel, laneTags, laneVehicle, vehicleName, changeLabel, isChanged } from './runs.mjs';
-import { encodeState, decodeState, cleanParams, cleanLane, LIMITS } from './share-state.mjs';
+import { encodeState, decodeState, cleanParams, cleanLane, LIMITS, replayInputSuffix } from './share-state.mjs';
 import { createStage, laneColor } from './stage.mjs';
 import { drawShareCard } from './share-card.mjs';
 import { installCatalog } from '../catalog.mjs';
@@ -225,7 +225,8 @@ function renderResult(summary, runs) {
     <ul class="rp-lanes-out">${indices.map(i => {
       const l = summary.lanes[i], lane = lastLanes[i];
       const editable = lane.setup ?? newSetup(lane.id);
-      const modify = '../experience/?via=replay' + shareFragment({a: editable, aMode: lane.setup && modified(editable) ? 'after' : 'before', b: newSetup(rival(lane.id)), bMode: 'before', focus: 'a'}, 'build');
+      const modify = '../experience/?via=replay&edit=original' + shareFragment({a: editable, aMode: lane.setup && modified(editable) ? 'after' : 'before', b: newSetup(rival(lane.id)), bMode: 'before', focus: 'a'}, 'build')
+        + replayInputSuffix({x: S.x, p: S.params[S.x], lanes: lastLanes}, i, returnProject ?? '');
       return `<li style="--rp-lane:${laneColor(i)}"><div><b>${esc(l.name)}${ranked && place(i) ? ` <em class="rp-place">${place(i)}</em>` : ''}</b>
         <div class="rp-fig">${l.ok && !incomplete ? measuredMetrics(l) : l.ok ? 'Inputs available' : 'No run'}</div><small>${esc(l.why)}</small>
         ${!l.ok ? `<a href="${esc(modify)}">Review and add vehicle inputs</a>` : ''}</div></li>`;

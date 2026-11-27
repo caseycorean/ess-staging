@@ -91,3 +91,36 @@ body.ess-theme.weight-tool { --card: var(--ess-panel); --border: var(--ess-line)
   .plan-approaches th, .plan-approaches td { display:block; border:0; padding:.12rem 0; }
   .plan-approaches td::before { content:attr(data-label) ": "; font-weight:600; }
 }
+
+/* Evidence graphics for the spring-rate and timing explainers. */
+.article-evidence {
+  margin: 1.65rem 0;
+  padding: clamp(1rem, 4vw, 1.5rem);
+  color: var(--text);
+  background: var(--np-ivory, #f8f6ef);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+}
+.article-evidence figcaption { margin-bottom: 1.1rem; }
+.article-evidence figcaption strong { display: block; }
+.article-evidence p:last-child { margin: .95rem 0 0; font-size: .9rem; }
+.article-compare-row + .article-compare-row { margin-top: .85rem; }
+.article-compare-row > div { display: flex; flex-wrap: wrap; gap: .2rem .8rem; justify-content: space-between; }
+.article-rate-bar { display: block; height: .4rem; margin-top: .35rem; border-radius: 1rem; background: #dbd5c9; }
+.article-rate-bar::before { content: ""; display: block; height: 100%; width: var(--bar); border-radius: inherit; background: #927136; }
+.article-clock-stops {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 8.5rem), 1fr));
+  list-style: none;
+  gap: .65rem;
+  padding: 0;
+  margin-bottom: 1.2rem;
+}
+.article-clock-stops li { padding: .55rem .65rem; border-inline-start: 3px solid #927136; }
+.article-clock-stops span { display: block; font-size: .9rem; }
+.article-example-control{margin-block-start:1.15rem;padding-block-start:.8rem;border-block-start:1px solid var(--np-rule,#d5cebe)}
+.article-example-control label{display:flex;align-items:center;gap:.6rem;min-height:44px;font-weight:600}
+.article-example-control input[type="range"]{width:100%;accent-color:var(--np-blue,#24526f)}
+.article-example-control output{margin-inline-start:auto;font-variant-numeric:tabular-nums}
+.article-example-control input[type="checkbox"]{width:20px;height:20px;accent-color:var(--np-blue,#24526f)}
+.article-example-control p[aria-live]{color:var(--np-ink,#20242a)}
