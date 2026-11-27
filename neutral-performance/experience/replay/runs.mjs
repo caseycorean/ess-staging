@@ -288,12 +288,14 @@ export function summarize(key, params, lanes, runs) {
   const bit = i => { const n = names[i], c = vehicleName(lanes[i].id); const rest = n.startsWith(c + ' · ') ? n.slice(c.length + 3) : ''; return rest ? rest[0].toUpperCase() + rest.slice(1) : 'As set'; };
   const who = i => same ? bit(i) : short[i];
   const figure = {
-    accelerate: r => [`${f2(r.time)} s`, `${f1(r.endMph)} mph`],
+    // quarter mile: the shared drag-strip clock (as spec pages, Plan and published tests); other distances from rest
+    accelerate: r => r.quarter?.et ? [`${f2(r.quarter.et)} s`, `${f1(r.quarter.trap)} mph`] : [`${f2(r.time)} s`, `${f1(r.endMph)} mph`],
     brake: r => [`${Math.round(r.distance)} ft`, `${f2(r.time)} s`],
     corner: r => [`${f1(r.mph)} mph`, `${f2(r.ay)} g`],
   }[key] ?? (r => [`${f2(r.time)} s`, `exit ${f1(r.endMph)} mph`]);
   const what = ({
-    accelerate: () => `${params.ft === 1320 ? 'Quarter mile' : params.ft === 660 ? 'Eighth mile' : params.ft === 5280 ? 'One mile' : `${params.ft.toLocaleString('en-US')} ft`} from a standing start`,
+    accelerate: () => params.ft === 1320 ? 'Quarter mile on the drag-strip clock (1-ft rollout, as road tests are timed); the animation runs from first motion'
+      : `${params.ft === 660 ? 'Eighth mile' : params.ft === 5280 ? 'One mile' : `${params.ft.toLocaleString('en-US')} ft`} from a standing start`,
     brake: () => `${params.from}–0 mph stop`,
     corner: () => `Steady corner, ${params.radius} ft radius`,
     entry: () => `Braking from ${params.mph} mph into a ${params.radius} ft corner`,
@@ -302,7 +304,7 @@ export function summarize(key, params, lanes, runs) {
   })[key]();
   let headline = '', caveat = '', diffCaveat = false;
   if (ok.length >= 2) {
-    const better = key === 'corner' ? (a, b) => b.r.mph - a.r.mph : key === 'brake' ? (a, b) => a.r.distance - b.r.distance : (a, b) => a.r.time - b.r.time;
+    const better = key === 'corner' ? (a, b) => b.r.mph - a.r.mph : key === 'brake' ? (a, b) => a.r.distance - b.r.distance : (a, b) => (a.r.quarter?.et ?? a.r.time) - (b.r.quarter?.et ?? b.r.time);
     let sorted = [...ok].sort(better), w = sorted[0];
     // two lanes: winner against the other; three (differentials): winner against the first lane, the baseline
     let l = ok.length > 2 ? (ok[0] === w ? sorted[1] : ok[0]) : sorted[1];
@@ -324,13 +326,14 @@ export function summarize(key, params, lanes, runs) {
       const d = w.r.mph - l.r.mph;
       headline = d < .05 ? 'They corner at the same speed.' : `${lead}${who(w.i)} holds ${f1(d)} mph more around the corner${vs}.`;
     } else {
-      const d = l.r.time - w.r.time;
+      const t = x => x.r.quarter?.et ?? x.r.time;  // quarter mile: drag-strip clock for the stated gap and order
+      const d = t(l) - t(w);
       const gapFt = Math.max(0, w.r.distance - sampleAt(l.r, w.r.time).s);
       headline = d < .005 ? 'A dead heat.' : `${lead}${who(w.i)} is ${f2(d)} s quicker${vs}${gapFt >= 1 ? `, ${Math.round(gapFt)} ft ahead at the line` : ''}.`;
     }
   } else if (ok.length === 1) headline = `${who(ok[0].i)}: ${figure(ok[0].r).join(' · ')}`;
   // finishing order (shown on the stage as 1st/2nd/3rd: a cue that does not rely on colour)
-  const order = ok.length >= 2 && !diffCaveat ? [...ok].sort(key === 'corner' ? (a, b) => b.r.mph - a.r.mph : key === 'brake' ? (a, b) => a.r.distance - b.r.distance : (a, b) => a.r.time - b.r.time).map(x => x.i) : [];
+  const order = ok.length >= 2 && !diffCaveat ? [...ok].sort(key === 'corner' ? (a, b) => b.r.mph - a.r.mph : key === 'brake' ? (a, b) => a.r.distance - b.r.distance : (a, b) => (a.r.quarter?.et ?? a.r.time) - (b.r.quarter?.et ?? b.r.time)).map(x => x.i) : [];
   return { what, headline, caveat, order, lanes: runs.map((r, i) => ({ name: names[i], short: short[i], ok: r.ok, figures: r.ok ? figure(r) : [], why: r.ok ? r.why : missingWhy(r) })) };
 }
 function missingWhy(r) {

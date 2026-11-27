@@ -109,7 +109,8 @@ function navigate(next) {
 let openedShare = false;
 let legacySuspensionShare = false;
 function applyLocation() {
-  const route = readFragment(location.hash);
+  const fragment = location.hash || (query.get('view') === 'garage' ? '#garage' : '');
+  const route = readFragment(fragment);
   legacySuspensionShare = route.view === 'suspension' && Boolean(route.state?.susp);
   if (route.state) {
     const {perf: sharedPerf, susp: sharedSusp, ...rest} = route.state;
@@ -221,14 +222,14 @@ function render(next = view, restoreDetails = false) {
         performanceExplain(state, perf, view === 'performance-why' ? 'why' : 'math');
       break;
     }
-    default: app.innerHTML = home(state, saved);
+    default: app.innerHTML = home(getActive(), saved);
   }
   mountCamber(app);
   mountFrontGeometry(app);
   bindUnitControls(app);
   watchPerfSticky();
   fillLaunchPanel();
-  rememberDraft();
+  if (view !== 'garage' && view !== 'home') rememberDraft();
   notice.textContent = sharedLinkNotice;
   notice.classList.toggle('link-notice', Boolean(sharedLinkNotice));
   for (const nav of document.querySelectorAll('nav a[data-view]')) {
@@ -358,11 +359,14 @@ app.addEventListener('submit', event => {
 app.addEventListener('ess:vehicle-selected', event => {
   const target = event.target.dataset.vehicleKey;
   if (!target) return;
-  const key = target === 'focus' || target === 'garage' ? state.focus : target;
+  const key = ['focus', 'garage', 'start'].includes(target) ? state.focus : target;
   const {id, template} = event.detail;
   const previous = state[key];
-  if (id === previous.id && !template && target !== 'garage') return;
-  if ((modified(previous) || previous.name || Object.keys(previous.base).length) && target !== 'garage' &&
+  if (id === previous.id && !template && target !== 'garage') {
+    if (target === 'start') navigate('build');
+    return;
+  }
+  if ((modified(previous) || previous.name || Object.keys(previous.base).length) && !['garage', 'start'].includes(target) &&
       !window.confirm('Replace the current experiment in this lane? Your saved builds stay available.')) return;
   state[key] = newSetup(id);
   state[key + 'Mode'] = 'before';
@@ -371,7 +375,8 @@ app.addEventListener('ess:vehicle-selected', event => {
     state.focus = key;
     navigate('build');
     app.querySelector('[data-details="original"]').open = true;
-  } else render(view, true);
+  } else if (target === 'start') navigate('build');
+  else render(view, true);
   speak('Selected ' + vehicles[id].name + '.');
 });
 

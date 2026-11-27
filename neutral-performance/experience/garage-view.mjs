@@ -90,13 +90,19 @@ export function garageView(items, active) {
   const plans = loadStore().projects;
   const fresh = !items.length && !workspace.saved.length && !active && !plans.length;
   const canSaveActive = active && !items.some(item => item.mode === active.mode && JSON.stringify(item.setup) === JSON.stringify(active.setup));
+  const vehicles = items.length ? '<section><h2>Vehicles and configurations</h2><div class="garage-grid">' +
+    items.map(item => savedConfiguration(item, workspace.projects[item.key], projectsForVehicle(plans, item))).join('') + '</div></section>' : '';
+  const savedActivities = workspace.saved.length ? `<section class="panel content-panel" aria-labelledby="garage-saved">
+    <h2 id="garage-saved" tabindex="-1">Saved activities</h2>${activities(workspace.saved,true)}</section>` : '';
   return `<section class="shell workspace garage-page" data-garage-palette="${workspace.palette}">
     <header class="page-title ess-garage-title">
       <div>${name ? '<p class="eyebrow">My Garage</p>' : ''}<h1>${escape(name || 'My Garage')}</h1>
         <p class="lede">${fresh ? 'Try a car, save a change and pick up where you left off.' : 'Pick up a plan, a saved test or a vehicle build.'}</p>
       </div>${workspace.photo ? `<img class="garage-photo" src="${escape(workspace.photo)}" alt="Your Garage photo">` : ''}
     </header>
-    ${preferences(workspace,name)}
+    ${plans.length ? garagePlans(plans) : ''}
+    ${vehicles}
+    ${savedActivities}
     <div class="garage-overview">
       <section class="panel content-panel garage-current"><h2>${active ? 'Active vehicle' : 'Start with a car'}</h2>
       <p>${active ? escape(setupName(active.setup)) + ' · ' + (active.mode === 'after' ? 'Modified' : 'Original') : 'Choose a car you own, a reference or something on your wish list.'}</p>
@@ -106,12 +112,9 @@ export function garageView(items, active) {
         ${canSaveActive ? '<button class="button secondary" type="button" data-action="save-active-garage">Save active vehicle</button>' : ''}</div></section>
       ${fresh ? '<section class="panel content-panel garage-starter"><h2>See what a change does</h2><p>Brake into a corner and compare two approaches in the same car. Save the test if you want to return to it.</p><a href="../replay/#entry">Try corner-entry braking</a> <a href="?demo=garage#garage">View an ESS example Garage</a></section>' : ''}
     </div>
-    ${garagePlans(plans)}
-    ${workspace.saved.length || !fresh ? `<section class="panel content-panel"><h2 id="garage-saved" tabindex="-1">Saved activities</h2>
-      ${workspace.saved.length ? activities(workspace.saved,true) : '<p>Save a simulation or comparison to pick up where you left off.</p><a href="../replay/">Try a graphical simulation</a>'}</section>` : ''}
-    ${items.length ? '<section><h2>Vehicles and configurations</h2><div class="garage-grid">' +
-      items.map(item => savedConfiguration(item, workspace.projects[item.key], projectsForVehicle(plans, item))).join('') + '</div></section>' : ''}
+    ${plans.length ? '' : garagePlans(plans)}
     ${workspace.showRecent && workspace.recent.length ? '<section class="panel content-panel"><h2>Recently explored</h2>' + activities(workspace.recent) + '</section>' : ''}
+    ${preferences(workspace,name)}
     ${active ? '<section class="panel content-panel garage-next"><h2>What will you test next?</h2><p>Pick one change and write down what you would measure before and after.</p><a href="../replay/">Try a vehicle experiment</a> <a href="../articles/traction-circle/#try-it">Understand braking and cornering grip</a></section>' : ''}
   </section>`;
 }

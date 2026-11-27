@@ -18,8 +18,12 @@ export const METHODS = {
   brake: { standard: 'Stop from 60 mph, distance measured from the start of braking', other: 'Other or not sure' },
   corner: { standard: 'Steady circle about 200 ft across, steady-state lateral g', other: 'Other or not sure' },
 };
-/** The convention the ESS Plan prediction uses: the standstill quarter mile, the 60–0 stop and the steady 200 ft circle. */
-export const MODEL_TIMING = { accelerate: 'standstill', brake: 'standard', corner: 'standard' };
+/**
+ * The convention a prediction uses. Quarter mile: the shared drag-strip clock (engine QUARTER_CLOCK), so a timeslip is
+ * the comparable measurement; predictions saved before 27 Nov carry the from-rest clock and keep it (`prediction.clock`).
+ */
+export const MODEL_TIMING = { accelerate: 'timeslip', brake: 'standard', corner: 'standard' };
+export const requiredMethod = p => p.metric === 'accelerate' ? (p.clock ?? 'standstill') : MODEL_TIMING[p.metric];
 /** Plain words for why a measurement is shown but not compared. */
 export const NOT_COMPARED = {
   timing: 'measured with a different timing convention from the model',
@@ -80,7 +84,8 @@ export function cleanPrediction(raw, key) {
   for (const k of ['weight', 'power', 'cg']) if (Number.isFinite(raw.change?.[k]) && raw.change[k] !== 0) change[k] = raw.change[k];
   if (typeof raw.change?.tire === 'string' && /^[a-z0-9]{1,24}$/i.test(raw.change.tire)) change.tire = raw.change.tire;
   return { metric, before: round(before, metric), after: round(after, metric), change, label: line(raw.label, 80), vehicle,
-    vname: line(raw.vname, 80), sig: signature(vehicle), on: date(raw.on) };
+    vname: line(raw.vname, 80), sig: signature(vehicle), on: date(raw.on),
+    ...(metric === 'accelerate' ? { clock: raw.clock === 'timeslip' ? 'timeslip' : 'standstill' } : {}) };
 }
 
 export function cleanMeasurement(raw, key) {
@@ -101,7 +106,7 @@ export function predictionFrom(key, vehicle, change, fx, { vname = '', label = '
   const metric = LOOP_METRIC[key];
   const row = fx?.rows?.find(r => r.key === metric);
   if (!row?.ok) return null;
-  return cleanPrediction({ metric, before: row.before, after: row.after, change, label, vehicle, vname, on }, key);
+  return cleanPrediction({ metric, before: row.before, after: row.after, change, label, vehicle, vname, on, clock: MODEL_TIMING[metric] }, key);
 }
 
 /** Does the saved prediction still describe what the live model gives for the same car and change? */
@@ -125,7 +130,7 @@ export function compareLoop(o, currentSig) {
   if (p && e && Number.isFinite(e.gain)) out.expected = { expected: e.gain, predicted: gainOf(p.metric, p.before, p.after) };
   if (p && m) {
     const reasons = [];
-    if (m.method !== MODEL_TIMING[p.metric]) reasons.push(m.method === 'other' ? 'timing-unknown' : 'timing');
+    if (m.method !== requiredMethod(p)) reasons.push(m.method === 'other' ? 'timing-unknown' : 'timing');
     if (!Number.isFinite(m.before)) reasons.push('before');
     if (!m.sameConditions) reasons.push('conditions');
     if (!m.sameChange) reasons.push('change');

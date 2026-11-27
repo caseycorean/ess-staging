@@ -207,7 +207,7 @@ Q.tires = {
       <h4 class="st-h4">A different size</h4><p class="st-note">Size changes diameter, which acts like an axle-ratio change. It does not tell you about fitment, clearance or load rating.</p>
       <div class="st-inline"><input type="text" aria-label="Tire size" placeholder="${esc(R.tires?.tireRear?.size ?? '245/60R15')}" value="${esc(state.altTire)}" data-in="size" autocomplete="off" spellcheck="false">${['245/60R15', '255/50R16', '275/40R17'].map(x => `<button type="button" class="st-chip" data-size="${x}">${x}</button>`).join('')}</div>
       <div data-alt aria-live="polite"></div>
-      ${deeper([[article('traction-circle'), 'The tire revolution nobody talks about', 'How tire compounds have grown the grip budget since 1977.'], [labHref('performance'), 'Every tire class, gear by gear', 'In the Vehicle Lab with this configuration.']])}`;
+      ${deeper([[article('traction-circle') + '#tire-revolution', 'The tire revolution nobody talks about', 'From Understanding the Traction Circle: how tire compounds have grown the grip budget since 1977.'], [labHref('performance'), 'Every tire class, gear by gear', 'In the Vehicle Lab with this configuration.']])}`;
   },
   bind(b) {
     b.addEventListener('click', e => { const t = e.target.closest('[data-tire]'); if (!t) return; state.conditions = t.dataset.tire === 'radial70s' ? null : { tire: t.dataset.tire }; state.last = 'tire'; update(t.dataset.tire === 'radial70s' ? 'Back to the period tires.' : `${tireClasses[t.dataset.tire].label} applied.`); });

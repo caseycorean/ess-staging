@@ -19,23 +19,16 @@ export const concepts = {
 };
 
 const concept = (key, more) => explanation(...concepts[key], more);
-const choice = (value, title, detail) => `<a class="route-card" href="#${value}"><strong>${title}</strong><span>${detail}</span></a>`;
 
 function pageTitle(eyebrow, title, copy) {
   return `<div class="page-title"><p class="eyebrow">${eyebrow}</p><h1>${title}</h1><p class="lede">${copy}</p></div>`;
 }
 
-export function home(state, saved) {
-  const setup = state[state.focus];
+export function home(selection, saved) {
   return `<section class="shell workspace lab-entry">
     ${pageTitle('Vehicle Lab', 'Build, compare, test.', 'Carry one car from a part change to a comparison or a calculator.')}
-    ${setupPicker(setup, 'Starting vehicle')}
-    <div class="intent-grid" aria-label="Choose a starting point">
-      ${choice('build', 'Improve my car', 'Change parts, gearing or balance.')}
-      ${choice('compare', 'Compare vehicles', 'Run a stock or modified matchup.')}
-      <a class="route-card" href="../plan/"><strong>Plan my next build</strong><span>Turn a goal into a practical sequence.</span></a>
-      <a class="route-card" href="../learn/"><strong>Understand the engineering</strong><span>Explore experiments and the physics behind your results.</span></a>
-    </div>
+    ${vehicleSelector(selection ? 'Active vehicle' : 'Starting vehicle', selection?.setup.id ?? 'custom',
+      {key: 'start', name: selection ? setupName(selection.setup) : 'Choose a vehicle'})}
     <div class="actions"><a class="button primary" href="../replay/">Watch a graphical replay</a> <a class="button secondary" href="#performance">Test gearing and traction</a>
     <a class="button secondary" href="#tools">Explore tire loads and ride</a>
     <a class="button secondary" href="../suspension-v2/">Explore suspension geometry</a>

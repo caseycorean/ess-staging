@@ -290,7 +290,7 @@ E.tires = {
       <h4 class="sg-h4">A different size</h4><p class="sg-note">${R.tires?.tireRear ? `Published size ${esc(R.tires.tireRear.size)}.` : `No tire size is on record for this configuration; the model uses an estimated ${esc(U('length', stockV().diameter, { digits: 1 }))} diameter.`} A size change acts like an axle-ratio change; it says nothing about fitment, clearance or load rating.</p>
       <div class="sg-inline"><input type="text" aria-label="Tire size" placeholder="225/55R16" value="${esc(state.altTire)}" data-in="size" autocomplete="off" spellcheck="false">${['225/55R16', '245/45R17', '275/40R17'].map(x => `<button type="button" class="sg-chip" data-size="${x}">${x}</button>`).join('')}</div>
       <div data-alt aria-live="polite"></div>
-      ${deeper([['article', href('../../articles/traction-circle/'), 'The tire revolution nobody talks about', 'How tire compounds have grown the grip budget.'], ['lab', labHref('performance'), 'Every tire class, gear by gear', 'In the Vehicle Lab with this configuration.']])}`;
+      ${deeper([['article', href('../../articles/traction-circle/#tire-revolution'), 'The tire revolution nobody talks about', 'From Understanding the Traction Circle: how tire compounds have grown the grip budget.'], ['lab', labHref('performance'), 'Every tire class, gear by gear', 'In the Vehicle Lab with this configuration.']])}`;
   },
   bind(b) {
     b.addEventListener('click', e => { const t = e.target.closest('[data-tire]'); if (!t) return; state.conditions = t.dataset.tire === matchedDefault() ? null : { tire: t.dataset.tire }; state.last = 'tire'; update(state.conditions ? `${tireClasses[t.dataset.tire].label} applied.` : 'Back to the stock tire assumption.'); });

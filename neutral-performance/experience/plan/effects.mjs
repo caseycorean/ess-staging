@@ -6,7 +6,8 @@ import { encodeState } from '../replay/share-state.mjs';
 import { tireGrip } from '../../engine/acceleration.mjs';
 
 export const METRICS = {
-  accelerate: { label: 'Quarter mile', unit: 's', digits: 2, better: -1, value: r => r.time, objective: 'power' },
+  // Shared drag-strip clock (engine QUARTER_CLOCK), the same figure as spec pages and Replay results.
+  accelerate: { label: 'Quarter mile', unit: 's', digits: 2, better: -1, value: r => r.quarter?.et ?? r.time, objective: 'power' },
   brake: { label: '60–0 mph stop', unit: 'ft', digits: 0, better: -1, value: r => r.distance, objective: 'braking' },
   corner: { label: '200-ft skidpad', unit: 'g', digits: 2, better: 1, value: r => r.ay, objective: 'handling' },
 };

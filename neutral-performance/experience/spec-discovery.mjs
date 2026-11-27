@@ -356,7 +356,7 @@ Q.tires = {
       <div data-alt aria-live="polite"></div>
       <p class="sd-note">Example sizes for geometry only: no claim about fitment, clearance or load rating. ${qLink('launch', 'Change the tire type (grip) with the launch question')}.</p>
       <div data-out></div>
-      ${deeper([[article('traction-circle'), 'The tire revolution nobody talks about', 'How much tire compounds have grown the grip budget since this car’s era.'], [labHref('performance'), 'Every tire class, gear by gear', 'In the Vehicle Lab with this configuration.']])}`;
+      ${deeper([[article('traction-circle') + '#tire-revolution', 'The tire revolution nobody talks about', 'From Understanding the Traction Circle: how much tire compounds have grown the grip budget since this car’s era.'], [labHref('performance'), 'Every tire class, gear by gear', 'In the Vehicle Lab with this configuration.']])}`;
   },
   bind(body) {
     const size = body.querySelector('[data-in]');

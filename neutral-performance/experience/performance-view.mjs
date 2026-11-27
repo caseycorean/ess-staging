@@ -107,11 +107,14 @@ export function perfModel(setup, pagePerf) {
   const baseRun = originalIssue ? null : straightLine(original);
   const runs = runIssue || !mu ? null : Object.fromEntries(['low', 'typical', 'high'].map(k => [k, straightLine(v, { mu: mu[k] })]));
   const accel = runs ? {
-    et: runs.typical.finish?.t, trap: runs.typical.finish?.trap, zeroTo60: runs.typical.zeroTo60,
-    etRange: [runs.high.finish?.t, runs.low.finish?.t], sixtyRange: [runs.high.zeroTo60, runs.low.zeroTo60],
+    // Reported times use the shared drag-strip clock (QUARTER_CLOCK), the validated convention used on spec pages,
+    // Replay results and Plan. fromRest keeps the same run's from-first-motion time for the labeled note.
+    et: runs.typical.magazine.et, trap: runs.typical.magazine.trap, zeroTo60: runs.typical.magazine.zeroTo60,
+    etRange: [runs.high.magazine.et, runs.low.magazine.et], sixtyRange: [runs.high.magazine.zeroTo60, runs.low.magazine.zeroTo60],
+    fromRest: runs.typical.finish?.t,
     magazineEt: runs.typical.magazine.et, time: runs.typical.time, mu: mu.typical,
   } : null;
-  const base = baseRun && !baseRun.issue ? { et: baseRun.finish?.t, trap: baseRun.finish?.trap, zeroTo60: baseRun.zeroTo60, mu: original.grip } : null;
+  const base = baseRun && !baseRun.issue ? { et: baseRun.magazine.et, trap: baseRun.magazine.trap, zeroTo60: baseRun.magazine.zeroTo60, mu: original.grip } : null;
 
   // Gearing: speed at the shift point in each gear and cruise rpm (needs ratios, final drive, tire, shift rpm).
   const gearingMissing = ['gears', 'finalDrive', 'diameter', 'redline'].filter(k => k === 'gears' ? gears.length < 2 : !Number.isFinite(v[k]));
@@ -158,7 +161,7 @@ export function quickEt(setup, pagePerf) {
   const v = resolve(setup, true);
   const { opts } = frictionOptions(baseVehicle(setup), perf);
   if (blockedRun(v) || opts.customMu === null) return null;
-  return straightLine(v, { mu: frictionFor(opts).typical }).finish?.t ?? null;
+  return straightLine(v, { mu: frictionFor(opts).typical }).magazine?.et ?? null;
 }
 
 const streetOrder = ['allSeason', 'maxSummer', 'extremeSummer', 'track200'];
@@ -237,7 +240,7 @@ export function summaryHtml(m, laneKey) {
         <div><span>Finish</span><b>${fmt(a.trap)}<small> mph</small></b></div>
         <div><span>vs original</span><b>${b ? (changed ? `${delta(d, 2)}<small> s</small>` : 'same') : '—'}</b></div>
       </div>
-      <div class="ig-slip-foot">${escape(condition(m))} · ${gripSecs < .05 ? 'never grip-limited' : `grip-limited ${fmt(gripSecs, 1)} s`}</div>
+      <div class="ig-slip-foot">${escape(condition(m))} · ${gripSecs < .05 ? 'never grip-limited' : `grip-limited ${fmt(gripSecs, 1)} s`} · drag-strip clock (1-ft rollout)${Number.isFinite(a.fromRest) ? `; ${fmt(a.fromRest, 2)} s from first motion` : ''}</div>
     </div>
     <p class="perf-run-note">${gripSecs < .05 ? '<b>Engine-limited:</b> stickier tires will not change this time.'
       : `<b>Grip-limited for ${fmt(gripSecs, 1)} s</b>, so only that part of the run responds to tire grip.`}

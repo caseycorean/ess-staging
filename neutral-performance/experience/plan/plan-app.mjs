@@ -29,7 +29,7 @@ const S = { store: loadStore(), open: null, step: null, shared: decodePlan(locat
   explore: null, exploreVehicle: null, draft: null,
   guess: sessionGet('ess.plan.guess') === '1', revealed: new Set(), seen: new Set() };
 // The labeled reference example for a cold visit. Never saved as the visitor's car.
-const EXAMPLE = { id: 'firebird' };
+const EXAMPLE = { id: 'pontiac-firebird-2nd-gen--1977-trans-am-w72-400-m4-coupe' };  // the W72 record its spec page uses
 function sessionGet(k) { try { return sessionStorage.getItem(k); } catch { return null; } }
 function sessionSet(k, v) { try { v === null ? sessionStorage.removeItem(k) : sessionStorage.setItem(k, v); } catch { /* private mode */ } }
 const today = () => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; };
@@ -239,7 +239,7 @@ function resultTable(vehicle, key, run, { planId = null } = {}) {
   return `<p class="plan-label">ESS model prediction · ${escape(run.label)}</p><div class="plan-table"><table class="plan-fx" aria-label="ESS model prediction, ${escape(run.label)}">
     <thead><tr><th scope="col">Test</th><th scope="col">Now</th><th scope="col">Changed</th><th scope="col">Effect</th></tr></thead>
     <tbody>${run.fx.rows.map(row).join('')}</tbody></table></div>
-    <p class="plan-note"><span class="plan-ev" data-ev="model">Model</span> Same car, same test conditions, one change. Quarter mile from rest, stop from 60 mph, steady 200 ft circle. Real results depend on the car, surface and driver.${insight ? ' ' + insight : ''}</p>
+    <p class="plan-note"><span class="plan-ev" data-ev="model">Model</span> Same car, same test conditions, one change. Quarter mile on the drag-strip clock (1-ft rollout, as road tests and timeslips are timed), stop from 60 mph, steady 200 ft circle. Real results depend on the car, surface and driver.${insight ? ' ' + insight : ''}</p>
     <p class="plan-links"><a href="${withReturn(replayHref(vehicle, run.change, def.experiment.replay))}">Watch it and adjust the change in the ${escape(EXPERIMENTS[def.experiment.replay].label.toLowerCase())} replay</a>
       ${(def.experiment.also ?? []).map(([t, k]) => ` · <a href="${withReturn(replayHref(vehicle, run.change, k))}">${escape(t)}</a>`).join('')}</p>`;
 }
@@ -305,7 +305,7 @@ function loopCard(p, o, run, { compact = false } = {}) {
       ' Same timing method, conditions, change and configuration confirmed. Single runs vary, so repeat runs before drawing conclusions.';
   } else if (cmp.measured?.kind === 'shown') {
     finding = `Shown side by side, not compared: ${cmp.measured.reasons.map(r => escape(NOT_COMPARED[r])).join('; ')}.` +
-      (cmp.measured.reasons.includes('timing') ? ' Drag-strip timeslips start after about a foot of rollout, so they read quicker than the model’s standstill clock.' : '');
+      (cmp.measured.reasons.includes('timing') ? ` This prediction uses the ${pr?.clock === 'standstill' ? 'from-first-motion clock' : 'drag-strip clock (1-ft rollout)'}; the two clocks differ by a few tenths of a second.` : '');
   }
   return `<section class="plan-loop${compact ? '' : ' plan-loop-stack'}" aria-label="Expected, predicted and measured ${label}">
     <h3>${label}: expected, predicted, measured</h3>

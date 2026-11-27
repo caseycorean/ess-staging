@@ -162,3 +162,17 @@ export function straightLine(v, options = {}) {
     time, assumptions: { ...o, mu: o.mu },
   };
 }
+
+// ---------------------------------------------------------------- one reported quarter mile (Claude, 27 Nov 2026)
+/**
+ * Every ESS page that reports "the quarter mile" for a configuration reports this figure: the drag-strip clock, which
+ * starts after the 1-ft rollout used by road tests and timeslips. It is the convention the published-test validation
+ * uses (17 cars, model typically ~2% slower than the test). The from-first-motion time of the same run is physical
+ * (it drives the replay animations) and is labeled whenever it is shown. Same run, two clocks: never two models.
+ */
+export const QUARTER_CLOCK = 'drag-strip clock (starts after 1 ft of rollout, as road tests and timeslips are timed)';
+export function quarterMile(run) {
+  if (!run || run.issue) return null;
+  const et = run.magazine?.et, trap = run.magazine?.trap, fromRest = run.finish?.t ?? run.quarter?.t ?? null;
+  return Number.isFinite(et) ? { et, trap, fromRest, clock: 'timeslip' } : null;
+}

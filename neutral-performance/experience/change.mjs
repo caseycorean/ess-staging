@@ -2,7 +2,7 @@
 // Pure function so the wording can be tested without a browser.
 import { fmt } from './ui.mjs';
 
-const runTime = (run, oval) => oval ? run?.lap : run?.finish?.t;
+const runTime = (run, oval) => oval ? run?.lap : run?.magazine?.et;  // shared drag-strip clock
 
 export function changeFromOriginal(name, original, changed, baseRun, run, oval) {
   const before = runTime(baseRun, oval);

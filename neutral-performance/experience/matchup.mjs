@@ -23,7 +23,8 @@ export function matchupEntries(state) {
   });
 }
 
-export const resultTime = (run, oval) => oval ? run.lap : run.finish?.t;
+// Strip results use the shared drag-strip clock (engine QUARTER_CLOCK); the race animation keeps the physical clock.
+export const resultTime = (run, oval) => oval ? run.lap : run.magazine?.et ?? null;
 
 const calibration = {camaro: 'Camaro test comparison', corvette: 'Z06 test comparison', gto: 'GTO test comparison'};
 const holdout = {miata: 'Miata hold-out, secondary ET source', mustang: 'Earlier Fox model hold-out, different trim'};
@@ -40,7 +41,7 @@ export function comparisonResults(entries, oval) {
   const timed = entries.map(entry => ({...entry, time: resultTime(entry.run, oval)}));
   const order = [...timed].filter(e => Number.isFinite(e.time)).sort((a, b) => a.time - b.time).map(e => e.key);
   const place = key => { const i = order.indexOf(key); return i < 0 ? '' : ['1st', '2nd', '3rd', '4th'][i] ?? `${i + 1}th`; };
-  return `<div class="estimate-label">Estimated ${oval ? 'flying lap' : 'quarter mile, timed from a standstill (magazine figures subtract a 1-ft rollout, about 0.3 s quicker)'}</div>
+  return `<div class="estimate-label">Estimated ${oval ? 'flying lap' : 'quarter mile on the drag-strip clock (starts after 1 ft of rollout, as road tests and timeslips are timed). The race animation shows the cars from first motion'}</div>
     <div class="performance-results">${timed.map(({key, setup, value, original, run, baseline, time}) => {
       const why = baseline !== run ? changeFromOriginal('', original, value, baseline, run, oval)?.why : '';
       const before = resultTime(baseline, oval);
@@ -49,7 +50,7 @@ export function comparisonResults(entries, oval) {
       return `<article class="performance-card car-${key}">
         <div class="performance-name"><b>${key.toUpperCase()}</b><strong>${escape(setupName(setup))}</strong>${timed.length > 1 && place(key) ? `<span class="result-place" aria-label="Finished ${place(key)}">${place(key)}</span>` : ''}</div>
         <div class="performance-main">${Number.isFinite(time) ? fmt(time, 2) + ' s' : '—'}
-          <small>${oval ? fmt(run.peakSpeed, 0) + ' mph peak' : fmt(run.finish?.trap, 0) + ' mph finish'}</small></div>
+          <small>${oval ? fmt(run.peakSpeed, 0) + ' mph peak' : fmt(run.magazine?.trap, 0) + ' mph trap'}</small></div>
         ${Number.isFinite(time) ? `<p class="experiment-evidence">${escape(resultEvidence(setup, value, oval))}</p>` : ''}
         ${change === null ? '' : `<p class="performance-delta">Original ${fmt(before, 2)} s · ${delta(change, 2)} s (${delta(100 * change / before, 1)}%)</p>`}
         ${why ? `<p class="performance-why">${escape(why)}</p>` : ''}
