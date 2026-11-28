@@ -19,10 +19,21 @@ const statusText = { ok: 'Valid geometry', caution: 'Valid, worth checking', lim
 
 function load() {
   const hash = location.hash.match(/v2=([A-Za-z0-9+/]+)/);
-  if (hash) { const s = decodeState(hash[1]); if (s) return s; }
-  try { return cleanState(JSON.parse(sessionStorage.getItem(KEY))); } catch { return defaults(); }
+  if (hash) {
+    const state = decodeState(hash[1]);
+    if (state) return {state, followActive: false, shared: true};
+  }
+  try {
+    const saved = JSON.parse(sessionStorage.getItem(KEY));
+    const state = cleanState(saved);
+    const defaultTypes = state.front.arch === 'sla' && state.rear.arch === 'threeLink';
+    return {state, followActive: saved?.followActive ?? (!state.vehicle && defaultTypes && !hasExperiment(state))};
+  } catch { return {state: defaults(), followActive: true}; }
 }
-function save(s) { try { sessionStorage.setItem(KEY, JSON.stringify(s)); } catch { /* fine */ } }
+function hasExperiment(state) {
+  return ['front', 'rear'].some(end => isEdited(state[end]) || state[end].travel || state[end].roll || !state[end].sym);
+}
+function save(s, followActive) { try { sessionStorage.setItem(KEY, JSON.stringify({...s, followActive})); } catch { /* fine */ } }
 
 // ---------------------------------------------------------------- derived engineering for one end
 function planarState(st, end) {
@@ -413,21 +424,29 @@ function liveCharts(D, st, end) {
 function illustrationHtml(st, end) {
   const a = architectures[end][st[end].arch];
   return `<div data-v2-banner><div class="v2-status" data-status="info" role="status"><b>Illustration only</b> <span>${esc(a.note[0].toUpperCase() + a.note.slice(1))}</span></div></div>
-    <figure class="v2-view on v2-ill">${illustrationSvg(st[end].arch)}<figcaption>${esc(a.long)}. Pick a type marked without “Illustration only” to experiment.</figcaption></figure>`;
+    <div class="v2-illustrations">
+      <figure class="v2-view on v2-ill">${illustrationSvg(st[end].arch)}<figcaption>${st[end].arch === 'leaf' ? 'Top view · the axle crosses the pair of springs.' : esc(a.long)}</figcaption></figure>
+      ${st[end].arch === 'leaf' ? `<figure class="v2-view on v2-ill">${illustrationSvg('leaf', {side:true})}<figcaption>Side view · the rear shackle lets the spring change length as it bends.</figcaption></figure>` : ''}
+    </div>`;
 }
 
 // ---------------------------------------------------------------- page
-export function pageHtml(st, fromPlan, active) {
+export function pageHtml(st, fromPlan, active, fromBuild = '', unavailable = false) {
   const v = st.vehicle && vehicleChoice(st.vehicle);
+  const differentType = v && ((v.front && v.front !== st.front.arch) || (v.rear && v.rear !== st.rear.arch));
+  const returnLink = fromPlan ? '<a href="../plan/#model-before-you-spend" data-site-link>Back to your plan</a>' :
+    fromBuild ? `<a href="../experience/#${fromBuild}" data-site-link>${fromBuild === 'build' ? 'Back to your build' : 'Back to weight and ride'}</a>` :
+      '<a href="../improve/#handling" data-site-link>Back to suspension and handling</a>';
   return `<section class="v2" data-v2>
-    <header class="v2-head">${fromPlan ? '<p class="v2-small"><a href="../plan/#model-before-you-spend" data-site-link>Back to your plan</a></p>' : ''}<p class="kicker">Engineering experiments</p><h1>Suspension</h1>
+    <header class="v2-head"><p class="v2-small">${returnLink}</p><h1>Suspension geometry</h1>
       <p class="lede">Drag a pivot or move the wheel through travel to see how the geometry changes.</p></header>
     <div class="v2-top">
       <div class="v2-vehicle-context">
-        <button type="button" class="button secondary small" data-open-catalog aria-haspopup="dialog">${v ? esc(v.name) : 'Choose vehicle'}</button>
-        ${active && active.id !== st.vehicle ? `<button type="button" class="button secondary small" data-v2-active aria-label="Use active vehicle · ${esc(active.name)}" title="${esc(active.name)}">Use active vehicle</button>` : ''}
+        <button type="button" class="button secondary small" data-open-catalog aria-haspopup="dialog">${v ? 'Change vehicle · ' + esc(v.name) : 'Choose vehicle'}</button>
+        ${active && active.id !== st.vehicle ? `<button type="button" class="button secondary small" data-v2-active>Use active vehicle · ${esc(active.name)}</button>` : ''}
+        ${differentType ? '<button type="button" class="button secondary small" data-v2-restore>Restore vehicle’s suspension types</button>' : ''}
         ${v ? '<button type="button" class="button plain small" data-v2-clear>Clear reference</button>' : ''}
-        <p class="v2-small">The vehicle supplies suspension type and available dimensions. Mounting points are generic.</p>
+        <p class="v2-small">${v ? `Reference: <strong>${esc(v.name)}</strong>. ` : '<strong>Generic example.</strong> '}${unavailable && !v ? 'This build has no matching suspension reference. Choose the layout that matches your car. ' : ''}Vehicle records supply suspension types and available dimensions. Mounting points are generic.</p>
       </div>
     </div>
     ${v ? `<p class="v2-small v2-carline">${esc(architectures.front[v.front]?.long ?? (v.frontCode ? v.frontCode + ' front (not available here yet)' : 'Front type unknown'))} · ${esc(architectures.rear[v.rear]?.long ?? (v.rearCode ? v.rearCode + ' rear (not available here yet)' : 'Rear type unknown'))}</p>` : ''}
@@ -449,21 +468,39 @@ export function pageHtml(st, fromPlan, active) {
 }
 
 export function mount(root) {
-  const st = load();
-  const fromPlan = new URLSearchParams(location.search).get('from') === 'plan';
+  const loaded = load();
+  const st = loaded.state;
+  let followActive = loaded.followActive;
+  const from = new URLSearchParams(location.search).get('from');
+  const fromPlan = from === 'plan';
+  const fromBuild = ['build', 'tools'].includes(from) ? from : '';
   const activeId = getActive()?.setup.id;
-  const active = activeId ? vehicleList().find(vehicle => vehicle.id === activeId) : null;
+  const active = vehicleChoice(activeId);
+  const requestedId = fromBuild && new URLSearchParams(location.hash.slice(1)).get('vehicle');
+  const requested = requestedId && vehicleChoice(requestedId);
   st.ui = { front: {}, rear: {} };
+  if (!loaded.shared && requestedId && requested?.id !== st.vehicle) {
+    applyReference(requested);
+    followActive = !!requested && requested.id === active?.id;
+  } else if (!loaded.shared && !requestedId && followActive && !hasExperiment(st) && active && active.id !== st.vehicle) {
+    applyReference(active);
+  }
   let handles = [];
   installCatalog(document, { allowedIds: vehicleList().map(vehicle => vehicle.id), label: 'Choose a suspension reference', templates: false });
   root.addEventListener('ess:vehicle-selected', ev => {
     if (ev.target.matches('[data-open-catalog]')) selectVehicle(ev.detail.id);
   });
-  function selectVehicle(id) {
-    st.vehicle = id;
-    const v = id && vehicleChoice(id);
-    if (v?.front && v.front !== st.front.arch) st.front = defaultEnd(v.front);
-    if (v?.rear && v.rear !== st.rear.arch) st.rear = defaultEnd(v.rear);
+  function applyReference(v) {
+    st.vehicle = v?.id ?? null;
+    for (const end of ['front', 'rear']) {
+      if (!v?.[end] || v[end] === st[end].arch) continue;
+      st[end] = defaultEnd(v[end]);
+      st.ui[end] = {};
+    }
+  }
+  function selectVehicle(id, follow = false) {
+    applyReference(vehicleChoice(id));
+    followActive = follow;
     persist();
     renderAll();
     root.querySelector('[data-open-catalog]').focus({preventScroll: true});
@@ -474,14 +511,15 @@ export function mount(root) {
     const a = architectures[end][st[end].arch];
     return a.model === 'planar' ? planarState(st, end) : a.model === 'live' ? liveState(st, end, opts) : null;
   }
-  function persist() { save(st); }
+  function persist() { save(st, followActive); }
 
   function renderAll() {
-    root.innerHTML = pageHtml(st, fromPlan, active);
+    root.innerHTML = pageHtml(st, fromPlan, active, fromBuild, !!requestedId && !requested);
     bindUnitControls(root);
     const base = root.dataset.siteBase;
     if (base) for (const a of root.querySelectorAll('[data-site-link]')) { a.href = base; a.target = '_blank'; a.rel = 'noopener'; }
-    root.querySelector('[data-v2-active]')?.addEventListener('click', () => selectVehicle(active.id));
+    root.querySelector('[data-v2-active]')?.addEventListener('click', () => selectVehicle(active.id, true));
+    root.querySelector('[data-v2-restore]')?.addEventListener('click', () => selectVehicle(st.vehicle, followActive));
     root.querySelector('[data-v2-clear]')?.addEventListener('click', () => selectVehicle(null));
     for (const b of root.querySelectorAll('[data-tab]')) b.addEventListener('click', () => { st.tab = b.dataset.tab; persist(); renderAll(); });
     root.querySelector('.v2-tabs').addEventListener('keydown', ev => {
@@ -503,7 +541,7 @@ export function mount(root) {
     const D = derive(end);
     const focusType = focusSel?.startsWith('[data-arch');
     panel.innerHTML = `<details class="v2-types" data-v2-types ${focusType ? 'open' : ''}>
-      <summary>Suspension type · ${esc(a.name)}</summary>${galleryHtml(st, end)}</details>
+      <summary>Change ${end} suspension type <strong>${esc(a.name)}</strong></summary>${galleryHtml(st, end)}</details>
       <div class="v2-model" data-model><h2 class="v2-h2">${esc(a.long)}</h2>${a.model === 'planar' ? planarHtml(st, end, D) : a.model === 'live' ? liveHtml(st, end, D) : illustrationHtml(st, end)}</div>`;
     panel.querySelector('[data-model]').classList.add('v2-enter');
     requestAnimationFrame(() => panel.querySelector('[data-model]')?.classList.remove('v2-enter'));
@@ -562,6 +600,7 @@ export function mount(root) {
         return;
       }
       st[end] = defaultEnd(b.dataset.arch); st.ui[end] = {};
+      followActive = false;
       persist(); renderPanel('[data-v2-types] summary');
       panel.querySelector('[data-model]')?.scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' });
     });
@@ -569,7 +608,7 @@ export function mount(root) {
       const list = galleryOrder[end], i = list.indexOf(e.arch);
       const d = { ArrowRight: 1, ArrowDown: 1, ArrowLeft: -1, ArrowUp: -1 }[ev.key]; if (!d) return;
       ev.preventDefault(); const next = list[(i + d + list.length) % list.length];
-      st[end] = defaultEnd(next); st.ui[end] = {}; persist(); renderPanel(`[data-arch="${next}"]`);
+      st[end] = defaultEnd(next); st.ui[end] = {}; followActive = false; persist(); renderPanel(`[data-arch="${next}"]`);
     });
     if (!a.model) return;
     // view tabs (phone: one view at a time; desktop CSS shows all)
@@ -788,6 +827,7 @@ export function mount(root) {
   function syncLinkFields(panel, end) { panel.querySelector('[data-link-pick]')?.dispatchEvent(new Event('sync')); const i = Math.min(st.ui[end].link ?? 0, liveLinks(st[end], end).length - 1); const l = liveLinks(st[end], end)[i]; const k = l.group === 'slider' || st.ui[end].endpt === 'axle' ? 'axle' : 'chassis'; ['lk-x', 'lk-y', 'lk-z'].forEach((id, ax) => { const el = panel.querySelector('#' + id); if (el) el.value = inputValue('length', l[k][ax], { us: 2, metric: 0 }); }); }
 
   document.addEventListener('ess:units-changed', () => renderAll());
+  if (!loaded.shared) persist();
   renderAll();
 }
 

@@ -166,7 +166,12 @@
 .v2-vehicle-context { display: flex; flex-wrap: wrap; align-items: center; gap: .35rem .5rem; }
 .v2-vehicle-context p { flex-basis: 100%; margin: 0; }
 .v2-types { margin: .35rem 0 .5rem; }
-.v2-types summary { min-height: 44px; align-content: center; font-weight: 650; cursor: pointer; }
+.v2-types summary { min-height: 44px; align-content: center; font-weight: 650; cursor: pointer; padding: .45rem .65rem; color: var(--v2-act); border: 1px solid var(--a-line-strong); border-radius: 8px; background: #fff; }
+.v2-types summary strong { margin-inline-start: .35rem; color: var(--ess-type); font-weight: 600; }
+.v2-types[open] summary { margin-bottom: .45rem; }
+.v2-types summary:is(:hover,:focus-visible) { border-color: var(--v2-act); }
+.v2-illustrations { display: grid; grid-template-columns: repeat(auto-fit,minmax(min(100%, 260px),1fr)); gap: .6rem; }
+.v2-illustrations .v2-ill { width: 100%; margin: 0; }
 .v2-tabs { position: static; }
 .v2-utilities { margin-block: 1rem; }
 [data-model] { scroll-margin-top: 5rem; }

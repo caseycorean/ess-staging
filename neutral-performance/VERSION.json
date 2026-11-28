@@ -1,9 +1,9 @@
 {
-  "website_commit": "ccf5b3bdd5271708b6ba1dcaa52981d3819574b4",
-  "branch": "work/friday-completion",
+  "website_commit": "4a3f7b0fef7624cf8b2deee2c47b18b05fe34511",
+  "branch": "work/saturday-owner-corrections",
   "local_changes": false,
-  "built": "2026-11-27 10:55 PST",
-  "source_note": "Friday completion: homepage Garage, exact Replay repair, original calculator links and draft review",
+  "built": "2026-11-27 23:42 PST",
+  "source_note": "Owner corrections: clickability, continuity, single-car testing and suspension",
   "pages": 145,
   "editorial_review": true,
   "notes": "Unlisted development site. noindex on every page, robots.txt disallows all, no sitemap, no analytics."

@@ -218,14 +218,14 @@ export function liveSvg(o) {
     const a = l.current, c = l.chassis;
     if (l.group === 'slider') { // torque arm: rigid to the axle, nose rides in a guide
       const root = M(A([2, 0, 17])), nose = M(a);
-      b += ln(root, nose, col, sel ? 7 : 5) + mount(nose);
+      b += ln(root, nose, col, sel ? 6 : 4) + mount(nose);
       if (view === 'side') b += ln([nose[0], nose[1] - 12], [nose[0], nose[1] + 12], C.slate, 2) ;
       if (labels) b += txt([(root[0] + nose[0]) / 2, (root[1] + nose[1]) / 2 - 8], 'Torque arm', { anchor: 'middle' });
       return;
     }
     if (view === 'side' && l.group === 'lateral') { // seen end-on
       const p = M(a), q = M(c);
-      b += ln(p, q, col, sel ? 7 : 5) + joint(p, col);
+      b += ln(p, q, col, sel ? 6 : 4) + joint(p, col);
       return;
     }
     if (view === 'rear' && l.group !== 'lateral') { // longitudinal link seen end-on: its axle mount
@@ -240,7 +240,7 @@ export function liveSvg(o) {
       return;
     }
     const pa = M(a), pc = M(c);
-    b += ln(pa, pc, col, sel ? 7 : 5, `data-link="${i}" class="v2-link"`) + joint(pa, col) + mount(pc);
+    b += ln(pa, pc, col, sel ? 6 : 4, `data-link="${i}" class="v2-link"`) + joint(pa, col) + mount(pc);
   });
   if (labels) {
     if (view === 'top') {
@@ -271,16 +271,26 @@ export function liveSvg(o) {
 }
 
 // ---------------- illustration-only architectures (recognizable, no model) ----------------
-export function illustrationSvg(code, { thumb = false } = {}) {
+export function illustrationSvg(code, { thumb = false, side = false } = {}) {
   const w = 340, h = 250;
   let b = '';
   const tire = (x, y, ww, hh) => `<rect x="${x}" y="${y}" width="${ww}" height="${hh}" rx="5" fill="${C.slate}" fill-opacity=".22" stroke="${C.slate}" stroke-width="1.6"/>`;
   const L = s => thumb ? '' : s;
-  if (code === 'leaf') {
-    b += ln([12, 125], [w - 10, 125], C.slate, 1, dash) + tire(52, 22, 83, 29) + tire(52, 199, 83, 29);
-    b += ln([93, 40], [93, 210], C.slate, 9) + dot([93, 125], 13, C.slate);
-    for (const y of [70, 180]) b += ln([30, y], [200, y], C.lower, 6) + mount([30, y]) + mount([200, y]);
-    b += L(txt([115, 62], 'Leaf spring') + txt([115, 198], 'Leaf spring') + txt([w - 12, 118], 'Front →', { anchor: 'end' }) + txt([60, 14], 'Tire'));
+  if (code === 'leaf' && side) {
+    b += ln([29, 61], [306, 61], C.slate, 2) + ln([16, 207], [326, 207], C.slate, 1.5);
+    b += `<circle cx="163" cy="139" r="67" fill="${C.slate}" fill-opacity=".12" stroke="${C.slate}" stroke-width="1.6"/>
+      <path d="M53 96Q155 196 274 89m-202 23q93 75 177-5m-153 24q69 46 127-6" fill="none" stroke="${C.lower}" stroke-width="3" stroke-linecap="round"/>`;
+    b += ln([39, 61], [53, 96], C.lateral, 3.5) + ln([274, 61], [274, 89], C.slate, 2) + mount([53, 96]) + mount([274, 89]) + dot([163, 139], 5, C.slate);
+    b += ln([158, 139], [158, 156], C.slate, 2) + ln([168, 139], [168, 156], C.slate, 2);
+    b += txt([28, 44], 'Rear shackle') + txt([218, 45], 'Front spring eye') + txt([175, 133], 'Axle') + txt([172, 180], 'Leaf pack') + txt([318, 226], 'Front →', {anchor:'end'});
+  } else if (code === 'leaf') {
+    b += ln([12, 125], [w - 10, 125], C.ref, 1, dash) + tire(102, 22, 83, 29) + tire(102, 199, 83, 29);
+    b += ln([144, 40], [144, 210], C.slate, 5) + dot([144, 125], 10, C.slate);
+    for (const y of [72, 178]) {
+      b += ln([48, y], [265, y], C.lower, 4) + ln([114, y - 4], [195, y - 4], C.lower, 1.5);
+      b += mount([48, y]) + mount([265, y]);
+    }
+    b += L(txt([174, 60], 'Leaf spring') + txt([155, 121], 'Axle') + txt([w - 12, 118], 'Front →', { anchor: 'end' }) + txt([111, 16], 'Tire'));
   } else if (code === 'truckArm') {
     b += ln([12, 125], [w - 10, 125], C.slate, 1, dash) + tire(52, 22, 83, 29) + tire(52, 199, 83, 29);
     b += ln([93, 40], [93, 210], C.slate, 9) + dot([93, 125], 13, C.slate);
@@ -303,7 +313,7 @@ export function illustrationSvg(code, { thumb = false } = {}) {
     b += ln([38, 150], [302, 150], C.slate, 10) + ln([60, 120], [280, 132], C.lateral, 4);
     b += L(txt([170, 172], 'Solid axle', { anchor: 'middle' }) + txt([170, 116], 'Track bar', { anchor: 'middle' }));
   }
-  return frame(w, h, b, `Illustration of ${code}`);
+  return frame(w, h, b, code === 'leaf' ? `${side ? 'Side' : 'Top'} view of a leaf-spring axle` : `Illustration of ${code}`);
 }
 
 // ---------------- charts ----------------

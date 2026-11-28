@@ -30,16 +30,22 @@ export const LIMITS = {
 };
 
 export function cleanLane(l) {
-  if (!l || typeof l !== 'object' || !vehicles[l.id] || l.id === 'custom') return null;
+  if (!l || typeof l !== 'object' || !Object.hasOwn(vehicles, l.id)) return null;
+  let setup;
+  if (l.setup) {
+    const cleaned = cleanSetup(l.setup);
+    if (cleaned?.id === l.id && usableSetup(cleaned)) setup = cleaned;
+  }
+  if (l.id === 'custom' && !setup) return null;
   const c = l.change ?? {};
   // One input boundary for the model, the page and the share link (QA P0, 26 Nov): the same limits everywhere.
-  const base = Number(laneVehicle({ id: l.id })?.weight) || 3000;
+  const base = Number(laneVehicle({ id: l.id, setup })?.weight) || 3000;
   const lane = { id: l.id, change: { ...NO_CHANGE,
-    tire: tireGrip[c.tire] ? c.tire : '',
+    tire: Object.hasOwn(tireGrip, c.tire) ? c.tire : '',
     weight: Math.round(clamp(c.weight, LIMITS.weight.min(base), LIMITS.weight.max, 0)), cg: clamp(c.cg, LIMITS.cg.min, LIMITS.cg.max, 0), power: Math.round(clamp(c.power, LIMITS.power.min, LIMITS.power.max, 0)) } };
-  if (DIFFS[l.diff]) lane.diff = l.diff;
+  if (Object.hasOwn(DIFFS, l.diff)) lane.diff = l.diff;
   if (l.technique === 'straight' || l.technique === 'trail') lane.technique = l.technique;
-  if (l.setup) { try { const s = cleanSetup(l.setup); if (s && s.id === l.id && usableSetup(s)) lane.setup = s; } catch { /* drop an unusable build */ } }
+  if (setup) lane.setup = setup;
   return lane;
 }
 export function cleanState(st) {

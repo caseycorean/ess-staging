@@ -11,7 +11,7 @@ body[data-ess-tone=neutral][data-ess-tone]{
   --np-ink:#20242a;--np-copy:#4e545a;--np-blue:#084da8;--np-blue-dark:#063975;--np-light-blue:#92c5ff;
   --np-graphite:#23282e;--np-graphite-dark:#191d22;
   --np-face:"ESS Neutral",system-ui,sans-serif;--np-display:"ESS Display","Arial Narrow",sans-serif;
-  --np-radius:10px;--np-gutter:clamp(.9rem,3vw,2.5rem);--np-width:74rem;--np-head:4.2rem;
+  --np-radius:10px;--np-gutter:clamp(.9rem,3vw,2.5rem);--np-width:74rem;--np-head:6.15rem;
   --ess-ground:var(--np-ivory);--ess-sheet:var(--np-white);--ess-soft:var(--np-soft);--ess-rule:var(--np-rule);--ess-edge:var(--np-edge);
   --ess-type:var(--np-ink);--ess-subtle:var(--np-copy);--ess-night:var(--np-graphite-dark);--ess-night-soft:var(--np-graphite);
   --ess-on-night:#fafafa;--ess-light-signal:var(--np-light-blue);--ess-signal:var(--np-blue);--ess-signal-hover:var(--np-blue-dark);--ess-focus-ring:var(--np-blue);
@@ -31,7 +31,7 @@ body[data-ess-tone=neutral][data-ess-tone]{
 [data-ess-tone=neutral] .lede{color:var(--np-copy)}
 [data-ess-tone=neutral] .ess-global.site-header{background:#fff!important;border-bottom:1px solid var(--np-rule)!important;z-index:45}
 .ess-global .header-inner{width:min(100%,var(--np-width));max-width:none;min-height:var(--np-head);padding:0 var(--np-gutter);gap:clamp(.75rem,2vw,2rem);position:relative}
-[data-ess-tone=neutral] .ess-global .a-logo{width:auto;height:52px;max-width:min(37vw,190px);object-fit:contain}
+[data-ess-tone=neutral] .ess-global .a-logo{width:clamp(15rem,29vw,23rem);height:auto;max-width:none;object-fit:contain}
 .ess-global .brand{flex:none;margin-inline-end:auto}
 .ess-primary-nav{display:flex;align-items:center;gap:clamp(.25rem,1.15vw,.85rem)}
 .ess-global :is(.ess-primary-nav a,.ess-garage-link,.ess-directory-open){
@@ -93,9 +93,12 @@ body[data-ess-tone=neutral][data-ess-tone]{
 .ess-directory-secondary{display:flex;flex-wrap:wrap;gap:.08rem .35rem;border-top:1px solid var(--np-rule);padding-top:.45rem!important}
 .ess-directory-secondary a{font-size:.93rem}
 @media(max-width:759px){
-  body[data-ess-tone=neutral][data-ess-tone]{--np-head:3.45rem}
+  body[data-ess-tone=neutral][data-ess-tone]{--np-head:5.1rem}
   .ess-global .header-inner{gap:.28rem;flex-wrap:wrap}
-  [data-ess-tone=neutral] .ess-global .a-logo{height:44px;max-width:min(39vw,150px)}
+  [data-ess-tone=neutral] .ess-global .a-logo{width:clamp(11.5rem,65vw,16rem)}
+  .ess-global[data-directory-ready] .header-inner{flex-wrap:nowrap;gap:.45rem}
+  .ess-global[data-directory-ready] .brand{flex:0 1 auto;min-width:0}
+  [data-ess-tone=neutral] .ess-global[data-directory-ready] .a-logo{max-width:100%}
   .ess-global .ess-garage-link,.ess-global .ess-directory-open{font-size:.9rem;padding-inline:.48rem}
   .ess-primary-nav{order:1;flex-basis:100%;flex-wrap:wrap}
   .ess-global[data-directory-ready] .ess-primary-nav{display:none}
@@ -280,7 +283,6 @@ body[data-ess-tone=neutral][data-ess-tone]{
 [data-component-save-actions][hidden]{display:none}
 @media(max-width:350px){
   .ess-global .header-inner{gap:.22rem;padding-inline:.62rem}
-  [data-ess-tone=neutral] .ess-global .a-logo{max-width:34vw}
   .ess-global .ess-garage-link,.ess-global .ess-directory-open{font-size:.86rem;padding-inline:.38rem}
 }
 
@@ -325,9 +327,6 @@ body[data-ess-tone=neutral][data-ess-tone]{
 [data-showcase-position]{min-width:3.2rem;text-align:center;font-size:.82rem}
 [data-ess-tone=neutral] [data-showcase-controls] button{border-color:transparent;background:none;color:var(--np-blue-dark)}
 [data-ess-tone=neutral] [data-showcase-controls] [data-showcase-pause]{white-space:nowrap;min-width:unset;padding-inline:.35rem;font-size:.79rem}
-@media(min-width:701px){
-  [data-ess-tone=neutral] .ess-global .a-logo{height:58px;max-width:min(43vw,230px)}
-}
 [data-ess-tone=neutral] .ess-feature-card{color:var(--np-ink)!important;border-color:var(--np-rule);border-inline-start-color:var(--np-blue)}
 [data-ess-tone=neutral] .ess-feature-copy strong+span{color:var(--np-copy)}
 [data-ess-tone=neutral] .ess-feature-label{color:var(--np-blue-dark)}
@@ -340,3 +339,32 @@ body[data-ess-tone=neutral][data-ess-tone]{
 .ess-directory-body a[data-ess-section="My Garage"]{background:var(--np-blue-dark);color:white}
 .ess-directory-body a[data-ess-section="My Garage"]:hover{background:var(--np-blue);color:white}
 .weight-advanced{margin-block:1rem .1rem;text-wrap:pretty}
+
+.ess-global .ess-directory-open{flex:none;border-color:var(--np-edge);padding-inline:.82rem}
+.ess-directory-shortcuts{display:flex;flex-wrap:wrap;gap:.4rem;margin:.4rem 0 .7rem}
+.ess-directory-shortcuts a{background:#fff;border:1px solid var(--np-rule);font-weight:600;padding-inline:.7rem}
+.ess-directory-group > .ess-directory-expand{box-shadow:inset 0 0 0 1px transparent}
+.ess-directory-group > .ess-directory-expand:is(:hover,:focus-visible){box-shadow:inset 0 0 0 1px var(--np-edge)}
+.ess-entry-actions{display:flex;flex-wrap:wrap;gap:.1rem .55rem}
+.ess-band-card{
+  display:block;background:#fff;border:1px solid var(--np-rule);border-radius:var(--np-radius);
+  text-decoration:none;overflow:hidden;color:var(--np-copy);
+}
+.ess-band-card:is(:hover,:focus-visible){border-color:var(--np-blue)}
+.ess-band-card .ess-band-art{
+  margin:0;border-radius:0;background:var(--np-graphite-dark);color:var(--np-light-blue);
+}
+.ess-band-card .ess-band-art svg{width:min(100%,17rem);height:112px}
+.ess-band-copy{padding:.68rem .82rem}
+.ess-band-copy strong{display:block;margin-top:.38rem;color:var(--np-blue-dark);text-decoration:underline;text-underline-offset:.15em}
+.ess-capability-band .ess-task-links{display:grid;align-content:start;gap:.42rem;margin:0}
+.ess-capability-band .ess-task-links li{border:0}
+.ess-capability-band .ess-task-links a{border:1px solid var(--np-rule);border-inline-start:var(--np-card-mark) solid var(--np-blue);background:#fff}
+.ess-capability-band .ess-task-links a:is(:hover,:focus-visible){border-color:var(--np-blue);background:var(--np-soft)}
+.ess-feature-art svg{width:min(76%,274px)}
+.weight-tool[data-ess-tone=neutral] .wrap{padding-inline:var(--np-gutter)}
+.weight-tool[data-ess-tone=neutral] .section{background:#fff;border-color:var(--np-rule);border-radius:var(--np-radius)}
+.weight-tool[data-ess-tone=neutral] .add-btn{background:var(--np-blue-dark);color:#fff;min-height:44px}
+@media(max-width:759px){
+  .ess-global .ess-directory-open{padding-inline:.57rem}
+}

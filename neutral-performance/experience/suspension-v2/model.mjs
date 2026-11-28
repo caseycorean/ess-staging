@@ -43,7 +43,7 @@ export const architectures = {
   },
   rear: {
     threeLink: { name: 'Three-link + Panhard', long: 'Live axle, three-link + Panhard bar', model: 'live', layout: 'three' },
-    fourLinkParallel: { name: 'Parallel four-link', long: 'Live axle, parallel four-link + Panhard bar', model: 'live', layout: 'parallel' },
+    fourLinkParallel: { name: 'Parallel four-link + Panhard', long: 'Live axle, parallel four-link + Panhard bar', model: 'live', layout: 'parallel' },
     fiveLink: { name: 'Five-link', long: 'Live axle, five-link (parallel four-link + Panhard bar)', model: 'live', layout: 'parallel' },
     fourLinkTriangulated: { name: 'Triangulated four-link', long: 'Live axle, triangulated four-link', model: 'live', layout: 'triangulated' },
     torqueArm: { name: 'Torque arm + Panhard', long: 'Live axle, torque arm + Panhard bar', model: 'live', layout: 'torque' },

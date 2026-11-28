@@ -4,8 +4,6 @@ import { presets, limits, choices, resolve, massIssue, powerIssue, tireLoads, ri
 import { modified } from './configuration.mjs';
 import { setupName } from './matchup.mjs';
 import { drivetrainPanel } from './drivetrain-view.mjs';
-import { camberDemo } from './diagrams.mjs';
-import { frontGeometry } from './front-geometry.mjs';
 import { missingFor, missingText, estimatedFor, studies } from './readiness.mjs';
 import { vehicleSelector, evidence, explanation, fmt, delta, metricTable, numberField, escape } from './ui.mjs';
 
@@ -156,7 +154,7 @@ function dataReadiness(setup, current) {
   </section>`;
 }
 
-export function build(state, saved, { previous = null, suggestion = '' } = {}) {
+export function build(state, saved, { previous = null, suggestion = '', testHref = '' } = {}) {
   const setup = state[state.focus];
   const before = resolve(setup, false);
   const after = resolve(setup);
@@ -169,8 +167,13 @@ export function build(state, saved, { previous = null, suggestion = '' } = {}) {
     `Front axle ${delta(frontMove, 1)} lb. Rear axle ${delta(rearMove, 1)} lb. ${estimateBalance && 'Original front share is estimated.' || ''}` :
     `Add a part change to see its effect. ${estimateBalance && 'Original front share is estimated.' || ''}`);
   return `<section class="shell workspace">
-    ${pageTitle('Build', 'Modify your car', 'Choose a change and see what it does to your setup.')}
-    ${setupPicker(setup, 'Your vehicle')}
+    ${pageTitle('Build', 'Modify your car', 'Choose a vehicle, make a change, then test this setup.')}
+    ${setupPicker(setup, 'Choose or change vehicle')}
+    <div class="actions build-test-actions">
+      ${testHref ? `<a class="button primary" href="${escape(testHref)}">Test this setup</a>` : ''}
+      <a class="button secondary" href="../suspension-v2/?from=build#vehicle=${encodeURIComponent(setup.id)}">Open suspension geometry</a>
+      <a class="button secondary" href="#tools">Test weight and ride</a>
+    </div>
     <div class="workspace-grid ${massIssue(after) ? 'awaiting-specs' : ''}">
       <aside class="panel sticky-result">
         <div class="result-caption ${feedback ? 'result-changed' : ''}"><span>${changed ? 'Setup weight' : 'Original weight'}</span><strong>${fmt(after.weight)} <small>lb</small></strong>
@@ -205,13 +208,13 @@ export function build(state, saved, { previous = null, suggestion = '' } = {}) {
             <small>${fmt(p.oldWeight, 1)} lb at ${fmt(p.oldX, 1)} in → ${fmt(p.newWeight, 1)} lb at ${fmt(p.newX, 1)} in</small>
             ${p.preset ? `<small>${presets[p.preset].note}</small>` : ''}</span>
             <button class="button secondary small" data-remove="${i}" aria-label="Undo ${escape(p.label)}">Undo</button></div>`).join('')}</div>
-          <div class="actions"><button class="button primary" data-action="compare-build">Compare performance</button>
-            <button class="button secondary" data-action="use">Use this configuration</button>
+          <div class="actions"><button class="button secondary" data-action="compare-build">Compare performance</button>
+            <button class="button secondary" data-action="use">Set as working setup</button>
             ${modified(setup) ? '<button class="button secondary" data-action="compare-original">Compare with original</button>' : ''}</div>
           <div class="actions save-row"><button class="button secondary" data-action="save">Save to My Garage</button>
             ${saved ? '<button class="button secondary" data-action="load-saved">Open my saved build</button>' : ''}
             ${modified(setup) ? '<button class="button plain" data-action="reset">Reset modifications</button>' : ''}</div>
-          <p class="quiet small">Save separate variants in My Garage. Apply a configuration to carry it across ESS.</p>
+          <p class="quiet small">Save separate variants in My Garage. Set a working setup to carry it across ESS.</p>
         </section>
         <section class="panel content-panel build-specs">
           <h2>Change the specifications</h2>
@@ -276,6 +279,7 @@ export function toolsView(state, settings, bridgeHash, saved) {
     ${pageTitle('Engineering tools', 'Test your setup', 'Compare tire loads and ride frequency with your changes.')}
     ${setupPicker(setup, `Car ${state.focus.toUpperCase()}`)}
     <div class="actions tool-actions"><button class="button secondary" data-edit="${state.focus}">Edit vehicle setup</button>
+      <a class="button secondary" href="../suspension-v2/?from=tools#vehicle=${encodeURIComponent(setup.id)}">Open suspension geometry</a>
       ${saved ? '<button class="button secondary" data-action="load-saved">Use my saved build</button>' : ''}</div>
     <div class="tool-grid">
       <section class="panel content-panel">
@@ -298,7 +302,6 @@ export function toolsView(state, settings, bridgeHash, saved) {
         <p><a id="spring-link" href="${calculatorLink(bridgeHash, 'spring-rate')}">Open full spring rate calculator</a></p>
       </section>
     </div>
-    ${camberDemo()}
     ${evidence(setup)}
   </section>`;
 }
@@ -309,10 +312,6 @@ export function learn() {
     <div class="actions"><a class="button secondary" href="../articles/">Browse all articles</a>
     <a class="button secondary" href="#tools">Try tire loads</a>
     <a class="button secondary" href="../suspension-v2/">Explore suspension geometry</a></div>
-    <details class="explain"><summary>Basic camber demonstrations</summary>
-    ${camberDemo()}
-    ${frontGeometry()}
-    </details>
     <div class="tool-grid">
       <section class="panel content-panel"><h2>Balance and response</h2>
       ${concept('moments')}${concept('inertia', `

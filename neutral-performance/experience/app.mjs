@@ -3,12 +3,13 @@ import "./lab-measurement.mjs";
 import { track } from './measurement.mjs';
 import { vehicles, vehicleIds, customEstimates } from './vehicles.mjs';
 import { resolve, massIssue, choices, cleanSetup, newSetup, presets, validValue, usableSetup, setComponent, overlappingInstallation } from './models.mjs';
-import { example, clone, modified, shareFragment, readFragment, getSaved, saveBuild, getGarage, saveToGarage, removeFromGarage, shareResult, getActive, useConfig, laneKeys, lanes, labelLane, modeOf } from './configuration.mjs';
+import { example, clone, modified, shareFragment, readFragment, getSaved, saveBuild, getGarage, saveToGarage, removeFromGarage, shareResult, getActive, useConfig, workingSnapshot, laneKeys, lanes, labelLane, modeOf } from './configuration.mjs';
 import { home, build, toolsView, learn, inputGroups, toolResults } from './views.mjs';
 import { fmt, delta, numberField } from './ui.mjs';
 import { compare, matchupEntries, comparisonResults, liveGrid, resultTime, setupName, quickImpact } from './matchup.mjs';
 import { paintReplay, replayFrame } from './replay.mjs';
 import { encodeState, readReplayInput, replayWithInputs } from './replay/share-state.mjs';
+import { EXPERIMENTS } from './replay/runs.mjs';
 import { garageView, exampleGarage } from './garage-view.mjs';
 import { getWorkspace, saveActivity, removeActivity, workspaceHref, saveProject, forgetProject, localPhoto, updatePreferences } from './garage-workspace.mjs';
 import { mountSuspension, suspensionView, cleanRear } from './suspension-view.mjs';
@@ -17,8 +18,6 @@ import { bindUnitControls, format as formatUnits } from './units.mjs';
 import { installCatalog } from './catalog.mjs';
 import { tractionPanel } from './drivetrain-view.mjs';
 import { components, componentOverrides, gearboxDryDifference } from './components.mjs';
-import { mountCamber } from './diagrams.mjs';
-import { mountFrontGeometry, frontGeometry } from './front-geometry.mjs';
 import { studies, missingFor } from './readiness.mjs';
 import { labJourneyHtml, experiments as journeyExperiments } from './journey.mjs';
 import { performanceView, performanceExplain, loadPerf, savePerf, perfDefaults, cleanPerf, shareSummary, summaryHtml, tractionHtml, tireTableHtml, feedbackHtml, perfModel, snapshot, launchPanelHtml, withConditions, effectivePerf } from './performance-view.mjs';
@@ -95,6 +94,12 @@ function experimentUrl(page = 'compare') {
   url.searchParams.set('via', 'share');
   url.hash = shareFragment(page.startsWith('performance') ? withPerf() : page === 'suspension' ? withSusp() : state, page);
   return url.href;
+}
+
+function buildTestHref(setup) {
+  const snapshot = workingSnapshot({setup, mode: modified(setup) ? 'after' : 'before'});
+  const fragment = encodeState({x:'accelerate', p:EXPERIMENTS.accelerate.params, lanes:[{id:setup.id, setup:snapshot}]});
+  return '../replay/?from=build&mode=single#' + fragment;
 }
 
 function navigate(next) {
@@ -183,7 +188,7 @@ function render(next = view, restoreDetails = false) {
   document.body.dataset.labView = view;
   switch (view) {
     case 'build':
-      app.innerHTML = build(state, saved, {previous: previousBuildResult, suggestion: labJourney('lab-build', 'strip', true)});
+      app.innerHTML = build(state, saved, {previous: previousBuildResult, suggestion: labJourney('lab-build', 'strip', true), testHref: buildTestHref(active())});
       previousBuildResult = null;
       if (replayInput && active().id === replayInput.experiment.lanes[replayInput.selected].id) {
         const fragment = replayInputEdited ? replayWithInputs(replayInput, active()) : encodeState(replayInput.experiment);
@@ -251,8 +256,6 @@ function render(next = view, restoreDetails = false) {
     }
     default: app.innerHTML = home(getActive(), saved);
   }
-  mountCamber(app);
-  mountFrontGeometry(app);
   bindUnitControls(app);
   watchPerfSticky();
   fillLaunchPanel();
@@ -1008,7 +1011,6 @@ document.addEventListener('click', event => {
     }
     case 'use':
       carryLane(state.focus, modified(active()) ? 'after' : 'before');
-      navigate('tools');
       break;
     case 'watch-run':
       state.event = 'strip';

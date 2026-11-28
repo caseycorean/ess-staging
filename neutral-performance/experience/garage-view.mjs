@@ -107,7 +107,7 @@ export function garageView(items, active) {
       <section class="panel content-panel garage-current"><h2>${active ? 'Active vehicle' : 'Start with a car'}</h2>
       <p>${active ? escape(setupName(active.setup)) + ' · ' + (active.mode === 'after' ? 'Modified' : 'Original') : 'Choose a car you own, a reference or something on your wish list.'}</p>
       <div class="actions">${vehicleSelector('Garage vehicle', active?.setup.id ?? 'custom', {key:'garage', name:'Choose a vehicle'})}
-        ${active ? '<a class="button secondary" href="#build">Edit current build</a>' :
+        ${active ? '<a class="button secondary" href="#build">Edit current build</a><a class="button secondary" href="../replay/?mode=single">Test active setup</a>' :
           '<a class="button secondary" href="?custom=1#build">Enter my own vehicle</a>'}
         ${canSaveActive ? '<button class="button secondary" type="button" data-action="save-active-garage">Save active vehicle</button>' : ''}</div></section>
       ${fresh ? '<section class="panel content-panel garage-starter"><h2>See what a change does</h2><p>Brake into a corner and compare two approaches in the same car. Save the test if you want to return to it.</p><a href="../replay/#entry">Try corner-entry braking</a> <a href="?demo=garage#garage">View an ESS example Garage</a></section>' : ''}
